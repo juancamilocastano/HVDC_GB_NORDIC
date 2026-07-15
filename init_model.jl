@@ -1,5 +1,5 @@
 # Create a function to define sets and pass it to the function
-function define_sets!(m::Model, data::Dict, ts::DataFrame, tsw::DataFrame)
+function define_sets!(m::Model, data::Dict, ts::DataFrame, tsw::DataFrame, tss::DataFrame)
  
     # Create a dictionary for the sets
     m.ext[:sets] = Dict()
@@ -17,8 +17,33 @@ function define_sets!(m::Model, data::Dict, ts::DataFrame, tsw::DataFrame)
     # Set of generators
     G = m.ext[:sets][:G] = [gen_id for (gen_id,gen) in data["gen"]]
     G_contingencies = Dict("G" * gen_id => data["genextra"][gen_id]["col_9"] for gen_id in G)
-    G1=m.ext[:sets][:G1]= [gen_id for (gen_id,gen) in data["genextra"] if data["genextra"][gen_id]["col_9"]==1]
-    G2=m.ext[:sets][:G2]= [gen_id for (gen_id,gen) in data["genextra"] if data["genextra"][gen_id]["col_9"]==2]
+    G1=m.ext[:sets][:G1]= [gen_id for (gen_id,gen) in data["genextra"] if data["genextra"][gen_id]["col_1"]==1]
+    G2=m.ext[:sets][:G2]= [gen_id for (gen_id,gen) in data["genextra"] if data["genextra"][gen_id]["col_1"]==2]
+    G_reservoir=m.ext[:sets][:G_reservoir]= [gen_id for (gen_id,gen) in data["genextra"] if data["genextra"][gen_id]["col_12"]==1]
+    G_reservoir_1=m.ext[:sets][:G_reservoir_1]= [gen_id for (gen_id,gen) in data["genextra"] if data["genextra"][gen_id]["col_12"]==1 && gen["col_1"] == 1]
+    G_reservoir_2=m.ext[:sets][:G_reservoir_2]= [gen_id for (gen_id,gen) in data["genextra"] if data["genextra"][gen_id]["col_12"]==1 && gen["col_1"] == 2]
+    G_pump=m.ext[:sets][:G_pump]= [gen_id for (gen_id,gen) in data["genextra"] if data["genextra"][gen_id]["col_12"]==2]
+    G_pump_1=m.ext[:sets][:G_pump_1]= [gen_id for (gen_id,gen) in data["genextra"] if data["genextra"][gen_id]["col_12"]==2 && gen["col_1"] == 1]
+    G_pump_2=m.ext[:sets][:G_pump_2]= [gen_id for (gen_id,gen) in data["genextra"] if data["genextra"][gen_id]["col_12"]==2 && gen["col_1"] == 2]
+    G_nuclear=m.ext[:sets][:G_nuclear]= [gen_id for (gen_id,gen) in data["genextra"] if data["genextra"][gen_id]["col_12"]==3]
+    G_nuclear_1=m.ext[:sets][:G_nuclear_1]= [gen_id for (gen_id,gen) in data["genextra"] if data["genextra"][gen_id]["col_12"]==3 && gen["col_1"] == 1]
+    G_nuclear_2=m.ext[:sets][:G_nuclear_2]= [gen_id for (gen_id,gen) in data["genextra"] if data["genextra"][gen_id]["col_12"]==3 && gen["col_1"] == 2]
+    G_gas=m.ext[:sets][:G_gas]= [gen_id for (gen_id,gen) in data["genextra"] if data["genextra"][gen_id]["col_12"]==4]
+    G_gas_1=m.ext[:sets][:G_gas_1]= [gen_id for (gen_id,gen) in data["genextra"] if data["genextra"][gen_id]["col_12"]==4 && gen["col_1"] == 1]
+    G_gas_2=m.ext[:sets][:G_gas_2]= [gen_id for (gen_id,gen) in data["genextra"] if data["genextra"][gen_id]["col_12"]==4 && gen["col_1"] == 2]
+    G_biomass=m.ext[:sets][:G_biomass]= [gen_id for (gen_id,gen) in data["genextra"] if data["genextra"][gen_id]["col_12"]==5]
+    G_biomass_1=m.ext[:sets][:G_biomass_1]= [gen_id for (gen_id,gen) in data["genextra"] if data["genextra"][gen_id]["col_12"]==5 && gen["col_1"] == 1]
+    G_biomass_2=m.ext[:sets][:G_biomass_2]= [gen_id for (gen_id,gen) in data["genextra"] if data["genextra"][gen_id]["col_12"]==5 && gen["col_1"] == 2]
+    G_oil=m.ext[:sets][:G_oil]= [gen_id for (gen_id,gen) in data["genextra"] if data["genextra"][gen_id]["col_12"]==6]
+    G_oil_1=m.ext[:sets][:G_oil_1]= [gen_id for (gen_id,gen) in data["genextra"] if data["genextra"][gen_id]["col_12"]==6 && gen["col_1"] == 1]
+    G_oil_2=m.ext[:sets][:G_oil_2]= [gen_id for (gen_id,gen) in data["genextra"] if data["genextra"][gen_id]["col_12"]==6 && gen["col_1"] == 2]
+    G_solar=m.ext[:sets][:G_solar]= [gen_id for (gen_id,gen) in data["genextra"] if data["genextra"][gen_id]["col_12"]==7]
+    G_solar_1=m.ext[:sets][:G_solar_1]= [gen_id for (gen_id,gen) in data["genextra"] if data["genextra"][gen_id]["col_12"]==7 && gen["col_1"] == 1]
+    G_solar_2=m.ext[:sets][:G_solar_2]= [gen_id for (gen_id,gen) in data["genextra"] if data["genextra"][gen_id]["col_12"]==7 && gen["col_1"] == 2]
+    G_wind=m.ext[:sets][:G_wind]= [gen_id for (gen_id,gen) in data["genextra"] if data["genextra"][gen_id]["col_12"]==8]
+    G_wind_1=m.ext[:sets][:G_wind_1]= [gen_id for (gen_id,gen) in data["genextra"] if data["genextra"][gen_id]["col_12"]==8 && gen["col_1"] == 1] 
+    G_wind_2=m.ext[:sets][:G_wind_2]= [gen_id for (gen_id,gen) in data["genextra"] if data["genextra"][gen_id]["col_12"]==8 && gen["col_1"] == 2] 
+
     # Set of loads
     L = m.ext[:sets][:L] = [load_id for (load_id,load) in data["load"]]
     E= m.ext[:sets][:E] = [electro_id for (electro_id,elec) in data["elec"]] # set of electrolyzers
@@ -139,7 +164,7 @@ function get_pu_buses(baseMVA,basekV)
 end
 
 # Create a function to pass the grid data to the JuMP model
-function process_parameters!(m::Model, data::Dict, ts::DataFrame, tsw::DataFrame)
+function process_parameters!(m::Model, data::Dict, ts::DataFrame, tsw::DataFrame, tss::DataFrame)
     # Extract sets
     N = m.ext[:sets][:N]
     N1=m.ext[:sets][:N1]
@@ -212,18 +237,31 @@ function process_parameters!(m::Model, data::Dict, ts::DataFrame, tsw::DataFrame
     colsw = names(tsw)
 
     # Wind input
-    w=Dict(col => Dict(string(i) => tsw[i, col]/baseMVA for i in 1:nw) for col in colsw)
-    wind = Dict(string(i) => Dict(string(j) => 0.0 for j in T) for i in 1:maxN)
+    #total_wind=Dict(col => Dict(string(i) => tsw[i, col]/baseMVA for i in 1:nw) for col in colsw)
+
+    capacity_factor_solar=Dict(col => Dict(string(i) => tss[i, col] for i in 1:nw) for col in names(tss))
+    capacity_factor_wind=Dict(col => Dict(string(i) => tsw[i, col] for i in 1:nw) for col in colsw)
+    wind_per_node = Dict(string(i) => Dict(string(j) => 0.0 for j in T) for i in 1:maxN)
     
-    for (k, v) in w
-        if haskey(w, k)
-            wind[k] = v
+ 
+    for (k, v) in wind_per_node
+        if haskey(wind_per_node, k)
+            wind_per_node[k] = v
         end
     end
 
 
+        
+    m.ext[:parameters][:wind_per_node]=wind_per_node
+    #m.ext[:parameters][:total_wind]=total_wind
+    m.ext[:parameters][:capacity_factor_solar]=capacity_factor_solar
+    m.ext[:parameters][:capacity_factor_wind]=capacity_factor_wind
+
     
-    m.ext[:parameters][:wind]=wind
+    #solar input
+    nsw = nrow(tss)
+    colss = names(tss)
+    capacity_factor_solar=Dict(col => Dict(string(i) => tss[i, col] for i in 1:nsw) for col in colss)
 
 
     # Bus parameters
@@ -302,7 +340,16 @@ function process_parameters!(m::Model, data::Dict, ts::DataFrame, tsw::DataFrame
     downramp = m.ext[:parameters][:downramp] = Dict(g => data["genextra"][g]["col_5"]/baseMVA for g in G) # down ramp rate in pu/h
     MUT= m.ext[:parameters][:MUT] = Dict(g => data["genextra"][g]["col_6"] for g in G) # minimum up time in hours
     MDT= m.ext[:parameters][:MDT] = Dict(g => data["genextra"][g]["col_7"] for g in G) # minimum down time in hours
+    MaxFreqDev= m.ext[:parameters][:MaxFreqDev] = Dict(g => data["genextra"][g]["col_9"]/baseMVA for g in G) # maximum frequency deviation in Hz
     G_reservecost=m.ext[:parameters][:G_reservecost] = Dict(g => data["genextra"][g]["col_8"] for g in G) # reserve cost generators
+    P_pump=m.ext[:parameters][:P_pump] = Dict(g => data["genextra"][g]["col_10"]/baseMVA for g in G) # Pump power in pu
+    G_storage=m.ext[:parameters][:G_storage] = Dict(g => data["genextra"][g]["col_11"]/baseMVA for g in G) # Storage pump
+    G_type=m.ext[:parameters][:G_type] = Dict(g => data["genextra"][g]["col_12"] for g in G) # Type of generator (1: reservoir, 2: pump, 3: nuclear, 4: gas, 5: biomass, 6: oil)
+    G_npumping=m.ext[:parameters][:G_npumping] = Dict(g => data["genextra"][g]["col_13"] for g in G) # pumping efficiency
+    G_ngenerating=m.ext[:parameters][:G_ngenerating] = Dict(g => data["genextra"][g]["col_14"] for g in G) # generating efficiency
+    E_reservoirs_min=m.ext[:parameters][:E_reservoirs_min] = Dict(g => data["genextra"][g]["col_15"]/baseMVA for g in G) # Minimum resorvoir energy in pu
+    E_reservoirs_ini=m.ext[:parameters][:E_reservoirs_ini] = Dict(g => data["genextra"][g]["col_16"]/baseMVA for g in G) # Initial resorvoir energy in pu
+    E_reservoirs_end=m.ext[:parameters][:E_reservoirs_end] = Dict(g => data["genextra"][g]["col_17"]/baseMVA for g in G) # End resorvoir energy in pu
     
 
     

@@ -34,7 +34,8 @@ data["convdc"] = new
 
 
 ts = CSV.read("Load_data_hvdc.csv", DataFrame)
-tsw= CSV.read("Wind_data_hvdc.csv", DataFrame)
+tsw= CSV.read("area_solar.csv", DataFrame)
+tss= CSV.read("area_wind.csv", DataFrame)
 
 # Initialize the JuMP model (an empty JuMP model) with defined solver
 m = Model(gurobi)
@@ -42,8 +43,8 @@ m = Model(gurobi)
 
 ##### Step 2: create the JuMP model & pass data to model
 include(joinpath(path,"init_model.jl")) # Define functions define_sets! and process_parameters!
-define_sets!(m, data,ts,tsw) # Pass the sets to the JuMP model
-process_parameters!(m, data,ts,tsw) # Pass the parameters to the JuMP model
+define_sets!(m, data,ts,tsw,tss) # Pass the sets to the JuMP model
+process_parameters!(m, data,ts,tsw,tss) # Pass the parameters to the JuMP model
 
 ##### Step 3: Build the model
 include(joinpath(path,"printparameters_frequency_sev_var_res_provi.jl")) # Define build_ac_opf_acdc! function

@@ -26,6 +26,14 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
     bus_ij = m.ext[:sets][:bus_ij]
     bus_ji = m.ext[:sets][:bus_ji]
     bus_ij_ji = m.ext[:sets][:bus_ij_ji]
+    G_reservoir = m.ext[:sets][:G_reservoir]
+    G_pump = m.ext[:sets][:G_pump]
+    G_nuclear = m.ext[:sets][:G_nuclear]
+    G_gas = m.ext[:sets][:G_gas]
+    G_biomass = m.ext[:sets][:G_biomass]
+    G_oil = m.ext[:sets][:G_oil]
+    G_solar = m.ext[:sets][:G_solar]
+    G_wind = m.ext[:sets][:G_wind]
 
 
     # DC network
@@ -90,8 +98,9 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
     ij_ji_ang_max = m.ext[:parameters][:ij_ji_ang_max]
     ij_ji_ang_min = m.ext[:parameters][:ij_ji_ang_min]
     demand = m.ext[:parameters][:demand]
-    wind= m.ext[:parameters][:wind]
     upramp = m.ext[:parameters][:upramp]
+    capacity_factor_solar= m.ext[:parameters][:capacity_factor_solar]
+    capacity_factor_wind= m.ext[:parameters][:capacity_factor_wind]
     downramp = m.ext[:parameters][:downramp]
     MUT = m.ext[:parameters][:MUT]
     MDT = m.ext[:parameters][:MDT]
@@ -99,6 +108,14 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
     G_dt=m.ext[:parameters][:G_dt]
     ic=m.ext[:parameters][:ic]
     start_up_cost=m.ext[:parameters][:startup_cost]
+    G_storage=m.ext[:parameters][:G_storage]
+    MaxFreqDev=m.ext[:parameters][:MaxFreqDev]
+    P_pump=m.ext[:parameters][:P_pump]
+    G_npumping=m.ext[:parameters][:G_npumping]
+    G_ngenerating=m.ext[:parameters][:G_ngenerating] 
+    E_reservoirs_min=m.ext[:parameters][:E_reservoirs_min]
+    E_reservoirs_ini=m.ext[:parameters][:E_reservoirs_ini]
+    E_reservoirs_end=m.ext[:parameters][:E_reservoirs_end]
 
 
     # DC network
@@ -200,7 +217,28 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
     G2 = m.ext[:sets][:G2]
     CV1 = m.ext[:sets][:CV1]
     CV2 = m.ext[:sets][:CV2]
+    G_wind=m.ext[:sets][:G_wind]
+    G_wind_1=m.ext[:sets][:G_wind_1]
+    G_wind_2=m.ext[:sets][:G_wind_2]
+    G_solar=m.ext[:sets][:G_solar]
+    G_solar_1=m.ext[:sets][:G_solar_1]
+    G_solar_2=m.ext[:sets][:G_solar_2]
+    G_reservoir_1=m.ext[:sets][:G_reservoir_1]
+    G_reservoir_2=m.ext[:sets][:G_reservoir_2]
+    G_pump_1=m.ext[:sets][:G_pump_1]
+    G_pump_2=m.ext[:sets][:G_pump_2]
+    G_nuclear_1=m.ext[:sets][:G_nuclear_1]
+    G_nuclear_2=m.ext[:sets][:G_nuclear_2]
+    G_gas_1=m.ext[:sets][:G_gas_1]
+    G_gas_2=m.ext[:sets][:G_gas_2]
+    G_biomass_1=m.ext[:sets][:G_biomass_1]
+    G_biomass_2=m.ext[:sets][:G_biomass_2]
+    G_oil_1=m.ext[:sets][:G_oil_1]
+    G_oil_2=m.ext[:sets][:G_oil_2]
     all_contingencies = m.ext[:sets][:all_contingencies]
+    TG=vcat(G_nuclear, G_gas, G_biomass, G_oil)
+    TG1=vcat(G_nuclear_1, G_gas_1, G_biomass_1, G_oil_1) #Thermal 1
+    TG2=vcat(G_nuclear_2, G_gas_2, G_biomass_2, G_oil_2) #Thermal 2
 
 
 
@@ -210,7 +248,7 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
 
 
 
-    va = m.ext[:variables][:va] = @variable(m, [i=N,t=T], lower_bound = vamin[i], upper_bound = vamax[i], base_name = "va") # voltage angle
+   
     # Generator variables
     pg = m.ext[:variables][:pg] = @variable(m, [g=G,t=T],lower_bound=0, upper_bound=pmax[g], base_name = "pg") # active power generation
     rg_lg1 = m.ext[:variables][:rg_lg1] = @variable(m, [g=G1,t=T],lower_bound=0,upper_bound=upramp[g]*G_dt[g]/3600, base_name = "rg_lg1") # frequency reserve generators loss of generation area 1
@@ -307,11 +345,7 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
     ypreserve2 = m.ext[:variables][:ypreserve2] = @variable(m, [t=T],lower_bound=0, base_name="ypreserve2") #Auxiliary variable rotate second order cone reserve provision fault area 2
     zpreserve2 = m.ext[:variables][:zpreserve2] = @variable(m, [t=T],lower_bound=0, base_name="zpreserve2") #Auxiliary variable rotate second order cone reserve provision fault area 2
     # Other variables
-    rcu=m.ext[:variables][:rcu]=@variable(m,[n=N,t=T],lower_bound=0, upper_bound=wind[n][t], base_name="rcu") #Renewable curtailment
-
-    #absolute value variables for penalazing power HVDC flows
-    flow_hvdc_abs= m.ext[:variables][:flow_hvdc_abs] = @variable(m, [(d,e,f)=BD_dc, t=T], lower_bound=0, base_name="flow_hvdc_abs") # from side active power flow (i->j)
-
+   
     #Second stage variables
     
     keys_contingency = collect(keys(all_contingencies))
@@ -456,11 +490,13 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
         # Voltage angle on reference bus = 0
 
 
-    m.ext[:constraints][:varef] = @constraint(m, [n_sl=N_sl,t=T], va[n_sl,t] == 0) #3.6
 
     #Nodal power balance constraint AC taken from https://github.com/Electa-Git/OPES/blob/main/opf_acdc/build_ac_opf_acdc_tap.jl line 421
-        m.ext[:constraints][:power_balance] = @constraint(m, [n=N,t=T],
-        sum(pg[g,t] for g in G if gen_bus[g] == n)+  sum(conv_p_ac[cv,t] for cv in CV if conv_bus[cv] == n) +wind[n][t]-rcu[n,t]+sum(psd[s,t] for s in S if storage_bus[s] == n)-sum(psc[s,t] for s in S if storage_bus[s] == n)  - sum(pb[(br,i,j),t] for (br,i,j) in B_arcs[n]) -sum(pe[e,t] for e in E if electrolyzer_bus[e] == n ) -sum(pe_compressor[e,t] for e in E if electrolyzer_bus[e] == n )-demand[n][t]== 0 #3.7
+        m.ext[:constraints][:power_balance_1] = @constraint(m, [t=T],
+        sum(pg[g,t] for g in G1 )+  sum(conv_p_ac[cv,t] for cv in CV1) +sum(psd[s,t] for s in S1)-sum(psc[s,t] for s in S1)-sum(pe[e,t] for e in E1) -sum(pe_compressor[e,t] for e in E1)-demand["1"][t]== 0 #3.7
+        )
+        m.ext[:constraints][:power_balance_2] = @constraint(m, [t=T],
+        sum(pg[g,t] for g in G2 )+  sum(conv_p_ac[cv,t] for cv in CV2) +sum(psd[s,t] for s in S2)-sum(psc[s,t] for s in S2)-sum(pe[e,t] for e in E2) -sum(pe_compressor[e,t] for e in E2)-demand["2"][t]== 0 #3.7
         )
 
     #Enforce  hvdc links power flow direction constraints
@@ -474,15 +510,7 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
 
     # Power flow constraints in from and to direction
 
-    #It is assumed that the reactance is 0.13 p.u. based on the test system data
-    m.ext[:constraints][:pbij] = @constraint(m, [(b,i,j) = B_ac_fr,t=T],
-        pb[(b, i, j),t] ==  1/0.13*(va[i,t] - va[j,t])
-        ) #3.8
 
-         #It is assumed that the reactance is 0.13 p.u. based on the test system data
-    m.ext[:constraints][:directional_flow_ac] = @constraint(m, [(b,i,j) = B_ac_fr,t=T],
-        pb[(b, i, j),t] ==  -pb[(b, j, i),t]
-        )
 
     # # Power flow constraints in from and to direction
     # m.ext[:constraints][:pbij] = @constraint(m, [(b,i,j) = B_ac_fr,t=T], pb[(b, i, j),t] ==  - 1/0.13*  (va[i,t] - va[j,t])) # active power i to j
@@ -531,10 +559,54 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
     m.ext[:constraints][:conv_abs_limit] = @constraint(m, [cv=CV,t=T],
     conv_p_ac_abs[cv,t] <= conv_p_ac_max[cv]*(1-u_conv_p_ac[cv,t])
     )
-       
+       #Solar generation constraint
+    m.ext[:constraints][:solar_generation_1] = @constraint(m, [g=G_solar_1,t=T],
+        pg[g,t] <= capacity_factor_solar["Nordic"][t]*pmax[g]
+    )
+    m.ext[:constraints][:solar_generation_2] = @constraint(m, [g=G_solar_2,t=T],
+        pg[g,t] <= capacity_factor_solar["GB"][t]*pmax[g]
+    )
+  
+
+     #wind gneration constraint
+    m.ext[:constraints][:wind_generation] = @constraint(m, [g=G_wind_1,t=T],
+        pg[g,t] <= capacity_factor_wind["Nordic"][t]*pmax[g]
+    )
+
+    m.ext[:constraints][:wind_generation_2] = @constraint(m, [g=G_wind_2,t=T],
+        pg[g,t] <= capacity_factor_wind["GB"][t]*pmax[g]
+    )
+    #Renewable frecuency reserve constraints
+    renewable_1=vcat(G_solar_1,G_wind_1)
+    renewable_2=vcat(G_solar_2,G_wind_2)
+
+    m.ext[:constraints][:renewable_reserve_rg_lg1] = @constraint(m, [g=renewable_1,t=T],
+    rg_lg1[g,t] == 0
+    )
+    
+    m.ext[:constraints][:renewable_reserve_rg_lc1] = @constraint(m, [g=renewable_1,t=T],
+    rg_lc1[g,t] == 0
+    )
+    
+    m.ext[:constraints][:renewable_reserve_l_reserve_1] = @constraint(m, [g=renewable_1,t=T],
+    rg_l_reserve_1[g,t] == 0
+    )
+
+    m.ext[:constraints][:renewable_reserve_rg_lg2] = @constraint(m, [g=renewable_2,t=T],
+    rg_lg2[g,t] == 0
+    )
+
+    m.ext[:constraints][:renewable_reserve_rg_lc2] = @constraint(m, [g=renewable_2,t=T],
+    rg_lc2[g,t] == 0
+    )
+
+    m.ext[:constraints][:renewable_reserve_l_reserve_2] = @constraint(m, [g=renewable_2,t=T],
+    rg_l_reserve_2[g,t] == 0
+    )
+
 
     #Unit commitment constraints
-   m.ext[:constraints][:max_gen_power] = @constraint(m, [g=G,t=T],
+  m.ext[:constraints][:max_gen_power] = @constraint(m, [g=G,t=T],
         pg[g,t] <= pmax[g]*zg[g,t]
         )#3.11
 
@@ -596,13 +668,13 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
     NT = length(Tlabels)
 
     #Ramp-down limit for generators
-          m.ext[:constraints][:up_and_down_2_b] = @constraint(m, [g in G, k in 2:NT],
+          m.ext[:constraints][:up_and_down_2_b] = @constraint(m, [g in TG, k in 2:NT],
         pg[g, Tlabels[k-1]] - pg[g, Tlabels[k]] <= downramp[g]+pmin[g]*gammag[g, Tlabels[k]]
     )#3.20
 
 
     #Ramp-up limit for generators
-        m.ext[:constraints][:up_and_down_2_a] = @constraint(m, [g in G, k in 2:NT],
+        m.ext[:constraints][:up_and_down_2_a] = @constraint(m, [g in TG, k in 2:NT],
         pg[g, Tlabels[k]] - pg[g, Tlabels[k-1]] <= upramp[g]+(pmin[g]- upramp[g])*betag[g, Tlabels[k]]
     )#3.19
 
@@ -610,23 +682,23 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
 
  
   #Initial status generators (unit commitment)
-        m.ext[:constraints][:up_and_down_3] = @constraint(m, [g in G],
+        m.ext[:constraints][:up_and_down_3] = @constraint(m, [g in TG],
         1 - zg[g, Tlabels[1]] + betag[g, Tlabels[1]] - gammag[g, Tlabels[1]] == 0
     )
 
     #Status generators (unit commitment)
-        m.ext[:constraints][:up_and_down_4] = @constraint(m, [g in G, k in 2:NT],
+        m.ext[:constraints][:up_and_down_4] = @constraint(m, [g in TG, k in 2:NT],
         zg[g, Tlabels[k-1]] - zg[g, Tlabels[k]] + betag[g, Tlabels[k]] - gammag[g, Tlabels[k]] == 0
     )#3.23
 
     #Startup and shutdown exclusivity
-        m.ext[:constraints][:up_and_down_4_1] = @constraint(m, [g=G, t=T],
+        m.ext[:constraints][:up_and_down_4_1] = @constraint(m, [g in TG, t in T],
         betag[g,t] + gammag[g,t] <= 1
     )
 
     #Minimum up time constraint
         m.ext[:constraints][:up_and_down_6] = Dict()
-        for g in G
+        for g in TG
             if MUT[g] > 0  # Only proceed if MUT[g] is positive
                 for k in MUT[g]:NT
                     m.ext[:constraints][:up_and_down_6][g, Tlabels[k]] = @constraint(m,
@@ -641,7 +713,7 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
 
     #Minimum down time constraint
     m.ext[:constraints][:up_and_down_7] = Dict()
-    for g in G
+    for g in TG
         if MDT[g] > 0  # Only proceed if MDT[g] is positive
             for k in MDT[g]:NT
                 m.ext[:constraints][:up_and_down_7][g, Tlabels[k]] = @constraint(m,
@@ -989,6 +1061,60 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
         m.ext[:constraints][:reserve_electrolyzer_l_reserve_2]=@constraint(m, [e=E2, t=T],
         re_l_reserve_2[e,t] <=  pe[e,t]-Epmin[e] * ze[e,t] 
         )
+
+        #Pump constraints.
+
+        
+#Storage constraints Pump
+
+    #Costraint reserve Pump
+    m.ext[:constraints][:reserve_pump_rg_lg1] = @constraint(m, [g in G, t in T],
+    rg_lg1[g,t] <= MaxFreqDev[g]*zg[g,t]
+    )m
+    
+    m.ext[:constraints][:reserve_pump_rg_lc1] = @constraint(m, [g in G_pump_1, t in T],
+    rg_lc1[g,t] <= MaxFreqDev[g]*zg[g,t]
+    )
+
+    m.ext[:constraints][:reserve_pump_l_reserve_1] = @constraint(m, [g in G_pump_1, t in T],
+    rg_l_reserve_1[g,t] <= MaxFreqDev[g]*zg[g,t]
+    )
+
+    m.ext[:constraints][:upper_bound_pump_discharging] = @constraint(m, [g = G_pump, t = T],
+    pg[g,t]+rg_lg1[g,t] <= pmax[g]*zg[g,t]
+    )
+
+    m.ext[:constraints][:lower_bound_pump_discharging] = @constraint(m, [g = G_pump, t = T],
+    pmin[g]*zg[g,t] <=  pg[g,t]+rg_lg1[g,t]
+    )
+
+    #-P_pump is included since the charging of the pump is provided as a negative power in the input data.
+    m.ext[:constraints][:upper_bound_pump_charging] = @constraint(m, [g = G_pump, t = T],
+    p_charge_pump[g,t] <= (-P_pump[g] )* (1 -zg[g,t])
+    )
+
+    #Minimun charging power assumed as 10% of the maximum charging power (this is an assumption that can be changed based on the characteristics of the pump)
+    m.ext[:constraints][:lower_bound_pump_charging] = @constraint(m, [g = G_pump, t = T],
+    p_charge_pump[g,t] >= 0.1*(-P_pump[g] )* (1 -zg[g,t])
+    )
+
+
+    m.ext[:constraints][:initial_energy_value_pump] = @constraint(m, [g in G_pump],
+        e_pump[g, Tlabels[1]] == E_reservoirs_ini[g]
+    )
+
+    m.ext[:constraints][:end_energy_value_pump] = @constraint(m, [g in G_pump],
+        E_reservoirs_end[g] ==
+            e_pump[g, Tlabels[NT]] +
+            p_charge_pump[g, Tlabels[NT]]*G_npumping[g] -
+            pg[g, Tlabels[NT]]/G_ngenerating[g]
+    )
+    m.ext[:constraints][:energy_balance_pump] = @constraint(m, [g in G_pump, k in 1:NT-1],
+        e_pump[g, Tlabels[k+1]] ==
+            e_pump[g, Tlabels[k]] +
+            p_charge_pump[g, Tlabels[k]]*G_npumping[g] -
+            pg[g, Tlabels[k]]/G_ngenerating[g]
+    )
 
 
 
