@@ -287,7 +287,12 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
     rhvdc_lg2 = m.ext[:variables][:rhvdc_lg2] = @variable(m, [cv=CV2,t=T], lower_bound=0,  upper_bound=2*(40/40)conv_p_dc_max[cv], base_name="rhvdc_lg2") #frequency reserve HVDC loss of generation area 2
     rhvdc_lc2 = m.ext[:variables][:rhvdc_lc2] = @variable(m, [cv=CV2,t=T], lower_bound=0,  upper_bound=2*(40/40)conv_p_dc_max[cv], base_name="rhvdc_lc2") #frequency reserve HVDC loss of converter area 2
 
-  
+   #Reservoir storage variables
+    e_reservoir = m.ext[:variables][:e_reservoir] = @variable(m, [g=G_reservoir,t=T], lower_bound=0, upper_bound=G_storage[g], base_name = "e_reservoir") # energy storage reservoir
+     #Pump generators variables
+    p_charge_pump = m.ext[:variables][:p_charge_pump] = @variable(m, [g=G_pump,t=T], base_name = "p_charge_pump")
+    e_pump = m.ext[:variables][:e_pump] = @variable(m, [g=G_pump,t=T], lower_bound=0, upper_bound=G_storage[g], base_name = "e_pump") # energy storage pump
+   
 
     # Electrolyzer variables
     pe= m.ext[:variables][:pe] = @variable(m, [e=E,t=T], lower_bound=0, upper_bound=Epmax[e], base_name="pe") # Electrolyzer power consumption
@@ -493,11 +498,15 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
 
     #Nodal power balance constraint AC taken from https://github.com/Electa-Git/OPES/blob/main/opf_acdc/build_ac_opf_acdc_tap.jl line 421
         m.ext[:constraints][:power_balance_1] = @constraint(m, [t=T],
-        sum(pg[g,t] for g in G1 )+  sum(conv_p_ac[cv,t] for cv in CV1) +sum(psd[s,t] for s in S1)-sum(psc[s,t] for s in S1)-sum(pe[e,t] for e in E1) -sum(pe_compressor[e,t] for e in E1)-demand["1"][t]== 0 #3.7
+        sum(pg[g,t] for g in G1 )-sum(p_charge_pump[g,t] for g in G_pump_1)+  sum(conv_p_ac[cv,t] for cv in CV1) +sum(psd[s,t] for s in S1)-sum(psc[s,t] for s in S1)-sum(pe[e,t] for e in E1) -sum(pe_compressor[e,t] for e in E1)-demand["1"][t]== 0 #3.7
         )
         m.ext[:constraints][:power_balance_2] = @constraint(m, [t=T],
-        sum(pg[g,t] for g in G2 )+  sum(conv_p_ac[cv,t] for cv in CV2) +sum(psd[s,t] for s in S2)-sum(psc[s,t] for s in S2)-sum(pe[e,t] for e in E2) -sum(pe_compressor[e,t] for e in E2)-demand["2"][t]== 0 #3.7
+        sum(pg[g,t] for g in G2 )-sum(p_charge_pump[g,t] for g in G_pump_2)+  sum(conv_p_ac[cv,t] for cv in CV2) +sum(psd[s,t] for s in S2)-sum(psc[s,t] for s in S2)-sum(pe[e,t] for e in E2) -sum(pe_compressor[e,t] for e in E2)-demand["2"][t]== 0 #3.7
         )
+
+    #Online-unit contingency eligibility constraint
+    m.ext[:constraints][:event_binary_constraint]= @constraint(m, [g=G,t=T],
+    zg[g,t]>=δg[g,t])
 
     #Enforce  hvdc links power flow direction constraints
     # m.ext[:constraints][:hvdc_flow_direction_1] = @constraint(m, [t=T],
@@ -630,7 +639,7 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
          pg[g,t]+ rg_lc1[g,t]>= pmin[g]*zg[g,t]
         )
 
-                m.ext[:constraints][:max_gen_power_rg_reserve_1] = @constraint(m, [g=G1,t=T],
+        m.ext[:constraints][:max_gen_power_rg_reserve_1] = @constraint(m, [g=G1,t=T],
         pg[g,t]+ rg_l_reserve_1[g,t]<= pmax[g]*zg[g,t]
         )
 
@@ -1062,32 +1071,34 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
         re_l_reserve_2[e,t] <=  pe[e,t]-Epmin[e] * ze[e,t] 
         )
 
-        #Pump constraints.
-
         
-#Storage constraints Pump
-
-    #Costraint reserve Pump
-    m.ext[:constraints][:reserve_pump_rg_lg1] = @constraint(m, [g in G, t in T],
+    #Reserve bound constraints
+    m.ext[:constraints][:reserve_bound_rg_lg1] = @constraint(m, [g in G1, t in T],
     rg_lg1[g,t] <= MaxFreqDev[g]*zg[g,t]
-    )m
-    
-    m.ext[:constraints][:reserve_pump_rg_lc1] = @constraint(m, [g in G_pump_1, t in T],
+    )
+
+    m.ext[:constraints][:reserve_bound_rg_lc1] = @constraint(m, [g in G1, t in T],
     rg_lc1[g,t] <= MaxFreqDev[g]*zg[g,t]
     )
 
-    m.ext[:constraints][:reserve_pump_l_reserve_1] = @constraint(m, [g in G_pump_1, t in T],
+    m.ext[:constraints][:reserve_bound_rg_l_reserve_1] = @constraint(m, [g in G1, t in T],
     rg_l_reserve_1[g,t] <= MaxFreqDev[g]*zg[g,t]
     )
 
-    m.ext[:constraints][:upper_bound_pump_discharging] = @constraint(m, [g = G_pump, t = T],
-    pg[g,t]+rg_lg1[g,t] <= pmax[g]*zg[g,t]
+    m.ext[:constraints][:reserve_bound_rg_lg2] = @constraint(m, [g in G2, t in T],
+    rg_lg2[g,t] <= MaxFreqDev[g]*zg[g,t]
     )
 
-    m.ext[:constraints][:lower_bound_pump_discharging] = @constraint(m, [g = G_pump, t = T],
-    pmin[g]*zg[g,t] <=  pg[g,t]+rg_lg1[g,t]
+    m.ext[:constraints][:reserve_bound_rg_lc2] = @constraint(m, [g in G2, t in T],
+    rg_lc2[g,t] <= MaxFreqDev[g]*zg[g,t]
     )
 
+    m.ext[:constraints][:reserve_bound_rg_l_reserve_2] = @constraint(m, [g in G2, t in T],
+    rg_l_reserve_2[g,t] <= MaxFreqDev[g]*zg[g,t]
+    )
+    
+
+    #Pump constraints
     #-P_pump is included since the charging of the pump is provided as a negative power in the input data.
     m.ext[:constraints][:upper_bound_pump_charging] = @constraint(m, [g = G_pump, t = T],
     p_charge_pump[g,t] <= (-P_pump[g] )* (1 -zg[g,t])
@@ -1116,6 +1127,23 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
             pg[g, Tlabels[k]]/G_ngenerating[g]
     )
 
+#Reservoir constraints
+ m.ext[:constraints][:initial_energy_value_reservoir] = @constraint(m, [g in G_reservoir, t in T],
+        e_reservoir[g, Tlabels[1]] == E_reservoirs_ini[g]
+    )
+
+    
+    m.ext[:constraints][:end_energy_value_reservoir] = @constraint(m, [g in G_reservoir, t in T],
+        E_reservoirs_end[g] <=
+            e_reservoir[g, Tlabels[NT]] -
+            pg[g, Tlabels[NT]]/G_ngenerating[g]
+    )
+
+    m.ext[:constraints][:end_energy_value_reservoir]=@constraint(m, [g in G_reservoir, k in 1:NT-1],
+        e_reservoir[g, Tlabels[k+1]] ==
+            e_reservoir[g, Tlabels[k]] -
+            pg[g, Tlabels[k]]/G_ngenerating[g]
+    )
 
 
 
@@ -1288,14 +1316,6 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
 
     #Absolute value constraints
   
-    m.ext[:constraints][:direccional_flow_dc_positive] = @constraint(m, [(d,f,e) = BD_dc,t=T],
-    flow_hvdc_abs[(d,f,e),t] >=  brdc_p[(d, f, e),t]
-    )
-
-     m.ext[:constraints][:direccional_flow_dc_negative] = @constraint(m, [(d,f,e) = BD_dc,t=T],
-    flow_hvdc_abs[(d,f,e),t] >=  -brdc_p[(d, f, e),t]
-    )
-    
 
 
 
