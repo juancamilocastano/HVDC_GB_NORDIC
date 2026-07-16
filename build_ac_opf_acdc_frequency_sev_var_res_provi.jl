@@ -766,7 +766,54 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
 
 
 
-# Electrolyzer constraints
+        #Reservoir constraints
+ m.ext[:constraints][:initial_energy_value_reservoir] = @constraint(m, [g in G_reservoir, t in T],
+        e_reservoir[g, Tlabels[1]] == E_reservoirs_ini[g]
+    )
+
+    
+    m.ext[:constraints][:end_energy_value_reservoir] = @constraint(m, [g in G_reservoir, t in T],
+        E_reservoirs_end[g] <=
+            e_reservoir[g, Tlabels[NT]] -
+            pg[g, Tlabels[NT]]/G_ngenerating[g]
+    )
+
+    m.ext[:constraints][:end_energy_value_reservoir]=@constraint(m, [g in G_reservoir, k in 1:NT-1],
+        e_reservoir[g, Tlabels[k+1]] ==
+            e_reservoir[g, Tlabels[k]] -
+            pg[g, Tlabels[k]]/G_ngenerating[g]
+    )
+
+         #Pump constraints
+    #-P_pump is included since the charging of the pump is provided as a negative power in the input data.
+    m.ext[:constraints][:upper_bound_pump_charging] = @constraint(m, [g = G_pump, t = T],
+    p_charge_pump[g,t] <= (-P_pump[g] )* (1 -zg[g,t])
+    )
+
+    #Minimun charging power assumed as 10% of the maximum charging power (this is an assumption that can be changed based on the characteristics of the pump)
+    m.ext[:constraints][:lower_bound_pump_charging] = @constraint(m, [g = G_pump, t = T],
+    p_charge_pump[g,t] >= 0.1*(-P_pump[g] )* (1 -zg[g,t])
+    )
+
+
+    m.ext[:constraints][:initial_energy_value_pump] = @constraint(m, [g in G_pump],
+        e_pump[g, Tlabels[1]] == E_reservoirs_ini[g]
+    )
+
+    m.ext[:constraints][:end_energy_value_pump] = @constraint(m, [g in G_pump],
+        E_reservoirs_end[g] ==
+            e_pump[g, Tlabels[NT]] +
+            p_charge_pump[g, Tlabels[NT]]*G_npumping[g] -
+            pg[g, Tlabels[NT]]/G_ngenerating[g]
+    )
+    m.ext[:constraints][:energy_balance_pump] = @constraint(m, [g in G_pump, k in 1:NT-1],
+        e_pump[g, Tlabels[k+1]] ==
+            e_pump[g, Tlabels[k]] +
+            p_charge_pump[g, Tlabels[k]]*G_npumping[g] -
+            pg[g, Tlabels[k]]/G_ngenerating[g]
+    )
+
+    # Electrolyzer constraints
 
     #Hydrogen production constraint
         m.ext[:constraints][:hydrogen_production] = @constraint(m, [e in E, t in T],
@@ -828,6 +875,8 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
         pe_compressor[e,t] == Ecompressorpower[e]*(hfe[e,t]+hfgconsum[e,t]+hfginyect[e,t])
         )
 
+
+
     
    
 
@@ -888,10 +937,6 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
     sum(δhvdc[cv,t] for cv in CV2) ==1
     ) 
  
-    event_generator_1 = "1"  # MUST be a String to match δg's first index set
-    event_generator_2 = "5"  # MUST be a String to match δg's first index set
-    event_converter_1 = "1"   # MUST be a String to match δhvdc's first index set
-    event_converter_2 = "3"   # MUST be a String to match δhvdc's first index set
 
 
 
@@ -901,39 +946,43 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
         bigMG[g]=pmax[g]
     end
 
+    maxbigMG=maximum(values(bigMG))
+    
+
     for cv in CV
         bigMC[cv]=conv_p_ac_max[cv]
     end
 
+    maxbigMC=maximum(values(bigMC))
    
-    m.ext[:constraints][:big_m1_gen_1]= @constraint(m, [g=G1,t=T],
-    (δg[g,t]-1)*bigMG[g]<= plg1[t]-pg[g,t]
+     m.ext[:constraints][:big_m1_gen_1]= @constraint(m, [g=G1,t=T],
+    (δg[g,t]-1)*maxbigMC<= plg1[t]-pg[g,t]
     )
     m.ext[:constraints][:big_m2_gen_1]= @constraint(m, [g=G1,t=T],
-    plg1[t]-pg[g,t] <= (1-δg[g,t])*bigMG[g]
+    plg1[t]-pg[g,t] <= (1-δg[g,t])*maxbigMG
     )
     
     m.ext[:constraints][:big_m1_gen_2]= @constraint(m, [g=G2,t=T],
-    (δg[g,t]-1)*bigMG[g]<= plg2[t]-pg[g,t]
+    (δg[g,t]-1)*maxbigMG<= plg2[t]-pg[g,t]
     )
     m.ext[:constraints][:big_m2_gen_2]= @constraint(m, [g=G2,t=T],
-    plg2[t]-pg[g,t] <= (1-δg[g,t])*bigMG[g]
+    plg2[t]-pg[g,t] <= (1-δg[g,t])*maxbigMG
     )
 
     m.ext[:constraints][:big_m1_conv_1]= @constraint(m, [cv=CV1,t=T],
-    (δhvdc[cv,t]-1)*bigMC[cv]<= plc1[t]-conv_p_ac_inj[cv,t]
+    (δhvdc[cv,t]-1)*maxbigMC<= plc1[t]-conv_p_ac_inj[cv,t]
     )
 
     m.ext[:constraints][:big_m2_conv_1]= @constraint(m, [cv=CV1,t=T],
-    plc1[t]-conv_p_ac_inj[cv,t] <= (1-δhvdc[cv,t])*bigMC[cv]
+    plc1[t]-conv_p_ac_inj[cv,t] <= (1-δhvdc[cv,t])*maxbigMC
     )
 
     m.ext[:constraints][:big_m1_conv_2]= @constraint(m, [cv=CV2,t=T],
-    (δhvdc[cv,t]-1)*bigMC[cv]<= plc2[t]-conv_p_ac_inj[cv,t]
+    (δhvdc[cv,t]-1)*maxbigMC<= plc2[t]-conv_p_ac_inj[cv,t]
     )
 
     m.ext[:constraints][:big_m2_conv_2]= @constraint(m, [cv=CV2,t=T],
-    plc2[t]-conv_p_ac_inj[cv,t] <= (1-δhvdc[cv,t])*bigMC[cv]
+    plc2[t]-conv_p_ac_inj[cv,t] <= (1-δhvdc[cv,t])*maxbigMC
     )
 
     # Inertia value per area after the event
@@ -974,18 +1023,18 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
 
 
     m.ext[:constraints][:fcr_bound_conv_lg1]= @constraint(m, [cv in CV1, t in T],
-         rhvdc_lg1[cv,t]<=2*(40/40)conv_p_ac_max[cv]
+         rhvdc_lg1[cv,t]<=2*conv_p_ac_max[cv]
      )
      m.ext[:constraints][:fcr_bound_conv_lc1]= @constraint(m, [cv in CV1, t in T],
-         rhvdc_lc1[cv,t]<=(1-δhvdc[cv,t])*2*(40/40)conv_p_ac_max[cv]
+         rhvdc_lc1[cv,t]<=(1-δhvdc[cv,t])*2*conv_p_ac_max[cv]
      )
 
     m.ext[:constraints][:fcr_bound_conv_lg2]= @constraint(m, [cv in CV2, t in T],
-        rhvdc_lg2[cv,t]<=2*(40/40)conv_p_ac_max[cv]
+        rhvdc_lg2[cv,t]<=2*conv_p_ac_max[cv]
     )
 
     m.ext[:constraints][:fcr_bound_conv_lc2]= @constraint(m, [cv in CV2, t in T],
-        rhvdc_lc2[cv,t]<=(1-δhvdc[cv,t])*2*(40/40)conv_p_ac_max[cv]
+        rhvdc_lc2[cv,t]<=(1-δhvdc[cv,t])*2*conv_p_ac_max[cv]
     )
 
 
@@ -1098,52 +1147,7 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
     )
     
 
-    #Pump constraints
-    #-P_pump is included since the charging of the pump is provided as a negative power in the input data.
-    m.ext[:constraints][:upper_bound_pump_charging] = @constraint(m, [g = G_pump, t = T],
-    p_charge_pump[g,t] <= (-P_pump[g] )* (1 -zg[g,t])
-    )
-
-    #Minimun charging power assumed as 10% of the maximum charging power (this is an assumption that can be changed based on the characteristics of the pump)
-    m.ext[:constraints][:lower_bound_pump_charging] = @constraint(m, [g = G_pump, t = T],
-    p_charge_pump[g,t] >= 0.1*(-P_pump[g] )* (1 -zg[g,t])
-    )
-
-
-    m.ext[:constraints][:initial_energy_value_pump] = @constraint(m, [g in G_pump],
-        e_pump[g, Tlabels[1]] == E_reservoirs_ini[g]
-    )
-
-    m.ext[:constraints][:end_energy_value_pump] = @constraint(m, [g in G_pump],
-        E_reservoirs_end[g] ==
-            e_pump[g, Tlabels[NT]] +
-            p_charge_pump[g, Tlabels[NT]]*G_npumping[g] -
-            pg[g, Tlabels[NT]]/G_ngenerating[g]
-    )
-    m.ext[:constraints][:energy_balance_pump] = @constraint(m, [g in G_pump, k in 1:NT-1],
-        e_pump[g, Tlabels[k+1]] ==
-            e_pump[g, Tlabels[k]] +
-            p_charge_pump[g, Tlabels[k]]*G_npumping[g] -
-            pg[g, Tlabels[k]]/G_ngenerating[g]
-    )
-
-#Reservoir constraints
- m.ext[:constraints][:initial_energy_value_reservoir] = @constraint(m, [g in G_reservoir, t in T],
-        e_reservoir[g, Tlabels[1]] == E_reservoirs_ini[g]
-    )
-
-    
-    m.ext[:constraints][:end_energy_value_reservoir] = @constraint(m, [g in G_reservoir, t in T],
-        E_reservoirs_end[g] <=
-            e_reservoir[g, Tlabels[NT]] -
-            pg[g, Tlabels[NT]]/G_ngenerating[g]
-    )
-
-    m.ext[:constraints][:end_energy_value_reservoir]=@constraint(m, [g in G_reservoir, k in 1:NT-1],
-        e_reservoir[g, Tlabels[k+1]] ==
-            e_reservoir[g, Tlabels[k]] -
-            pg[g, Tlabels[k]]/G_ngenerating[g]
-    )
+   
 
 
 
@@ -1233,7 +1237,7 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
     [ypreserve1[t]; zpreserve1[t]; plreserve_1[t]-sum(re_l_reserve_1[e,t] for e in E1)-sum(rs_l_reserve_1[s,t] for s in S1)] in RotatedSecondOrderCone()
     )
 
-    #Constraint frequency nadir generators and converters area 2
+    # #Constraint frequency nadir generators and converters area 2
 
     m.ext[:constraints][:nadir_frequency_g_2_constraint_1]= @constraint(m, [t in T],
     ypg2[t]==2*deltaf2*(Inertia_nadir_frequency_2[t] )/f2-sum(re_lg2[e,t]*Edeployment[e] for e in E2)/2-sum(rs_lg2[s,t]*Sdeployment[s] for s in S2)/2-sum(rhvdc_lg2[cv,t]*HVDC_deployment[cv] for cv in CV2)/2   
@@ -1271,7 +1275,7 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
     )
    
 
-    #Constraint time occurrence nadir
+    # #Constraint time occurrence nadir
     m.ext[:constraints][:time_nadir_occurrence_g1_1]= @constraint(m, [t in T],
     plg1[t]<= 0.0000001+ sum(re_lg1[e,t] for e in E1)+sum(rs_lg1[s,t] for s in S1)+sum(rhvdc_lg1[cv,t] for cv in CV1)+sum(rg_lg1[g,t] for g in G1)
     )

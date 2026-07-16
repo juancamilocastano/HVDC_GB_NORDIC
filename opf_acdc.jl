@@ -63,7 +63,7 @@ build_ac_opf_acdc_frequency_sev_var_res_provi!(m)
 
 # set_optimizer_attribute(m, "DualReductions", 0)
 # set_optimizer_attribute(m, "InfUnbdInfo", 1)
-set_optimizer_attribute(m, "MIPGap", 0.0002) 
+set_optimizer_attribute(m, "MIPGap", 0.01) 
 optimize!(m)
 # @show termination_status(m)
 

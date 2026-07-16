@@ -23,10 +23,10 @@ mpc.baseMVA = 100.0;
 mpc.baseKG=31034.48;
 mpc.frequency1=50;
 mpc.frequency2=50;
-mpc.rocof1=0.6;
-mpc.rocof2=0.4;
-mpc.deltaf1=0.8;
-mpc.deltaf2=0.8;
+mpc.rocof1=1;
+mpc.rocof2=1;
+mpc.deltaf1=1;
+mpc.deltaf2=1;
 
 %After Vm, they are generic values
 
@@ -590,15 +590,15 @@ mpc.busdc = [
 %% converters
 %column_names%  busdc_i  busac_i  area  type_dc  type_ac   P_g       Q_g   islcc  Vtar   rtf   xtf   transformer  tm   bf    filter   rc     xc     reactor  basekVac  Vmmax  Vmmin  Imax  status  LossA  LossB  LossCrec  LossCinv  droop    Pdcset     Vdcset   dVdcset  Pacmax  Pacmin  Qacmax  Qacmin   DT   reservecost
 mpc.convdc = [
-                1        1        1     2        1        -577.5     0     0      1     0.01  0.01      1        1   0.01     0     0.01   0.01     0       500      1.1    0.9    1.1    1     1.103  0.887  2.885   2.885    0.0050   -465.9871  0.9999    20.001   20.001   20.001   20.001   -20.001   0.2    0.01;
-                2        2        2     3        1         -550      0     0      1     0.01  0.01      1        1   0.01     0     0.01   0.01     0       500      1.1    0.9    1.1    1     1.103  0.887  2.885   2.885    0.0050   -517.1051  1.0022    20.001   20.001   20.001   20.001   -20.001   0.2    0.01;
+                1        1        1     2        1        -577.5     0     0      1     0.01  0.01      1        1   0.01     0     0.01   0.01     0       500      1.1    0.9    1.1    1     1.103  0.887  2.885   2.885    0.0050   -465.9871  0.9999    1400.0001   1400.0001   1400.0001   1400.0001   -1400.0001   0.2    0.01;
+                2        2        2     3        1         -550      0     0      1     0.01  0.01      1        1   0.01     0     0.01   0.01     0       500      1.1    0.9    1.1    1     1.103  0.887  2.885   2.885    0.0050   -517.1051  1.0022    1400.0001   1400.0001   1400.0001   1400.0001   -1400.0001   0.2    0.01;
 ];
 
 
 %% branches
 %column_names%  fbusdc  tbusdc  r        l   c   rateA   rateB   rateC   status
 mpc.branchdc = [
-      1        2       0.0012   0    0      20.001       20.001       20.001        1;
+      1        2       0.0012   0    0      1400.0001       1400.0001       1400.0001        1;
 ];
 
 %% generator cost data
