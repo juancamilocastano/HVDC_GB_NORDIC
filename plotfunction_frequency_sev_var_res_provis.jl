@@ -17,7 +17,7 @@ N1=m.ext[:sets][:N1]
 N2=m.ext[:sets][:N2]
 
 demand = m.ext[:parameters][:demand]
-wind = m.ext[:parameters][:wind]
+#wind = m.ext[:parameters][:wind]
 baseKG=m.ext[:parameters][:baseKG]
 baseMVA=m.ext[:parameters][:baseMVA]
 pg=JuMP.value.(m.ext[:variables][:pg])*baseMVA
@@ -124,8 +124,8 @@ rhvdc_lc2vec= Array(rhvdc_lc2[order_keys_2, :])
 
 
 flows_hvdc=JuMP.value.(m.ext[:variables][:brdc_p])*baseMVA
-flows_hvdc24= Array(flows_hvdc[("1", "2", "4"),:])
-flows_hvdc31= Array(flows_hvdc[("2", "3", "1"),:])
+flows_hvdc12= Array(flows_hvdc[("1", "1", "2"),:])
+#flows_hvdc31= Array(flows_hvdc[("2", "3", "1"),:])
 conv_p_ac=JuMP.value.(m.ext[:variables][:conv_p_ac])*baseMVA
 keys_conv = axes(conv_p_ac, 1)
 order_keys_conv = sort(keys_conv, by = x -> parse(Int, x))
@@ -136,17 +136,10 @@ demandmatrix1= [demand[n][t] for n in N1, t in T]
 demandwithoutEB1=vec(sum(demandmatrix1, dims=1))*baseMVA
 demandmatrix2= [demand[n][t] for n in N2, t in T]
 demandwithoutEB2=vec(sum(demandmatrix2, dims=1))*baseMVA
-wind1= [wind[n][t] for n in N1, t in T]
-wind1vec=vec(sum(wind1, dims=1))*baseMVA
-wind2= [wind[n][t] for n in N2, t in T]
-wind2vec=vec(sum(wind2, dims=1))*baseMVA
-pb=JuMP.value.(m.ext[:variables][:pb])*baseMVA
-pb_13= Array(pb[("2", "1", "3"),:])
-pb_23= Array(pb[("3", "2", "3"),:])
-pb_12= Array(pb[("1", "1", "2"),:])
-pb_56= Array(pb[("6", "5", "6"),:])
-pb_45= Array(pb[("4", "4", "5"),:])
-pb_46= Array(pb[("5", "4", "6"),:])
+# wind1= [wind[n][t] for n in N1, t in T]
+# wind1vec=vec(sum(wind1, dims=1))*baseMVA
+# wind2= [wind[n][t] for n in N2, t in T]
+# wind2vec=vec(sum(wind2, dims=1))*baseMVA
 
 
 
@@ -421,8 +414,8 @@ ax13 = fig13[1, 1] = Axis(fig13,
     xlabel = "Time (hours)",
     ylabel = "Generation (MW)"
 )   
-lines!(ax13, flows_hvdc24, label = "Flow HVDC 2-4")
-lines!(ax13, flows_hvdc31, label = "Flow HVDC 3-1")
+lines!(ax13, flows_hvdc12, label = "Flow HVDC 1-2")
+#lines!(ax13, flows_hvdc31, label = "Flow HVDC 3-1")
 fig13[1, 2] = Legend(fig13, ax13, "HVDC flows", framevisible = false)
 fig13
 
@@ -432,7 +425,7 @@ ax14=fig14[1, 1] = Axis(fig14,
     xlabel = "Time (hours)",
     ylabel = "Power (MW)"
 )
-lines!(ax14,flows_hvdc24+flows_hvdc31, label = "Sum Of Flows 24 + 31")
+lines!(ax14,flows_hvdc12, label = "Sum Of Flows 12")
 fig14[1, 2] = Legend(fig14, ax14, "Sum Of HVDC flows", framevisible = false)
 fig14
 
@@ -458,62 +451,43 @@ lines!(ax16, demandwithoutEB2+pevec[2,:]+pevec_compressor[2,:]+pscvec[2,:]-psdve
 fig16[1, 2] = Legend(fig16, ax16, "Demand with EB and BESS", framevisible = false)
 fig16
 
-fig17=Figure()
-ax17=fig17[1, 1] = Axis(fig17,
-    title = "Wind generation Area 1 and 2",
-    xlabel = "Time (hours)",
-    ylabel = "Power (MW)"
-)
-lines!(ax17, wind1vec, label = "Wind Area 1 ")
-lines!(ax17,wind2vec, label = "Wind Area 2")
-fig17[1, 2] = Legend(fig17, ax17, "Wind Generation", framevisible = false)
-fig17
+# fig17=Figure()
+# ax17=fig17[1, 1] = Axis(fig17,
+#     title = "Wind generation Area 1 and 2",
+#     xlabel = "Time (hours)",
+#     ylabel = "Power (MW)"
+# )
+# lines!(ax17, wind1vec, label = "Wind Area 1 ")
+# lines!(ax17,wind2vec, label = "Wind Area 2")
+# fig17[1, 2] = Legend(fig17, ax17, "Wind Generation", framevisible = false)
+# fig17
 
-fig18=Figure()
-ax18=fig18[1, 1] = Axis(fig18,
-    title = "Net demand Area 1 and 2",
-    xlabel = "Time (hours)",
-    ylabel = "Power (MW)"
-)
-lines!(ax18, demandwithoutEB1+pevec[1,:]+pevec_compressor[1,:]+pscvec[1,:]-psdvec[1,:]- wind1vec+flows_hvdc24+flows_hvdc31, label = "Net Demand Area 1 ")
-lines!(ax18, demandwithoutEB2+pevec[2,:]+pevec_compressor[2,:]+pscvec[2,:]-psdvec[2,:]- wind2vec-flows_hvdc24-flows_hvdc31, label = "Net Demand Area 2 ")
-fig18[1, 2] = Legend(fig18, ax18, "Net Demand", framevisible = false)
-fig18
+# fig18=Figure()
+# ax18=fig18[1, 1] = Axis(fig18,
+#     title = "Net demand Area 1 and 2",
+#     xlabel = "Time (hours)",
+#     ylabel = "Power (MW)"
+# )
+# lines!(ax18, demandwithoutEB1+pevec[1,:]+pevec_compressor[1,:]+pscvec[1,:]-psdvec[1,:]- wind1vec+flows_hvdc12, label = "Net Demand Area 1 ")
+# lines!(ax18, demandwithoutEB2+pevec[2,:]+pevec_compressor[2,:]+pscvec[2,:]-psdvec[2,:]- wind2vec-flows_hvdc12, label = "Net Demand Area 2 ")
+# fig18[1, 2] = Legend(fig18, ax18, "Net Demand", framevisible = false)
+# fig18
 
-fig19=Figure()
-ax19=fig19[1, 1] = Axis(fig19,
-    title = "Net demand Area 1 and 2 without HVDC flows",
-    xlabel = "Time (hours)",
-    ylabel = "Power (MW)"
-)
-lines!(ax19, demandwithoutEB1+pevec[1,:]+pevec_compressor[1,:]+pscvec[1,:]-psdvec[1,:]- wind1vec, label = "Net Demand Area 1 ")
-lines!(ax19, demandwithoutEB2+pevec[2,:]+pevec_compressor[2,:]+pscvec[2,:]-psdvec[2,:]- wind2vec, label = "Net Demand Area 2 ")
-fig19[1, 2] = Legend(fig19, ax19, "Net Demand", framevisible = false)
-fig19
+# fig19=Figure()
+# ax19=fig19[1, 1] = Axis(fig19,
+#     title = "Net demand Area 1 and 2 without HVDC flows",
+#     xlabel = "Time (hours)",
+#     ylabel = "Power (MW)"
+# )
+# lines!(ax19, demandwithoutEB1+pevec[1,:]+pevec_compressor[1,:]+pscvec[1,:]-psdvec[1,:]- wind1vec, label = "Net Demand Area 1 ")
+# lines!(ax19, demandwithoutEB2+pevec[2,:]+pevec_compressor[2,:]+pscvec[2,:]-psdvec[2,:]- wind2vec, label = "Net Demand Area 2 ")
+# fig19[1, 2] = Legend(fig19, ax19, "Net Demand", framevisible = false)
+# fig19
 
-fig20=Figure()
-ax20=fig20[1, 1] = Axis(fig20,
-    title = "Area 1 flows",
-    xlabel = "Time (hours)",
-    ylabel = "Power (MW)"
-)
-    lines!(ax20, pb_13, label = "Flow Bus 1 to 3")
-    lines!(ax20, pb_23, label = "Flow Bus 2 to 3")
-    lines!(ax20, pb_12, label = "Flow Bus 1 to 2")
-fig20[1, 2] = Legend(fig20, ax20, "Area 1 Flows", framevisible = false)
-fig20
 
-fig21=Figure()
-ax21=fig21[1, 1] = Axis(fig21,
-    title = "Area 2 flows",
-    xlabel = "Time (hours)",
-    ylabel = "Power (MW)"
-)
-    lines!(ax21, pb_56, label = "Flow Bus 5 to 6")
-    lines!(ax21, pb_45, label = "Flow Bus 4 to 5")
-    lines!(ax21, pb_46, label = "Flow Bus 4 to 6")
-fig21[1, 2] = Legend(fig21, ax21, "Area 2 Flows", framevisible = false)
-fig21
+
+
+
 
 
 fig22=Figure()
@@ -522,10 +496,9 @@ ax22=fig22[1, 1] = Axis(fig22,
     xlabel = "Time (hours)",
     ylabel = "Power (MW)"
 )
-    lines!(ax22, flows_hvdc31 + rhvdc_lg2vec[1,:], label = "Flow31 + Reserve Converter 1")
-    lines!(ax22, -flows_hvdc31 + rhvdc_lg1vec[2,:], label = "Flow13 + Reserve Converter 2")
-    lines!(ax22, flows_hvdc24 + rhvdc_lg2vec[2,:], label = "Flow24 + Reserve Converter 4")
-    lines!(ax22, -flows_hvdc24 + rhvdc_lg1vec[1,:], label = "Flow42 + Reserve Converter 2")
+   lines!(ax22, flows_hvdc12 + vec(rhvdc_lg1vec), label = "Flow12 + Reserve Converter 1")
+    lines!(ax22, flows_hvdc12 + vec(rhvdc_lg2vec), label = "Flow12 + Reserve Converter 2")
+    
 fig22[1, 2] = Legend(fig22, ax22, "Flow + Reserve", framevisible = false)
 fig22
 
@@ -535,8 +508,7 @@ ax23=fig23[1, 1] = Axis(fig23,
     xlabel = "Time (hours)",
     ylabel = "Power (MW)"
 )
-lines!(ax23, rhvdc_lg1vec[1,:], label = "Reserve Converter 2")
-lines!(ax23, rhvdc_lg1vec[2,:], label = "Reserve Converter 3")
+lines!(ax23, vec(rhvdc_lg1vec), label = "Reserve Converter 1")
 fig23[1, 2] = Legend(fig23, ax23, "Reserve per converter", framevisible = false)
 fig23
 
@@ -546,8 +518,7 @@ ax24=fig24[1, 1] = Axis(fig24,
     xlabel = "Time (hours)",
     ylabel = "Power (MW)"
 )
-lines!(ax24, rhvdc_lc1vec[1,:], label = "Reserve Converter 2")
-lines!(ax24, rhvdc_lc1vec[2,:], label = "Reserve Converter 3")
+lines!(ax24, vec(rhvdc_lc1vec), label = "Reserve Converter 1")
 
 fig24[1, 2] = Legend(fig24, ax24, "Reserve per converter", framevisible = false)
 fig24
@@ -558,9 +529,7 @@ ax25=fig25[1, 1] = Axis(fig25,
     xlabel = "Time (hours)",
     ylabel = "Power (MW)"
 )
-lines!(ax25, rhvdc_lg2vec[1,:], label = "Reserve Converter 1")
-lines!(ax25, rhvdc_lg2vec[2,:], label = "Reserve Converter 4")
-fig25[1, 2] = Legend(fig25, ax25, "Reserve per converter", framevisible = false)
+lines!(ax25, vec(rhvdc_lg2vec), label = "Reserve Converter 2")
 fig25
 
 fig26=Figure()
@@ -569,36 +538,12 @@ ax26=fig26[1, 1] = Axis(fig26,
     xlabel = "Time (hours)",
     ylabel = "Power (MW)"
 )
-lines!(ax26, rhvdc_lc2vec[1,:], label = "Reserve Converter 1")
-lines!(ax26, rhvdc_lc2vec[2,:], label = "Reserve Converter 4")
+lines!(ax26, vec(rhvdc_lc2vec), label = "Reserve Converter 2")
+
 fig26[1, 2] = Legend(fig26, ax26, "Reserve per converter", framevisible = false)
 fig26
 
-fig27=Figure()
-ax27=fig27[1, 1] = Axis(fig27,
-    title = "Reserve per converter Area 1 plg and plc",
-    xlabel = "Time (hours)",
-    ylabel = "Power (MW)"
-)
-lines!(ax27, rhvdc_lg1vec[1,:], label = "Reserve Converter 2 lg1")
-lines!(ax27, rhvdc_lg1vec[2,:], label = "Reserve Converter 3 lg1")
-lines!(ax27, rhvdc_lc1vec[1,:], label = "Reserve Converter 2 lc1")
-lines!(ax27, rhvdc_lc1vec[2,:], label = "Reserve Converter 3 lc1")
-fig27[1, 2] = Legend(fig27, ax27, "Reserve per converter", framevisible = false)
-fig27
 
-fig28=Figure()
-ax28=fig28[1, 1] = Axis(fig28,
-    title = "Reserve per converter Area 2 plg and plc",
-    xlabel = "Time (hours)",
-    ylabel = "Power (MW)"
-)
-lines!(ax28, rhvdc_lg2vec[1,:], label = "Reserve Converter 1 lg2")
-lines!(ax28, rhvdc_lg2vec[2,:], label = "Reserve Converter 4 lg2")
-lines!(ax28, rhvdc_lc2vec[1,:], label = "Reserve Converter 1 lc2")
-lines!(ax28, rhvdc_lc2vec[2,:], label = "Reserve Converter 4 lc2")
-fig28[1, 2] = Legend(fig28, ax28, "Reserve per converter", framevisible = false)
-fig28
 
 fig29 = Figure()
 
@@ -612,8 +557,6 @@ t = 1:size(conv_p_ac_vec, 2)
 
 barplot!(ax29, t .- 0.3, conv_p_ac_vec[1, :], width = 0.15, label = "Converter 1 AC power")
 barplot!(ax29, t .- 0.1, conv_p_ac_vec[2, :], width = 0.15, label = "Converter 2 AC power")
-barplot!(ax29, t .+ 0.1, conv_p_ac_vec[3, :], width = 0.15, label = "Converter 3 AC power")
-barplot!(ax29, t .+ 0.3, conv_p_ac_vec[4, :], width = 0.15, label = "Converter 4 AC power")
 
 fig29[1, 2] = Legend(fig29, ax29, "Power per converter", framevisible = false)
 
@@ -711,11 +654,11 @@ save("1_HVDC_power_flows.png", fig13)
 save("3_Sum Of Power Flows HVDC Links.png",fig14)
 save("Demand without Electrolyzers and BESS.png",fig15)
 save("Demand with Electrolyzers and BESS.png",fig16)
-save("Wind generation Area 1 and 2.png",fig17)
-save("Net demand Area 1 and 2.png",fig18)
-save("Net demand Area 1 and 2 without HVDC flows.png",fig19)
+# save("Wind generation Area 1 and 2.png",fig17)
+#save("Net demand Area 1 and 2.png",fig18)
+#save("Net demand Area 1 and 2 without HVDC flows.png",fig19)
 save("Area 1 flows.png",fig20)
-save("Area 2 flows.png",fig21)
+#save("Area 2 flows.png",fig21)
 save("Flow+Reserve.png",fig22)
 save("2_Reserve per converter plg area 1.png",fig23)
 save("2_Reserve per converter plc area 1.png",fig24)

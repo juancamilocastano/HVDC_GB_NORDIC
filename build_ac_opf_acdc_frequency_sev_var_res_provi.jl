@@ -260,8 +260,7 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
 
     
     # Branch variables
-    pb = m.ext[:variables][:pb] = @variable(m, [(b,i,j) in B_ac,t=T],lower_bound = -pmaxbranch[b], upper_bound = pmaxbranch[b], base_name = "pb") # from side active power flow (i->j)
-
+  
 
     # Status variable generators
     zg = m.ext[:variables][:zg] = @variable(m, [g=G,t=T],binary= true , base_name = "zg") # status variable generator

@@ -42,7 +42,7 @@ u_conv_p_ac=JuMP.value.(m.ext[:variables][:u_conv_p_ac])
 
 
 demand = m.ext[:parameters][:demand]
-wind = m.ext[:parameters][:wind]
+#wind = m.ext[:parameters][:wind]
 baseKG=m.ext[:parameters][:baseKG]
 baseMVA=m.ext[:parameters][:baseMVA]
 pg=JuMP.value.(m.ext[:variables][:pg])*baseMVA
@@ -149,8 +149,8 @@ rhvdc_lc2vec= Array(rhvdc_lc2[order_keys_2, :])
 
 
 flows_hvdc=JuMP.value.(m.ext[:variables][:brdc_p])*baseMVA
-flows_hvdc24= Array(flows_hvdc[("1", "2", "4"),:])
-flows_hvdc31= Array(flows_hvdc[("2", "3", "1"),:])
+flows_hvdc12= Array(flows_hvdc[("1", "1", "2"),:])
+#flows_hvdc31= Array(flows_hvdc[("2", "3", "1"),:])
 conv_p_ac=JuMP.value.(m.ext[:variables][:conv_p_ac])*baseMVA
 keys_conv = axes(conv_p_ac, 1)
 order_keys_conv = sort(keys_conv, by = x -> parse(Int, x))
@@ -161,17 +161,17 @@ demandmatrix1= [demand[n][t] for n in N1, t in T]
 demandwithoutEB1=vec(sum(demandmatrix1, dims=1))*baseMVA
 demandmatrix2= [demand[n][t] for n in N2, t in T]
 demandwithoutEB2=vec(sum(demandmatrix2, dims=1))*baseMVA
-wind1= [wind[n][t] for n in N1, t in T]
-wind1vec=vec(sum(wind1, dims=1))*baseMVA
-wind2= [wind[n][t] for n in N2, t in T]
-wind2vec=vec(sum(wind2, dims=1))*baseMVA
-pb=JuMP.value.(m.ext[:variables][:pb])*baseMVA
-pb_13= Array(pb[("2", "1", "3"),:])
-pb_23= Array(pb[("3", "2", "3"),:])
-pb_12= Array(pb[("1", "1", "2"),:])
-pb_56= Array(pb[("6", "5", "6"),:])
-pb_45= Array(pb[("4", "4", "5"),:])
-pb_46= Array(pb[("5", "4", "6"),:])
+# wind1= [wind[n][t] for n in N1, t in T]
+# wind1vec=vec(sum(wind1, dims=1))*baseMVA
+# wind2= [wind[n][t] for n in N2, t in T]
+# wind2vec=vec(sum(wind2, dims=1))*baseMVA
+# pb=JuMP.value.(m.ext[:variables][:pb])*baseMVA
+# pb_13= Array(pb[("2", "1", "3"),:])
+# pb_23= Array(pb[("3", "2", "3"),:])
+# pb_12= Array(pb[("1", "1", "2"),:])
+# pb_56= Array(pb[("6", "5", "6"),:])
+# pb_45= Array(pb[("4", "4", "5"),:])
+# pb_46= Array(pb[("5", "4", "6"),:])
 
 
 betag=JuMP.value.(m.ext[:variables][:betag]) #start up variables of generators
