@@ -1,145 +1,389 @@
 function plotfunction_frequency_sev_var_res_provis!(m::Model)
     
-G=m.ext[:sets][:G]
-G1=m.ext[:sets][:G1]
-G2=m.ext[:sets][:G2]
-E=m.ext[:sets][:E]
-E1=m.ext[:sets][:E1]
-E2=m.ext[:sets][:E2]
-S=m.ext[:sets][:S]
-S1=m.ext[:sets][:S1]
-S2=m.ext[:sets][:S2]
-CV=m.ext[:sets][:CV]
-CV1=m.ext[:sets][:CV1]
-CV2=m.ext[:sets][:CV2]
-T=m.ext[:sets][:t]
-N1=m.ext[:sets][:N1]
-N2=m.ext[:sets][:N2]
+# ============================================================
+# CONJUNTOS
+# ============================================================
+
+G   = m.ext[:sets][:G]
+G1  = m.ext[:sets][:G1]
+G2  = m.ext[:sets][:G2]
+
+E   = m.ext[:sets][:E]
+E1  = m.ext[:sets][:E1]
+E2  = m.ext[:sets][:E2]
+
+S   = m.ext[:sets][:S]
+S1  = m.ext[:sets][:S1]
+S2  = m.ext[:sets][:S2]
+
+CV  = m.ext[:sets][:CV]
+CV1 = m.ext[:sets][:CV1]
+CV2 = m.ext[:sets][:CV2]
+
+T  = m.ext[:sets][:t]
+N1 = m.ext[:sets][:N1]
+N2 = m.ext[:sets][:N2]
+
+
+# ============================================================
+# PARÁMETROS
+# ============================================================
+
+baseKG  = m.ext[:parameters][:baseKG]
+baseMVA = m.ext[:parameters][:baseMVA]
 
 demand = m.ext[:parameters][:demand]
-#wind = m.ext[:parameters][:wind]
-baseKG=m.ext[:parameters][:baseKG]
-baseMVA=m.ext[:parameters][:baseMVA]
-pg=JuMP.value.(m.ext[:variables][:pg])*baseMVA
-pgvec= [pg[g,t] for g in G, t in T]
-pev=JuMP.value.(m.ext[:variables][:pe])*baseMVA
-pevec= [pev[e,t] for e in E, t in T]
-hfe=JuMP.value.(m.ext[:variables][:hfe])*baseKG
-hfevec= [hfe[e,t] for e in E, t in T]
-hss=JuMP.value.(m.ext[:variables][:hss])*baseKG
-hssvec= [hss[e,t] for e in E, t in T]
-hfgconsum=JuMP.value.(m.ext[:variables][:hfgconsum])*baseKG
-hfgconsumvec= [hfgconsum[e,t] for e in E, t in T]
-hfginyect=JuMP.value.(m.ext[:variables][:hfginyect])*baseKG
-hfginyectvec= [hfginyect[e,t] for e in E, t in T]
-psc=JuMP.value.(m.ext[:variables][:psc])*baseMVA
-pscvec= [psc[s,t] for s in S, t in T]
-psd=JuMP.value.(m.ext[:variables][:psd])*baseMVA
-psdvec= [psd[s,t] for s in S, t in T]
-pe_compressor=JuMP.value.(m.ext[:variables][:pe_compressor])*baseMVA
-pevec_compressor= [pe_compressor[e,t] for e in E, t in T]
-es=JuMP.value.(m.ext[:variables][:es])*baseMVA
-esvec= [es[s,t] for s in S, t in T]
-pg=JuMP.value.(m.ext[:variables][:pg])*baseMVA
-pg1= [pg[g,t] for g in G1, t in T]
-pg2= [pg[g,t] for g in G2, t in T]
-plg1= JuMP.value.(m.ext[:variables][:plg1])*baseMVA
-plg2= JuMP.value.(m.ext[:variables][:plg2])*baseMVA
-plc1= JuMP.value.(m.ext[:variables][:plc1])*baseMVA
-plc2= JuMP.value.(m.ext[:variables][:plc2])*baseMVA
-plreserve_1= JuMP.value.(m.ext[:variables][:plreserve_1])*baseMVA
-plreserve_2= JuMP.value.(m.ext[:variables][:plreserve_2])*baseMVA
-plg1vec= Array(plg1)
-plg2vec= Array(plg2)
-plc1vec= Array(plc1)    
-plc2vec= Array(plc2)
-plreserve_1vec= Array(plreserve_1)
-plreserve_2vec= Array(plreserve_2)
-rg_lg1=JuMP.value.(m.ext[:variables][:rg_lg1])*baseMVA
-rg_lc1=JuMP.value.(m.ext[:variables][:rg_lc1])*baseMVA
-rg_l_reserve_1=JuMP.value.(m.ext[:variables][:rg_l_reserve_1])*baseMVA
+pmax   = m.ext[:parameters][:pmax]
+ic     = m.ext[:parameters][:ic]
 
-re_lg1=JuMP.value.(m.ext[:variables][:re_lg1])*baseMVA
-re_lc1=JuMP.value.(m.ext[:variables][:re_lc1])*baseMVA
-re_l_reserve_1=JuMP.value.(m.ext[:variables][:re_l_reserve_1])*baseMVA
+f1 = m.ext[:parameters][:f1]
+f2 = m.ext[:parameters][:f2]
 
-rs_lg1=JuMP.value.(m.ext[:variables][:rs_lg1])*baseMVA
-rs_lc1=JuMP.value.(m.ext[:variables][:rs_lc1])*baseMVA
-rs_l_reserve_1=JuMP.value.(m.ext[:variables][:rs_l_reserve_1])*baseMVA
+Edeployment = m.ext[:parameters][:Edeployment]
+G_dt        = m.ext[:parameters][:G_dt]
 
-rhvdc_lg1=JuMP.value.(m.ext[:variables][:rhvdc_lg1])*baseMVA
-rhvdc_lc1=JuMP.value.(m.ext[:variables][:rhvdc_lc1])*baseMVA
+Ereservecost = m.ext[:parameters][:Ereservecost]
+G_reservecost = m.ext[:parameters][:G_reservecost]
+Sreservecost = m.ext[:parameters][:Sreservecost]
 
-rg_lg2=JuMP.value.(m.ext[:variables][:rg_lg2])*baseMVA
-rg_lc2=JuMP.value.(m.ext[:variables][:rg_lc2])*baseMVA
-rg_l_reserve_2=JuMP.value.(m.ext[:variables][:rg_l_reserve_2])*baseMVA
+Hydrogencost = m.ext[:parameters][:Hydrogencost]
+gen_cost     = m.ext[:parameters][:gen_cost]
 
-re_lg2=JuMP.value.(m.ext[:variables][:re_lg2])*baseMVA
-re_lc2=JuMP.value.(m.ext[:variables][:re_lc2])*baseMVA
-re_l_reserve_2=JuMP.value.(m.ext[:variables][:re_l_reserve_2])*baseMVA
-
-rs_lg2=JuMP.value.(m.ext[:variables][:rs_lg2])*baseMVA
-rs_lc2=JuMP.value.(m.ext[:variables][:rs_lc2])*baseMVA
-rs_l_reserve_2=JuMP.value.(m.ext[:variables][:rs_l_reserve_2])*baseMVA
-
-rhvdc_lg2=JuMP.value.(m.ext[:variables][:rhvdc_lg2])*baseMVA
-rhvdc_lc2=JuMP.value.(m.ext[:variables][:rhvdc_lc2])*baseMVA
-rg_lg1vec= [rg_lg1[g,t] for g in G1, t in T]
-rg_lc1vec= [rg_lc1[g,t] for g in G1, t in T]
-rg_l_reserve_1vec= [rg_l_reserve_1[g,t] for g in G1, t in T]
-
-re_lg1vec= [re_lg1[e,t] for e in E1, t in T]
-re_lc1vec= [re_lc1[e,t] for e in E1, t in T]
-re_l_reserve_1vec= [re_l_reserve_1[e,t] for e in E1, t in T]
-
-rs_lg1vec= [rs_lg1[s,t] for s in S1, t in T]
-rs_lc1vec= [rs_lc1[s,t] for s in S1, t in T]
-rs_l_reserve_1vec= [rs_l_reserve_1[s,t] for s in S1, t in T]
-
-rhvdc_lg1vec= [rhvdc_lg1[cv,t] for cv in CV1, t in T]
-rhvdc_lc1vec= [rhvdc_lc1[cv,t] for cv in CV1, t in T]
-rg_lg2vec= [rg_lg2[g,t] for g in G2, t in T]
-rg_lc2vec= [rg_lc2[g,t] for g in G2, t in T]
-rg_l_reserve_2vec= [rg_l_reserve_2[g,t] for g in G2, t in T]
+Estartupcost = m.ext[:parameters][:Estartupcost]
+start_up_cost = m.ext[:parameters][:startup_cost]
 
 
-re_lg2vec= [re_lg2[e,t] for e in E2, t in T]
-re_lc2vec= [re_lc2[e,t] for e in E2, t in T]
-re_l_reserve_2vec= [re_l_reserve_2[e,t] for e in E2, t in T]
+# ============================================================
+# GENERACIÓN Y ELECTROLIZADORES
+# ============================================================
 
-rs_lg2vec= [rs_lg2[s,t] for s in S2, t in T]
-rs_lc2vec= [rs_lc2[s,t] for s in S2, t in T]
-rs_l_reserve_2vec= [rs_l_reserve_2[s,t] for s in S2, t in T]
+pg  = JuMP.value.(m.ext[:variables][:pg]) .* baseMVA
+pev = JuMP.value.(m.ext[:variables][:pe]) .* baseMVA
+
+pgvec = [pg[g, t] for g in G, t in T]
+pevec = [pev[e, t] for e in E, t in T]
+
+pg1 = [pg[g, t] for g in G1, t in T]
+pg2 = [pg[g, t] for g in G2, t in T]
+
+
+# ============================================================
+# HIDRÓGENO
+# ============================================================
+
+hfe = JuMP.value.(m.ext[:variables][:hfe]) .* baseKG
+hss = JuMP.value.(m.ext[:variables][:hss]) .* baseKG
+
+hfgconsum = JuMP.value.(m.ext[:variables][:hfgconsum]) .* baseKG
+hfginyect = JuMP.value.(m.ext[:variables][:hfginyect]) .* baseKG
+
+hfevec = [hfe[e, t] for e in E, t in T]
+hssvec = [hss[e, t] for e in E, t in T]
+
+hfgconsumvec = [hfgconsum[e, t] for e in E, t in T]
+hfginyectvec = [hfginyect[e, t] for e in E, t in T]
+
+
+# ============================================================
+# ALMACENAMIENTO
+# ============================================================
+
+psc = JuMP.value.(m.ext[:variables][:psc]) .* baseMVA
+psd = JuMP.value.(m.ext[:variables][:psd]) .* baseMVA
+es  = JuMP.value.(m.ext[:variables][:es]) .* baseMVA
+
+pscvec = [psc[s, t] for s in S, t in T]
+psdvec = [psd[s, t] for s in S, t in T]
+esvec  = [es[s, t] for s in S, t in T]
+
+
+# ============================================================
+# COMPRESORES
+# ============================================================
+
+pe_compressor = JuMP.value.(m.ext[:variables][:pe_compressor]) .* baseMVA
+
+pevec_compressor = [
+    pe_compressor[e, t]
+    for e in E, t in T
+]
+
+
+# ============================================================
+# PÉRDIDAS Y RESERVA TOTAL POR ÁREA
+# ============================================================
+
+plg1 = JuMP.value.(m.ext[:variables][:plg1]) .* baseMVA
+plg2 = JuMP.value.(m.ext[:variables][:plg2]) .* baseMVA
+
+plc1 = JuMP.value.(m.ext[:variables][:plc1]) .* baseMVA
+plc2 = JuMP.value.(m.ext[:variables][:plc2]) .* baseMVA
+
+plreserve_1 = JuMP.value.(m.ext[:variables][:plreserve_1]) .* baseMVA
+plreserve_2 = JuMP.value.(m.ext[:variables][:plreserve_2]) .* baseMVA
+
+plg1vec = Array(plg1)
+plg2vec = Array(plg2)
+
+plc1vec = Array(plc1)
+plc2vec = Array(plc2)
+
+plreserve_1vec = Array(plreserve_1)
+plreserve_2vec = Array(plreserve_2)
+
+
+# ============================================================
+# RESERVA DE GENERADORES — ÁREA 1
+# ============================================================
+
+rg_lg1 = JuMP.value.(m.ext[:variables][:rg_lg1]) .* baseMVA
+rg_lc1 = JuMP.value.(m.ext[:variables][:rg_lc1]) .* baseMVA
+
+rg_l_reserve_1 =
+    JuMP.value.(m.ext[:variables][:rg_l_reserve_1]) .* baseMVA
+
+rg_lg1vec = [rg_lg1[g, t] for g in G1, t in T]
+rg_lc1vec = [rg_lc1[g, t] for g in G1, t in T]
+
+rg_l_reserve_1vec = [
+    rg_l_reserve_1[g, t]
+    for g in G1, t in T
+]
+
+
+# ============================================================
+# RESERVA DE ELECTROLIZADORES — ÁREA 1
+# ============================================================
+
+re_lg1 = JuMP.value.(m.ext[:variables][:re_lg1]) .* baseMVA
+re_lc1 = JuMP.value.(m.ext[:variables][:re_lc1]) .* baseMVA
+
+re_l_reserve_1 =
+    JuMP.value.(m.ext[:variables][:re_l_reserve_1]) .* baseMVA
+
+re_lg1vec = [re_lg1[e, t] for e in E1, t in T]
+re_lc1vec = [re_lc1[e, t] for e in E1, t in T]
+
+re_l_reserve_1vec = [
+    re_l_reserve_1[e, t]
+    for e in E1, t in T
+]
+
+
+# ============================================================
+# RESERVA DE ALMACENAMIENTO — ÁREA 1
+# ============================================================
+
+rs_lg1 = JuMP.value.(m.ext[:variables][:rs_lg1]) .* baseMVA
+rs_lc1 = JuMP.value.(m.ext[:variables][:rs_lc1]) .* baseMVA
+
+rs_l_reserve_1 =
+    JuMP.value.(m.ext[:variables][:rs_l_reserve_1]) .* baseMVA
+
+rs_lg1vec = [rs_lg1[s, t] for s in S1, t in T]
+rs_lc1vec = [rs_lc1[s, t] for s in S1, t in T]
+
+rs_l_reserve_1vec = [
+    rs_l_reserve_1[s, t]
+    for s in S1, t in T
+]
+
+
+# ============================================================
+# RESERVA HVDC — ÁREA 1
+# ============================================================
+
+rhvdc_lg1 = JuMP.value.(m.ext[:variables][:rhvdc_lg1]) .* baseMVA
+rhvdc_lc1 = JuMP.value.(m.ext[:variables][:rhvdc_lc1]) .* baseMVA
+
+
+# ============================================================
+# RESERVA DE GENERADORES — ÁREA 2
+# ============================================================
+
+rg_lg2 = JuMP.value.(m.ext[:variables][:rg_lg2]) .* baseMVA
+rg_lc2 = JuMP.value.(m.ext[:variables][:rg_lc2]) .* baseMVA
+
+rg_l_reserve_2 =
+    JuMP.value.(m.ext[:variables][:rg_l_reserve_2]) .* baseMVA
+
+rg_lg2vec = [rg_lg2[g, t] for g in G2, t in T]
+rg_lc2vec = [rg_lc2[g, t] for g in G2, t in T]
+
+rg_l_reserve_2vec = [
+    rg_l_reserve_2[g, t]
+    for g in G2, t in T
+]
+
+
+# ============================================================
+# RESERVA DE ELECTROLIZADORES — ÁREA 2
+# ============================================================
+
+re_lg2 = JuMP.value.(m.ext[:variables][:re_lg2]) .* baseMVA
+re_lc2 = JuMP.value.(m.ext[:variables][:re_lc2]) .* baseMVA
+
+re_l_reserve_2 =
+    JuMP.value.(m.ext[:variables][:re_l_reserve_2]) .* baseMVA
+
+re_lg2vec = [re_lg2[e, t] for e in E2, t in T]
+re_lc2vec = [re_lc2[e, t] for e in E2, t in T]
+
+re_l_reserve_2vec = [
+    re_l_reserve_2[e, t]
+    for e in E2, t in T
+]
+
+
+# ============================================================
+# RESERVA DE ALMACENAMIENTO — ÁREA 2
+# ============================================================
+
+rs_lg2 = JuMP.value.(m.ext[:variables][:rs_lg2]) .* baseMVA
+rs_lc2 = JuMP.value.(m.ext[:variables][:rs_lc2]) .* baseMVA
+
+rs_l_reserve_2 =
+    JuMP.value.(m.ext[:variables][:rs_l_reserve_2]) .* baseMVA
+
+rs_lg2vec = [rs_lg2[s, t] for s in S2, t in T]
+rs_lc2vec = [rs_lc2[s, t] for s in S2, t in T]
+
+rs_l_reserve_2vec = [
+    rs_l_reserve_2[s, t]
+    for s in S2, t in T
+]
+
+
+# ============================================================
+# RESERVA HVDC — ÁREA 2
+# ============================================================
+
+rhvdc_lg2 = JuMP.value.(m.ext[:variables][:rhvdc_lg2]) .* baseMVA
+rhvdc_lc2 = JuMP.value.(m.ext[:variables][:rhvdc_lc2]) .* baseMVA
+
+
+# ============================================================
+# ORDENAMIENTO DE CONVERTIDORES HVDC
+# ============================================================
 
 keys_1 = axes(rhvdc_lg1, 1)
 order_keys_1 = sort(keys_1, by = x -> parse(Int, x))
+
 keys_2 = axes(rhvdc_lg2, 1)
 order_keys_2 = sort(keys_2, by = x -> parse(Int, x))
-rhvdc_lg1vec= Array(rhvdc_lg1[order_keys_1, :])
-rhvdc_lc1vec= Array(rhvdc_lc1[order_keys_1, :])
-rhvdc_lg2vec= Array(rhvdc_lg2[order_keys_2, :])
-rhvdc_lc2vec= Array(rhvdc_lc2[order_keys_2, :])
+
+rhvdc_lg1vec = Array(rhvdc_lg1[order_keys_1, :])
+rhvdc_lc1vec = Array(rhvdc_lc1[order_keys_1, :])
+
+rhvdc_lg2vec = Array(rhvdc_lg2[order_keys_2, :])
+rhvdc_lc2vec = Array(rhvdc_lc2[order_keys_2, :])
 
 
+# ============================================================
+# FLUJOS HVDC
+# ============================================================
+
+flows_hvdc =
+    JuMP.value.(m.ext[:variables][:brdc_p]) .* baseMVA
+
+flows_hvdc12 = Array(
+    flows_hvdc[("1", "1", "2"), :]
+)
 
 
-flows_hvdc=JuMP.value.(m.ext[:variables][:brdc_p])*baseMVA
-flows_hvdc12= Array(flows_hvdc[("1", "1", "2"),:])
-#flows_hvdc31= Array(flows_hvdc[("2", "3", "1"),:])
-conv_p_ac=JuMP.value.(m.ext[:variables][:conv_p_ac])*baseMVA
+# ============================================================
+# CONVERTIDORES
+# ============================================================
+
+conv_p_ac =
+    JuMP.value.(m.ext[:variables][:conv_p_ac]) .* baseMVA
+
+conv_p_dc =
+    JuMP.value.(m.ext[:variables][:conv_p_dc]) .* baseMVA
+
 keys_conv = axes(conv_p_ac, 1)
 order_keys_conv = sort(keys_conv, by = x -> parse(Int, x))
-conv_p_ac_vec= Array(conv_p_ac[order_keys_conv, :])
-conv_p_dc=JuMP.value.(m.ext[:variables][:conv_p_dc])*baseMVA
-δhvdc=JuMP.value.(m.ext[:variables][:δhvdc])
-demandmatrix1= [demand[n][t] for n in N1, t in T]
-demandwithoutEB1=vec(sum(demandmatrix1, dims=1))*baseMVA
-demandmatrix2= [demand[n][t] for n in N2, t in T]
-demandwithoutEB2=vec(sum(demandmatrix2, dims=1))*baseMVA
-# wind1= [wind[n][t] for n in N1, t in T]
-# wind1vec=vec(sum(wind1, dims=1))*baseMVA
-# wind2= [wind[n][t] for n in N2, t in T]
-# wind2vec=vec(sum(wind2, dims=1))*baseMVA
+
+conv_p_ac_vec = Array(
+    conv_p_ac[order_keys_conv, :]
+)
+
+
+# ============================================================
+# DEMANDA POR ÁREA
+# ============================================================
+
+demandmatrix1 = [
+    demand[n][t]
+    for n in N1, t in T
+]
+
+demandwithoutEB1 =
+    vec(sum(demandmatrix1, dims = 1)) .* baseMVA
+
+demandmatrix2 = [
+    demand[n][t]
+    for n in N2, t in T
+]
+
+demandwithoutEB2 =
+    vec(sum(demandmatrix2, dims = 1)) .* baseMVA
+
+
+# ============================================================
+# VARIABLES BINARIAS Y DE ESTADO
+# ============================================================
+
+betag = JuMP.value.(m.ext[:variables][:betag])
+zesu  = JuMP.value.(m.ext[:variables][:zesu])
+
+zgvec = JuMP.value.(m.ext[:variables][:zg])
+δgvec = JuMP.value.(m.ext[:variables][:δg])
+
+δhvdc = JuMP.value.(m.ext[:variables][:δhvdc])
+
+u_conv_p_ac =
+    JuMP.value.(m.ext[:variables][:u_conv_p_ac])
+
+
+Inertia_nadir_frequency_1=Dict()
+Inertia_nadir_frequency_2=Dict()
+Inertia_nadir_frequency_converter_1=Dict()
+Inertia_nadir_frequency_converter_2=Dict()
+Inertia_nadir_frequency_reserve_1=Dict()
+Inertia_nadir_frequency_reserve_2=Dict()
+procured_inertia_1=Dict()
+procured_inertia_2=Dict()
+
+
+
+
+
+
+
+
+
+
+
+for t in T 
+        Inertia_nadir_frequency_1[t]=sum((zgvec[g,t]-δgvec[g,t])*ic[g]*pmax[g]*baseMVA for g in G1)
+        Inertia_nadir_frequency_2[t]=sum((zgvec[g,t]-δgvec[g,t])*ic[g]*pmax[g]*baseMVA for g in G2)
+        Inertia_nadir_frequency_converter_1[t]=sum((zgvec[g,t])*ic[g]*pmax[g]*baseMVA for g in G1)
+        Inertia_nadir_frequency_converter_2[t]=sum((zgvec[g,t])*ic[g]*pmax[g]*baseMVA for g in G2)
+        Inertia_nadir_frequency_reserve_1[t]=Inertia_nadir_frequency_converter_1[t]
+        Inertia_nadir_frequency_reserve_2[t]=Inertia_nadir_frequency_converter_2[t]
+        procured_inertia_1[t]=Inertia_nadir_frequency_converter_1[t] # When the converter fails, the total inertia is the inertia corresponding to the total procured inertia
+        procured_inertia_2[t]=Inertia_nadir_frequency_converter_2[t]
+end
+
+Inertia_nadir_frequency_1_vec = [Inertia_nadir_frequency_1[t] for t in T]
+Inertia_nadir_frequency_2_vec = [Inertia_nadir_frequency_2[t] for t in T]
+Inertia_nadir_frequency_converter_1_vec = [Inertia_nadir_frequency_converter_1[t] for t in T]
+Inertia_nadir_frequency_converter_2_vec = [Inertia_nadir_frequency_converter_2[t] for t in T]
+Inertia_nadir_frequency_reserve_1_vec = [Inertia_nadir_frequency_reserve_1[t] for t in T]
+Inertia_nadir_frequency_reserve_2_vec = [Inertia_nadir_frequency_reserve_2[t] for t in T]
+procured_inertia_1=Inertia_nadir_frequency_converter_1_vec
+procured_inertia_2=Inertia_nadir_frequency_converter_2_vec
 
 
 
@@ -530,6 +774,7 @@ ax25=fig25[1, 1] = Axis(fig25,
     ylabel = "Power (MW)"
 )
 lines!(ax25, vec(rhvdc_lg2vec), label = "Reserve Converter 2")
+fig25[1, 2] = Legend(fig25, ax25, "Reserve per converter", framevisible = false)
 fig25
 
 fig26=Figure()
@@ -631,6 +876,30 @@ fig32[1, 2] = Legend(fig32, ax32, "Reserve Area 2", framevisible = false)
 fig32
 
 
+fig33 = Figure()
+ax33 = fig33[1, 1] = Axis(fig33,
+     title  = "Procured inertia Area 1",
+     xlabel = "Time (hours)",
+     ylabel = "Procure inertia (GW.s)"
+)
+inertia33    = procured_inertia_1
+lines!(ax33, inertia33, label = "Inertia Area 1")
+fig33[1, 2] = Legend(fig33, ax33, "Inertia area 1", framevisible = false)
+fig33
+
+fig34 = Figure()
+ax34 = fig34[1, 1] = Axis(fig34,
+     title  = "Procured inertia Area 2",
+     xlabel = "Time (hours)",
+     ylabel = "Procure inertia (GW.s)"
+)
+inertia34    = procured_inertia_2
+lines!(ax34, inertia34, label = "Inertia Area 2")
+fig34[1, 2] = Legend(fig34, ax34, "Inertia area 2", framevisible = false)
+fig34
+
+
+
 
 
 save("Failure_binary_variable.png", fig30)
@@ -657,18 +926,21 @@ save("Demand with Electrolyzers and BESS.png",fig16)
 # save("Wind generation Area 1 and 2.png",fig17)
 #save("Net demand Area 1 and 2.png",fig18)
 #save("Net demand Area 1 and 2 without HVDC flows.png",fig19)
-save("Area 1 flows.png",fig20)
+#save("Area 1 flows.png",fig20)
 #save("Area 2 flows.png",fig21)
 save("Flow+Reserve.png",fig22)
-save("2_Reserve per converter plg area 1.png",fig23)
-save("2_Reserve per converter plc area 1.png",fig24)
+#save("2_Reserve per converter plg area 1.png",fig23)
+#save("2_Reserve per converter plc area 1.png",fig24)
 save("2_Reserve per converter plg area 2.png",fig25)
 save("2_Reserve per converter plc area 2.png",fig26)
-save("0_Reserve per converter plg and plc area 1.png",fig27)
-save("0_Reserve per converter plg and plc area 2.png",fig28)
+#save("0_Reserve per converter plg and plc area 1.png",fig27)
+#save("0_Reserve per converter plg and plc area 2.png",fig28)
 save("Power per converter.png",fig29)
 save("Reserve allocation Area 1 pl reserve.png", fig31)
 save("Reserve allocation Area 2 pl reserve.png", fig32)
+save("Procured Inertia area 1.png", fig33)
+save("Procured Inertia area 2.png", fig34)
+
 
 end
 

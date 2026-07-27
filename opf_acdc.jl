@@ -63,7 +63,7 @@ build_ac_opf_acdc_frequency_sev_var_res_provi!(m)
 
 # set_optimizer_attribute(m, "DualReductions", 0)
 # set_optimizer_attribute(m, "InfUnbdInfo", 1)
-set_optimizer_attribute(m, "MIPGap", 0.01) 
+set_optimizer_attribute(m, "MIPGap", 0.0001) 
 optimize!(m)
 # @show termination_status(m)
 
@@ -91,6 +91,8 @@ open(filename, "w") do file
 end
 
 
+
+# println("Optimization time: ", optimization_time, " Seconds")
 solution_summary(m)
 #println(objective_value(m)) # Print the objective value of the model
 

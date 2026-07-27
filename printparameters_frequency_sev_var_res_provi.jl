@@ -998,7 +998,152 @@ open(output_file, "w") do io
 
 end
 
-println("Results saved to ", output_file)
+output_file_simulink = "Results_for_simulink.txt"
+
+open(output_file_simulink, "w") do io
+
+    # ==========================================================
+    # LOSS OF GENERATION — AREA 1
+    # ==========================================================
+    println(io, "Results loss of generation Area 1")
+    println(io, "---------------------------------")
+
+    for t in T
+        println(
+            io,
+            "t=$t;",
+            "H_0=$(Inertia_nadir_frequency_1[t]);",
+            "Ploss=$(plg1[t]);",
+            "rg=$(total_rg_lg1[t]);",
+            "rh=$(total_rhvdc_lg1[t]);",
+            "re=$(total_re_lg1[t]);",
+            "rs=$(total_rs_lg1[t]);",
+            "RoCoF=$(rocof_plg1[t]);",
+            "MaxDeltaF=$(Deltaf_nadir_plg1[t]);"
+        )
+    end
+
+    println(io)
+
+
+    # ==========================================================
+    # LOSS OF GENERATION — AREA 2
+    # ==========================================================
+    println(io, "Results loss of generation Area 2")
+    println(io, "---------------------------------")
+
+    for t in T
+        println(
+            io,
+            "t=$t;",
+            "H_0=$(Inertia_nadir_frequency_2[t]);",
+            "Ploss=$(plg2[t]);",
+            "rg=$(total_rg_lg2[t]);",
+            "rh=$(total_rhvdc_lg2[t]);",
+            "re=$(total_re_lg2[t]);",
+            "rs=$(total_rs_lg2[t]);",
+            "RoCoF=$(rocof_plg2[t]);",
+            "MaxDeltaF=$(Deltaf_nadir_plg2[t]);"
+        )
+    end
+
+    println(io)
+
+
+    # ==========================================================
+    # LOSS OF CONVERTER — AREA 1
+    # ==========================================================
+    println(io, "Results loss of converter Area 1")
+    println(io, "---------------------------------")
+
+    for t in T
+        println(
+            io,
+            "t=$t;",
+            "H_0=$(Inertia_nadir_frequency_converter_1[t]);",
+            "Ploss=$(plc1[t]);",
+            "rg=$(total_rg_lc1[t]);",
+            "rh=$(total_rhvdc_lc1[t]);",
+            "re=$(total_re_lc1[t]);",
+            "rs=$(total_rs_lc1[t]);",
+            "RoCoF=$(rocof_plc1[t]);",
+            "MaxDeltaF=$(Deltaf_nadir_plc1[t]);"
+        )
+    end
+
+    println(io)
+
+
+    # ==========================================================
+    # LOSS OF CONVERTER — AREA 2
+    # ==========================================================
+    println(io, "Results loss of converter Area 2")
+    println(io, "---------------------------------")
+
+    for t in T
+        println(
+            io,
+            "t=$t;",
+            "H_0=$(Inertia_nadir_frequency_converter_2[t]);",
+            "Ploss=$(plc2[t]);",
+            "rg=$(total_rg_lc2[t]);",
+            "rh=$(total_rhvdc_lc2[t]);",
+            "re=$(total_re_lc2[t]);",
+            "rs=$(total_rs_lc2[t]);",
+            "RoCoF=$(rocof_plc2[t]);",
+            "MaxDeltaF=$(Deltaf_nadir_plc2[t]);"
+        )
+    end
+
+    println(io)
+
+
+    # ==========================================================
+    # LOSS OF RESERVE — AREA 1
+    # ==========================================================
+    println(io, "Results loss of reserve Area 1")
+    println(io, "---------------------------------")
+
+    for t in T
+        println(
+            io,
+            "t=$t;",
+            "H_0=$(Inertia_nadir_frequency_reserve_1[t]);",
+            "Ploss=$(plreserve_1[t]);",
+            "rg=$(total_rg_l_reserve_1[t]);",
+            "rh=0.0;",
+            "re=$(total_re_l_reserve_1[t]);",
+            "rs=$(total_rs_l_reserve_1[t]);",
+            "RoCoF=$(rocof_plreserve_1[t]);",
+            "MaxDeltaF=$(Deltaf_nadir_plreserve_1[t]);"
+        )
+    end
+
+    println(io)
+
+
+    # ==========================================================
+    # LOSS OF RESERVE — AREA 2
+    # ==========================================================
+    println(io, "Results loss of reserve Area 2")
+    println(io, "---------------------------------")
+
+    for t in T
+        println(
+            io,
+            "t=$t;",
+            "H_0=$(Inertia_nadir_frequency_reserve_2[t]);",
+            "Ploss=$(plreserve_2[t]);",
+            "rg=$(total_rg_l_reserve_2[t]);",
+            "rh=0.0;",
+            "re=$(total_re_l_reserve_2[t]);",
+            "rs=$(total_rs_l_reserve_2[t]);",
+            "RoCoF=$(rocof_plreserve_2[t]);",
+            "MaxDeltaF=$(Deltaf_nadir_plreserve_2[t]);"
+        )
+    end
+
+end
 
 
 
