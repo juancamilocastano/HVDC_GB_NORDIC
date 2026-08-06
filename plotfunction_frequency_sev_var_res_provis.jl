@@ -382,8 +382,8 @@ Inertia_nadir_frequency_converter_1_vec = [Inertia_nadir_frequency_converter_1[t
 Inertia_nadir_frequency_converter_2_vec = [Inertia_nadir_frequency_converter_2[t] for t in T]
 Inertia_nadir_frequency_reserve_1_vec = [Inertia_nadir_frequency_reserve_1[t] for t in T]
 Inertia_nadir_frequency_reserve_2_vec = [Inertia_nadir_frequency_reserve_2[t] for t in T]
-procured_inertia_1=Inertia_nadir_frequency_converter_1_vec
-procured_inertia_2=Inertia_nadir_frequency_converter_2_vec
+procured_inertia_1=Inertia_nadir_frequency_converter_1_vec/1000
+procured_inertia_2=Inertia_nadir_frequency_converter_2_vec/1000
 
 
 
@@ -877,25 +877,46 @@ fig32
 
 
 fig33 = Figure()
-ax33 = fig33[1, 1] = Axis(fig33,
-     title  = "Procured inertia Area 1",
-     xlabel = "Time (hours)",
-     ylabel = "Procure inertia (GW.s)"
+
+ax33 = fig33[1, 1] = Axis(
+    fig33,
+    title  = "Procured Inertia Area 1",
+    xlabel = "Time (hours)",
+    ylabel = "Procured inertia (GW·s)"
 )
-inertia33    = procured_inertia_1
-lines!(ax33, inertia33, label = "Inertia Area 1")
-fig33[1, 2] = Legend(fig33, ax33, "Inertia area 1", framevisible = false)
+
+inertia33 = procured_inertia_1
+barplot!(ax33, 1:length(inertia33), inertia33, label = "Inertia Area 1")
+
+fig33[1, 2] = Legend(
+    fig33,
+    ax33,
+    "Inertia Area 1",
+    framevisible = false
+)
+
 fig33
 
+
 fig34 = Figure()
-ax34 = fig34[1, 1] = Axis(fig34,
-     title  = "Procured inertia Area 2",
-     xlabel = "Time (hours)",
-     ylabel = "Procure inertia (GW.s)"
+
+ax34 = fig34[1, 1] = Axis(
+    fig34,
+    title  = "Procured Inertia Area 2",
+    xlabel = "Time (hours)",
+    ylabel = "Procured inertia (GW·s)"
 )
-inertia34    = procured_inertia_2
-lines!(ax34, inertia34, label = "Inertia Area 2")
-fig34[1, 2] = Legend(fig34, ax34, "Inertia area 2", framevisible = false)
+
+inertia34 = procured_inertia_2
+barplot!(ax34, 1:length(inertia34), inertia34, label = "Inertia Area 2")
+
+fig34[1, 2] = Legend(
+    fig34,
+    ax34,
+    "Inertia Area 2",
+    framevisible = false
+)
+
 fig34
 
 

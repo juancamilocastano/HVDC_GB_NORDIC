@@ -1145,7 +1145,70 @@ open(output_file_simulink, "w") do io
 
 end
 
+G_type = m.ext[:parameters][:G_type]
+pmax   = m.ext[:parameters][:pmax]
 
+generation_type = Dict(
+    1 => "reservoir",
+    2 => "pump",
+    3 => "nuclear",
+    4 => "gas",
+    5 => "biomass",
+    6 => "oil",
+    7 => "solar",
+    8 => "wind"
+)
+
+G1_set = Set(G1)
+G2_set = Set(G2)
+
+output_file = "generator_results.txt"
+
+open(output_file, "w") do file
+
+    for t in axes(δgvec, 2)
+
+        active_generators = [
+            g for g in axes(δgvec, 1)
+            if δgvec[g, t] > 0.5
+        ]
+
+        if !isempty(active_generators)
+            println(file, "\nHour $t:")
+
+            for g in active_generators
+
+                type_code = G_type[g]
+
+                type_name = get(
+                    generation_type,
+                    type_code,
+                    "unknown type"
+                )
+
+                area = if g in G1_set && g in G2_set
+                    "area 1 and area 2"
+                elseif g in G1_set
+                    "area 1"
+                elseif g in G2_set
+                    "area 2"
+                else
+                    "unknown area"
+                end
+
+                println(
+                    file,
+                    "  Generator = $g",
+                    ", generation type = $type_name",
+                    ", rated power = $(pmax[g] * 100) [MW]",
+                    ", area = $area"
+                )
+            end
+        end
+    end
+end
+
+println("Results saved to: $(abspath(output_file))")
 
 end
 
