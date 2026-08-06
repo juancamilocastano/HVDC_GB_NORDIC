@@ -582,63 +582,58 @@ obj_total_reconstruido = obj_area_1 + obj_area_2
 # Valor del objetivo del modelo
 obj_modelo = JuMP.objective_value(m)
 
-# -------------------------------------------------
-# 4) RESULTADOS EN DICCIONARIOS
-# -------------------------------------------------
-
-costos_area_1 = Dict(
-    "generacion" => obj_gen_1,
-    "startup_electrolizadores" => obj_estart_1,
-    "startup_generadores" => obj_gstart_1,
-    "hidrogeno" => obj_h2_1,
-    "reservas_electrolizadores" => obj_res_e_1,
-    "reservas_storage" => obj_res_s_1,
-    "reservas_hvdc" => obj_res_hvdc_1,
-    "reservas_generadores" => obj_res_g_1,
+area_1_costs = Dict(
+    "generation" => obj_gen_1,
+    "electrolyzer_startup" => obj_estart_1,
+    "generator_startup" => obj_gstart_1,
+    "hydrogen" => obj_h2_1,
+    "electrolyzer_reserves" => obj_res_e_1,
+    "storage_reserves" => obj_res_s_1,
+    "hvdc_reserves" => obj_res_hvdc_1,
+    "generator_reserves" => obj_res_g_1,
     "total_area_1" => obj_area_1,
-    "total_generacion_area_1" => total_gen_area_1
+    "total_generation_area_1" => total_gen_area_1
 )
 
-costos_area_2 = Dict(
-    "generacion" => obj_gen_2,
-    "startup_electrolizadores" => obj_estart_2,
-    "startup_generadores" => obj_gstart_2,
-    "hidrogeno" => obj_h2_2,
-    "reservas_electrolizadores" => obj_res_e_2,
-    "reservas_storage" => obj_res_s_2,
-    "reservas_hvdc" => obj_res_hvdc_2,
-    "reservas_generadores" => obj_res_g_2,
+area_2_costs = Dict(
+    "generation" => obj_gen_2,
+    "electrolyzer_startup" => obj_estart_2,
+    "generator_startup" => obj_gstart_2,
+    "hydrogen" => obj_h2_2,
+    "electrolyzer_reserves" => obj_res_e_2,
+    "storage_reserves" => obj_res_s_2,
+    "hvdc_reserves" => obj_res_hvdc_2,
+    "generator_reserves" => obj_res_g_2,
     "total_area_2" => obj_area_2,
-    "total_generacion_area_2" => total_gen_area_2
+    "total_generation_area_2" => total_gen_area_2
 )
 
-costos_totales = Dict(
+total_costs = Dict(
     "total_area_1" => obj_area_1,
     "total_area_2" => obj_area_2,
-    "total_reconstruido" => obj_total_reconstruido,
-    "objetivo_modelo" => obj_modelo,
-    "error_absoluto" => abs(obj_total_reconstruido - obj_modelo)
+    "reconstructed_total" => obj_total_reconstruido,
+    "model_objective" => obj_modelo,
+    "absolute_error" => abs(obj_total_reconstruido - obj_modelo)
 )
 
 # -------------------------------------------------
-# 5) IMPRESIÓN
+# 5) PRINT RESULTS
 # -------------------------------------------------
 
-println("===== COSTOS ÁREA 1 =====")
-for (k,v) in costos_area_1
-    println(rpad(k, 30), " = ", v)
+println("===== AREA 1 COSTS =====")
+for (key, value) in area_1_costs
+    println(rpad(key, 30), " = ", value)
 end
 
-println("\n===== COSTOS ÁREA 2 =====")
-for (k,v) in costos_area_2
-    println(rpad(k, 30), " = ", v)
+println("\n===== AREA 2 COSTS =====")
+for (key, value) in area_2_costs
+    println(rpad(key, 30), " = ", value)
 end
 
-println("\n===== COSTOS TOTALES =====")
-for (k,v) in costos_totales
-    println(rpad(k, 30), " = ", v)
+println("\n===== TOTAL COSTS =====")
+for (key, value) in total_costs
+    println(rpad(key, 30), " = ", value)
 end
-
 # -------------------------------------------------
 # 7) SAVE RESULTS TO TXT FILE
 # -------------------------------------------------
@@ -648,18 +643,18 @@ output_file = "operating_costs_results.txt"
 open(output_file, "w") do io
 
     println(io, "===== AREA 1 COSTS =====")
-    for (k,v) in costos_area_1
-        println(io, rpad(k, 35), " = ", v)
+    for (key, value) in area_1_costs
+        println(io, rpad(key, 35), " = ", value)
     end
 
     println(io, "\n===== AREA 2 COSTS =====")
-    for (k,v) in costos_area_2
-        println(io, rpad(k, 35), " = ", v)
+    for (key, value) in area_2_costs
+        println(io, rpad(key, 35), " = ", value)
     end
 
     println(io, "\n===== TOTAL COSTS =====")
-    for (k,v) in costos_totales
-        println(io, rpad(k, 35), " = ", v)
+    for (key, value) in total_costs
+        println(io, rpad(key, 35), " = ", value)
     end
 
 end

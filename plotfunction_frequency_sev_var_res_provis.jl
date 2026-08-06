@@ -24,6 +24,32 @@ T  = m.ext[:sets][:t]
 N1 = m.ext[:sets][:N1]
 N2 = m.ext[:sets][:N2]
 
+G_reservoir= m.ext[:sets][:G_reservoir]
+G_reservoir_1= m.ext[:sets][:G_reservoir_1]
+G_reservoir_2=m.ext[:sets][:G_reservoir_2]
+G_pump=m.ext[:sets][:G_pump]
+G_pump_1=m.ext[:sets][:G_pump_1]
+G_pump_2=m.ext[:sets][:G_pump_2]
+G_nuclear=m.ext[:sets][:G_nuclear]
+G_nuclear_1=m.ext[:sets][:G_nuclear_1]
+G_nuclear_2=m.ext[:sets][:G_nuclear_2]
+G_gas=m.ext[:sets][:G_gas]
+G_gas_1=m.ext[:sets][:G_gas_1]
+G_gas_2=m.ext[:sets][:G_gas_2]
+G_biomass=m.ext[:sets][:G_biomass]
+G_biomass_1=m.ext[:sets][:G_biomass_1]
+G_biomass_2=m.ext[:sets][:G_biomass_2]
+G_oil=m.ext[:sets][:G_oil]
+G_oil_1=m.ext[:sets][:G_oil_1]
+G_oil_2=m.ext[:sets][:G_oil_2]
+G_solar=m.ext[:sets][:G_solar]
+G_solar_1=m.ext[:sets][:G_solar_1]
+G_solar_2=m.ext[:sets][:G_solar_2]
+G_wind=m.ext[:sets][:G_wind]
+G_wind_1=m.ext[:sets][:G_wind_1]
+G_wind_2=m.ext[:sets][:G_wind_2]
+
+
 
 # ============================================================
 # PARÁMETROS
@@ -919,8 +945,70 @@ fig34[1, 2] = Legend(
 
 fig34
 
+reservoir_per_hour_1=Dict()
+reservoir_per_hour_2=Dict()
+wind_per_hour_1=Dict()
+wind_per_hour_2=Dict()
+solar_per_hour_1=Dict()
+solar_per_hour_2=Dict()
+
+for t in T
+    if !isempty(G_reservoir_1)
+        reservoir_per_hour_1[t] = sum(pg[g, t] for g in G_reservoir_1)
+    end
+
+    if !isempty(G_reservoir_2)
+        reservoir_per_hour_2[t] = sum(pg[g, t] for g in G_reservoir_2)
+    end
+
+    if !isempty(G_wind_1)
+        wind_per_hour_1[t] = sum(pg[g, t] for g in G_wind_1)
+    end
+
+    if !isempty(G_wind_2)
+        wind_per_hour_2[t] = sum(pg[g, t] for g in G_wind_2)
+    end
+
+    if !isempty(G_solar_1)
+        solar_per_hour_1[t] = sum(pg[g, t] for g in G_solar_1)
+    end
+
+    if !isempty(G_solar_2)
+        solar_per_hour_2[t] = sum(pg[g, t] for g in G_solar_2)
+    end
+end
+
+solar_vector_1 = [get(solar_per_hour_1, string(t), 0.0) for t in T]
+reservoir_vector_1 = [get(reservoir_per_hour_1, string(t), 0.0) for t in T]
+wind_vector_1 = [get(wind_per_hour_1, string(t), 0.0) for t in T]
+solar_vector_2 = [get(solar_per_hour_2, string(t), 0.0) for t in T]
+reservoir_vector_2 = [get(reservoir_per_hour_2, string(t), 0.0) for t in T]
+wind_vector_2 = [get(wind_per_hour_2, string(t), 0.0) for t in T]
+
+fig35 = Figure()
+ax35 = fig35[1, 1] = Axis(fig35,
+    title  = "Renewable Generation by type Area 1",
+    xlabel = "Time (hours)",
+    ylabel = "Generation (MW)"
+)
+lines!(ax35, reservoir_vector_1, label = "Reservoir Generation Area 1")
+lines!(ax35, wind_vector_1, label = "Wind Generation Area 1")
+lines!(ax35, solar_vector_1, label = "Solar Generation Area 1")
+fig35[1, 2] = Legend(fig35, ax35, "RenewableGeneration by type Area 1", framevisible = false)
+fig35
 
 
+fig36 = Figure()
+ax36 = fig36[1, 1] = Axis(fig36,
+    title  = "Renewable Generation by type Area 2",
+    xlabel = "Time (hours)",
+    ylabel = "Generation (MW)"
+)
+lines!(ax36, reservoir_vector_2, label = "Reservoir Generation Area 2")
+lines!(ax36, wind_vector_2, label = "Wind Generation Area 2")
+lines!(ax36, solar_vector_2, label = "Solar Generation Area 2")
+fig36[1, 2] = Legend(fig36, ax36, "RenewableGeneration by type Area 2", framevisible = false)
+fig36
 
 
 save("Failure_binary_variable.png", fig30)
@@ -961,6 +1049,8 @@ save("Reserve allocation Area 1 pl reserve.png", fig31)
 save("Reserve allocation Area 2 pl reserve.png", fig32)
 save("Procured Inertia area 1.png", fig33)
 save("Procured Inertia area 2.png", fig34)
+save("Renewable Generation by type Area 1.png", fig35)
+save("Renewable Generation by type Area 2.png", fig36)
 
 
 end

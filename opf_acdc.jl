@@ -34,8 +34,8 @@ data["convdc"] = new
 
 
 ts = CSV.read("Load_data_hvdc.csv", DataFrame)
-tsw= CSV.read("area_solar.csv", DataFrame)
-tss= CSV.read("area_wind.csv", DataFrame)
+tsw= CSV.read("area_wind.csv", DataFrame)
+tss= CSV.read("area_solar.csv", DataFrame)
 
 # Initialize the JuMP model (an empty JuMP model) with defined solver
 m = Model(gurobi)
