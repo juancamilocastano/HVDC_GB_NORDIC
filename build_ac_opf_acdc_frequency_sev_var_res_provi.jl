@@ -239,6 +239,9 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
     TG=vcat(G_nuclear, G_gas, G_biomass, G_oil)
     TG1=vcat(G_nuclear_1, G_gas_1, G_biomass_1, G_oil_1) #Thermal 1
     TG2=vcat(G_nuclear_2, G_gas_2, G_biomass_2, G_oil_2) #Thermal 2
+    Set_WWS=m.ext[:sets][:WWS] = setdiff(m.ext[:sets][:G], m.ext[:sets][:G_solar],m.ext[:sets][:G_wind])
+    Set_WWS1=m.ext[:sets][:WWS1] = setdiff(m.ext[:sets][:G1], m.ext[:sets][:G_solar_1],m.ext[:sets][:G_wind_1])
+    Set_WWS2=m.ext[:sets][:WWS2] = setdiff(m.ext[:sets][:G2], m.ext[:sets][:G_solar_2],m.ext[:sets][:G_wind_2])
 
 
 
@@ -255,8 +258,8 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
     rg_lc1 = m.ext[:variables][:rg_lc1] = @variable(m, [g=G1,t=T],lower_bound=0, upper_bound=upramp[g]*G_dt[g]/3600, base_name = "rg_lc1") # frequency reserve generators loss of converter area 1
     rg_lg2 = m.ext[:variables][:rg_lg2] = @variable(m, [g=G2,t=T],lower_bound=0, upper_bound=upramp[g]*G_dt[g]/3600, base_name = "rg_lg2") # frequency reserve generators loss of generation area 2
     rg_lc2 = m.ext[:variables][:rg_lc2] = @variable(m, [g=G2,t=T],lower_bound=0, upper_bound=upramp[g]*G_dt[g]/3600, base_name = "rg_lc2") # frequency reserve generators loss of converter area 2
-    rg_l_reserve_1= m.ext[:variables][:rg_l_reserve_1] = @variable(m, [g=G1,t=T],upper_bound=upramp[g]*G_dt[g]/3600, base_name = "rg_l_reserve_1") # frequency reserve generators loss of generation area 
-    rg_l_reserve_2= m.ext[:variables][:rg_l_reserve_2] = @variable(m, [g=G2,t=T], upper_bound=upramp[g]*G_dt[g]/3600, base_name = "rg_l_reserve_2") # frequency reserve generators loss of generation area 2
+    rg_l_reserve_1= m.ext[:variables][:rg_l_reserve_1] = @variable(m, [g=G1,t=T],lower_bound=0,upper_bound=upramp[g]*G_dt[g]/3600, base_name = "rg_l_reserve_1") # frequency reserve generators loss of generation area 
+    rg_l_reserve_2= m.ext[:variables][:rg_l_reserve_2] = @variable(m, [g=G2,t=T],lower_bound=0, upper_bound=upramp[g]*G_dt[g]/3600, base_name = "rg_l_reserve_2") # frequency reserve generators loss of generation area 2
 
     
     # Branch variables
@@ -273,8 +276,6 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
     
     # Branches
     brdc_p = m.ext[:variables][:brdc_p] = @variable(m, [(d,e,f)=BD_dc, t=T], lower_bound=-brdc_rate_a[d], upper_bound=brdc_rate_a[d], base_name="brdc_p")
-    δbranch= m.ext[:variables][:δbranch] = @variable(m, [cv=CV,t=T], binary=true, base_name="δbranch") #binary variable event converter
-   # Converters
     conv_p_ac = m.ext[:variables][:conv_p_ac] = @variable(m, [cv=CV,t=T], lower_bound=-conv_p_ac_max[cv], upper_bound=conv_p_ac_max[cv], base_name="conv_p_ac") # converter active power
     conv_p_ac_abs = m.ext[:variables][:conv_p_ac_abs] = @variable(m, [cv=CV,t=T], lower_bound=0,upper_bound=conv_p_ac_max[cv], base_name="conv_p_ac_abs") # absorve power converter
     conv_p_ac_inj= m.ext[:variables][:conv_p_ac_inj] = @variable(m, [cv=CV,t=T], lower_bound=0, upper_bound=conv_p_ac_max[cv], base_name="conv_p_ac_inj") # injected power converter
@@ -380,11 +381,6 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
                             +sum(Sreservecost[s]*rs_l_reserve_1[s,t] for s in S1, t in T)*baseMVA
                             +sum(Sreservecost[s]*rs_l_reserve_2[s,t] for s in S2, t in T)*baseMVA
 
-                            +sum(HVDC_reservecost[cv]*rhvdc_lg1[cv,t] for cv in CV1, t in T)*baseMVA
-                            +sum(HVDC_reservecost[cv]*rhvdc_lg2[cv,t] for cv in CV2, t in T)*baseMVA
-                            +sum(HVDC_reservecost[cv]*rhvdc_lc1[cv,t] for cv in CV1, t in T)*baseMVA
-                            +sum(HVDC_reservecost[cv]*rhvdc_lc2[cv,t] for cv in CV2, t in T)*baseMVA
-
                             +sum(G_reservecost[g]*rg_lg1[g,t] for g in G1, t in T)*baseMVA
                             +sum(G_reservecost[g]*rg_lg2[g,t] for g in G2, t in T)*baseMVA
                             +sum(G_reservecost[g]*rg_lc1[g,t] for g in G1, t in T)*baseMVA
@@ -424,7 +420,7 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
 
         )
     elseif max_gen_ncost == 3
-        m.ext[:objective] = @NLobjective(m, Min,
+        m.ext[:objective] = @objective(m, Min,
                 sum(c[g][1]*pg[g,t]^2 + gen_cost[g][2]*pg[g,t] + gen_cost[g][3]
                         for g in G, t in T)
                             +sum(Estartupcost[e]*zesu[e,t] for e in E, t in T)
@@ -612,7 +608,10 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
     rg_l_reserve_2[g,t] == 0
     )
 
-
+    #On status of nuclear generators constraint
+    m.ext[:constraints][:nuclear_status] = @constraint(m, [g=G_nuclear,t=T],
+    zg[g,t] == 1
+    )
     #Unit commitment constraints
   m.ext[:constraints][:max_gen_power] = @constraint(m, [g=G,t=T],
         pg[g,t] <= pmax[g]*zg[g,t]
@@ -766,18 +765,18 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
 
 
         #Reservoir constraints
- m.ext[:constraints][:initial_energy_value_reservoir] = @constraint(m, [g in G_reservoir, t in T],
+ m.ext[:constraints][:initial_energy_value_reservoir] = @constraint(m, [g in G_reservoir],
         e_reservoir[g, Tlabels[1]] == E_reservoirs_ini[g]
     )
 
     
-    m.ext[:constraints][:end_energy_value_reservoir] = @constraint(m, [g in G_reservoir, t in T],
+    m.ext[:constraints][:end_energy_value_reservoir] = @constraint(m, [g in G_reservoir],
         E_reservoirs_end[g] <=
             e_reservoir[g, Tlabels[NT]] -
             pg[g, Tlabels[NT]]/G_ngenerating[g]
     )
 
-    m.ext[:constraints][:end_energy_value_reservoir]=@constraint(m, [g in G_reservoir, k in 1:NT-1],
+    m.ext[:constraints][:transition_energy_value_reservoir]=@constraint(m, [g in G_reservoir, k in 1:NT-1],
         e_reservoir[g, Tlabels[k+1]] ==
             e_reservoir[g, Tlabels[k]] -
             pg[g, Tlabels[k]]/G_ngenerating[g]

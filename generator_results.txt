@@ -1,47 +1,47 @@
 
 Hour 1:
   Generator = 453, generation type = nuclear, rated power = 1800.0 [MW], area = area 2
-  Generator = 294, generation type = wind, rated power = 3884.11975 [MW], area = area 1
+  Generator = 12, generation type = reservoir, rated power = 1199.29 [MW], area = area 1
 
 Hour 2:
+  Generator = 54, generation type = nuclear, rated power = 1614.9999999999998 [MW], area = area 1
   Generator = 453, generation type = nuclear, rated power = 1800.0 [MW], area = area 2
-  Generator = 294, generation type = wind, rated power = 3884.11975 [MW], area = area 1
 
 Hour 3:
-  Generator = 450, generation type = nuclear, rated power = 1800.0 [MW], area = area 2
-  Generator = 30, generation type = reservoir, rated power = 2400.57 [MW], area = area 1
+  Generator = 453, generation type = nuclear, rated power = 1800.0 [MW], area = area 2
+  Generator = 59, generation type = nuclear, rated power = 1398.0 [MW], area = area 1
 
 Hour 4:
-  Generator = 451, generation type = nuclear, rated power = 1800.0 [MW], area = area 2
-  Generator = 294, generation type = wind, rated power = 3884.11975 [MW], area = area 1
+  Generator = 453, generation type = nuclear, rated power = 1800.0 [MW], area = area 2
+  Generator = 59, generation type = nuclear, rated power = 1398.0 [MW], area = area 1
 
 Hour 5:
-  Generator = 450, generation type = nuclear, rated power = 1800.0 [MW], area = area 2
-  Generator = 30, generation type = reservoir, rated power = 2400.57 [MW], area = area 1
+  Generator = 453, generation type = nuclear, rated power = 1800.0 [MW], area = area 2
+  Generator = 59, generation type = nuclear, rated power = 1398.0 [MW], area = area 1
 
 Hour 6:
-  Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
-  Generator = 290, generation type = wind, rated power = 4212.514715 [MW], area = area 1
+  Generator = 453, generation type = nuclear, rated power = 1800.0 [MW], area = area 2
+  Generator = 13, generation type = reservoir, rated power = 1876.63 [MW], area = area 1
 
 Hour 7:
-  Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
-  Generator = 290, generation type = wind, rated power = 4212.514715 [MW], area = area 1
+  Generator = 453, generation type = nuclear, rated power = 1800.0 [MW], area = area 2
+  Generator = 30, generation type = reservoir, rated power = 2400.57 [MW], area = area 1
 
 Hour 8:
-  Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
-  Generator = 290, generation type = wind, rated power = 4212.514715 [MW], area = area 1
+  Generator = 453, generation type = nuclear, rated power = 1800.0 [MW], area = area 2
+  Generator = 35, generation type = reservoir, rated power = 3417.36 [MW], area = area 1
 
 Hour 9:
-  Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
-  Generator = 290, generation type = wind, rated power = 4212.514715 [MW], area = area 1
+  Generator = 453, generation type = nuclear, rated power = 1800.0 [MW], area = area 2
+  Generator = 32, generation type = reservoir, rated power = 4418.24 [MW], area = area 1
 
 Hour 10:
-  Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
-  Generator = 290, generation type = wind, rated power = 4212.514715 [MW], area = area 1
+  Generator = 453, generation type = nuclear, rated power = 1800.0 [MW], area = area 2
+  Generator = 23, generation type = reservoir, rated power = 2358.23 [MW], area = area 1
 
 Hour 11:
   Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
-  Generator = 294, generation type = wind, rated power = 3884.11975 [MW], area = area 1
+  Generator = 290, generation type = wind, rated power = 4212.514715 [MW], area = area 1
 
 Hour 12:
   Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
@@ -49,48 +49,48 @@ Hour 12:
 
 Hour 13:
   Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
-  Generator = 294, generation type = wind, rated power = 3884.11975 [MW], area = area 1
+  Generator = 290, generation type = wind, rated power = 4212.514715 [MW], area = area 1
 
 Hour 14:
   Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
-  Generator = 294, generation type = wind, rated power = 3884.11975 [MW], area = area 1
+  Generator = 290, generation type = wind, rated power = 4212.514715 [MW], area = area 1
 
 Hour 15:
   Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
-  Generator = 294, generation type = wind, rated power = 3884.11975 [MW], area = area 1
-
-Hour 16:
-  Generator = 515, generation type = wind, rated power = 3600.0 [MW], area = area 2
-  Generator = 294, generation type = wind, rated power = 3884.11975 [MW], area = area 1
-
-Hour 17:
-  Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
-  Generator = 294, generation type = wind, rated power = 3884.11975 [MW], area = area 1
-
-Hour 18:
-  Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
-  Generator = 294, generation type = wind, rated power = 3884.11975 [MW], area = area 1
-
-Hour 19:
-  Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
   Generator = 290, generation type = wind, rated power = 4212.514715 [MW], area = area 1
 
+Hour 16:
+  Generator = 453, generation type = nuclear, rated power = 1800.0 [MW], area = area 2
+  Generator = 233, generation type = solar, rated power = 1993.919177 [MW], area = area 1
+
+Hour 17:
+  Generator = 453, generation type = nuclear, rated power = 1800.0 [MW], area = area 2
+  Generator = 30, generation type = reservoir, rated power = 2400.57 [MW], area = area 1
+
+Hour 18:
+  Generator = 453, generation type = nuclear, rated power = 1800.0 [MW], area = area 2
+  Generator = 21, generation type = reservoir, rated power = 3355.43 [MW], area = area 1
+
+Hour 19:
+  Generator = 453, generation type = nuclear, rated power = 1800.0 [MW], area = area 2
+  Generator = 16, generation type = reservoir, rated power = 2654.59 [MW], area = area 1
+
 Hour 20:
-  Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
-  Generator = 294, generation type = wind, rated power = 3884.11975 [MW], area = area 1
+  Generator = 453, generation type = nuclear, rated power = 1800.0 [MW], area = area 2
+  Generator = 13, generation type = reservoir, rated power = 1876.63 [MW], area = area 1
 
 Hour 21:
-  Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
-  Generator = 294, generation type = wind, rated power = 3884.11975 [MW], area = area 1
+  Generator = 453, generation type = nuclear, rated power = 1800.0 [MW], area = area 2
+  Generator = 4, generation type = reservoir, rated power = 1730.37 [MW], area = area 1
 
 Hour 22:
-  Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
-  Generator = 294, generation type = wind, rated power = 3884.11975 [MW], area = area 1
+  Generator = 54, generation type = nuclear, rated power = 1614.9999999999998 [MW], area = area 1
+  Generator = 453, generation type = nuclear, rated power = 1800.0 [MW], area = area 2
 
 Hour 23:
-  Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
-  Generator = 294, generation type = wind, rated power = 3884.11975 [MW], area = area 1
+  Generator = 453, generation type = nuclear, rated power = 1800.0 [MW], area = area 2
+  Generator = 233, generation type = solar, rated power = 1993.919177 [MW], area = area 1
 
 Hour 24:
-  Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
-  Generator = 294, generation type = wind, rated power = 3884.11975 [MW], area = area 1
+  Generator = 453, generation type = nuclear, rated power = 1800.0 [MW], area = area 2
+  Generator = 233, generation type = solar, rated power = 1993.919177 [MW], area = area 1
