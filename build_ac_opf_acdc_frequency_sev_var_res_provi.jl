@@ -261,7 +261,8 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
     rg_l_reserve_1= m.ext[:variables][:rg_l_reserve_1] = @variable(m, [g=G1,t=T],lower_bound=0,upper_bound=upramp[g]*G_dt[g]/3600, base_name = "rg_l_reserve_1") # frequency reserve generators loss of generation area 
     rg_l_reserve_2= m.ext[:variables][:rg_l_reserve_2] = @variable(m, [g=G2,t=T],lower_bound=0, upper_bound=upramp[g]*G_dt[g]/3600, base_name = "rg_l_reserve_2") # frequency reserve generators loss of generation area 2
 
-    
+    r_proc_g_1=m.ext[:variables][:r_proc_g_1] = @variable(m, [g=G1,t=T],lower_bound=0,upper_bound=upramp[g]*G_dt[g]/3600, base_name = "r_proc_g_1")
+    r_proc_g_2=m.ext[:variables][:r_proc_g_2] = @variable(m, [g=G2,t=T],lower_bound=0,upper_bound=upramp[g]*G_dt[g]/3600, base_name = "r_proc_g_2")
     # Branch variables
   
 
@@ -286,6 +287,7 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
     rhvdc_lc1 = m.ext[:variables][:rhvdc_lc1] = @variable(m, [cv=CV1,t=T], lower_bound=0,  upper_bound=2*(40/40)conv_p_dc_max[cv], base_name="rhvdc_lc1") #frequency reserve HVDC loss of converter area 1
     rhvdc_lg2 = m.ext[:variables][:rhvdc_lg2] = @variable(m, [cv=CV2,t=T], lower_bound=0,  upper_bound=2*(40/40)conv_p_dc_max[cv], base_name="rhvdc_lg2") #frequency reserve HVDC loss of generation area 2
     rhvdc_lc2 = m.ext[:variables][:rhvdc_lc2] = @variable(m, [cv=CV2,t=T], lower_bound=0,  upper_bound=2*(40/40)conv_p_dc_max[cv], base_name="rhvdc_lc2") #frequency reserve HVDC loss of converter area 2
+
 
    #Reservoir storage variables
     e_reservoir = m.ext[:variables][:e_reservoir] = @variable(m, [g=G_reservoir,t=T], lower_bound=0, upper_bound=G_storage[g], base_name = "e_reservoir") # energy storage reservoir
@@ -312,7 +314,9 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
     re_l_reserve_1= m.ext[:variables][:re_l_reserve_1] = @variable(m, [e=E1,t=T], lower_bound=0, base_name="re_l_reserve_1") #frequency reserve for FCR provision
     re_l_reserve_2= m.ext[:variables][:re_l_reserve_2] = @variable(m, [e=E2,t=T], lower_bound=0, base_name="re_l_reserve_2") #frequency reserve for FCR provision
 
-    
+    r_proc_e_1= m.ext[:variables][:r_proc_e_1] = @variable(m, [e=E1,t=T], lower_bound=0, base_name="r_proc_e_1")
+    r_proc_e_2= m.ext[:variables][:r_proc_e_2] = @variable(m, [e=E2,t=T], lower_bound=0, base_name="r_proc_e_2")
+
     # Storage variables
     psc = m.ext[:variables][:psc] = @variable(m, [s=S,t=T],lower_bound=0, base_name="psc") #Charging power of the batteries
     psd = m.ext[:variables][:psd] = @variable(m, [s=S,t=T],lower_bound=0, base_name="psd") #Discharging power of the batteries
@@ -325,6 +329,8 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
     rs_l_reserve_1= m.ext[:variables][:rs_l_reserve_1] = @variable(m, [s=S1,t=T], lower_bound=0, base_name="rs_l_reserve_1") #frequency reserve for FCR provision
     rs_l_reserve_2= m.ext[:variables][:rs_l_reserve_2] = @variable(m, [s=S2,t=T], lower_bound=0, base_name="rs_l_reserve_2") #frequency reserve for FCR provision
 
+    r_proc_s_1= m.ext[:variables][:r_proc_s_1] = @variable(m, [s=S1,t=T], lower_bound=0, base_name="r_proc_s_1")
+    r_proc_s_2= m.ext[:variables][:r_proc_s_2] = @variable(m, [s=S2,t=T], lower_bound=0, base_name="r_proc_s_2")
 
     # Frequency stability variables
     plg1= m.ext[:variables][:plg1] = @variable(m, [t=T], lower_bound=0, base_name="plg1") # loss of power generators area 1
@@ -350,6 +356,10 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
     ypreserve2 = m.ext[:variables][:ypreserve2] = @variable(m, [t=T],lower_bound=0, base_name="ypreserve2") #Auxiliary variable rotate second order cone reserve provision fault area 2
     zpreserve2 = m.ext[:variables][:zpreserve2] = @variable(m, [t=T],lower_bound=0, base_name="zpreserve2") #Auxiliary variable rotate second order cone reserve provision fault area 2
     # Other variables
+
+    load_shed_1 = m.ext[:variables][:load_shed_1] = @variable(m, [t=T],lower_bound=0, base_name="load_shed_1") #Load shedding area 1
+    load_shed_2 = m.ext[:variables][:load_shed_2] = @variable(m, [t=T],lower_bound=0, base_name="load_shed_2") #Load shedding area 2
+
    
     #Second stage variables
     
@@ -367,27 +377,19 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
                             +sum(start_up_cost[g]*betag[g,t] for g in G, t in T)
                             +sum(Estartupcost[e]*zesu[e,t] for e in E, t in T)*baseMVA
                             +sum(Hydrogencost[e]*baseKG*(-hfginyect[e,t]+hfgconsum[e,t]) for e in E, t in T)
-                            +sum(Ereservecost[e]*re_lg1[e,t] for e in E1, t in T)*baseMVA
-                            +sum(Ereservecost[e]*re_lg2[e,t] for e in E2, t in T)*baseMVA
-                            +sum(Ereservecost[e]*re_lc1[e,t] for e in E1, t in T)*baseMVA
-                            +sum(Ereservecost[e]*re_lc2[e,t] for e in E2, t in T)*baseMVA
-                            +sum(Ereservecost[e]*re_l_reserve_1[e,t] for e in E1, t in T)*baseMVA
-                            +sum(Ereservecost[e]*re_l_reserve_2[e,t] for e in E2, t in T)*baseMVA
+                            +sum(Ereservecost[e]*r_proc_e_1[e,t] for e in E1, t in T)*baseMVA
+                            +sum(Ereservecost[e]*r_proc_e_2[e,t] for e in E2, t in T)*baseMVA
+                           
 
-                            +sum(Sreservecost[s]*rs_lg1[s,t] for s in S1, t in T)*baseMVA
-                            +sum(Sreservecost[s]*rs_lg2[s,t] for s in S2, t in T)*baseMVA
-                            +sum(Sreservecost[s]*rs_lc1[s,t] for s in S1, t in T)*baseMVA
-                            +sum(Sreservecost[s]*rs_lc2[s,t] for s in S2, t in T)*baseMVA
-                            +sum(Sreservecost[s]*rs_l_reserve_1[s,t] for s in S1, t in T)*baseMVA
-                            +sum(Sreservecost[s]*rs_l_reserve_2[s,t] for s in S2, t in T)*baseMVA
+                            +sum(Sreservecost[s]*r_proc_s_1[s,t] for s in S1, t in T)*baseMVA
+                            +sum(Sreservecost[s]*r_proc_s_2[s,t] for s in S2, t in T)*baseMVA
+                  
 
-                            +sum(G_reservecost[g]*rg_lg1[g,t] for g in G1, t in T)*baseMVA
-                            +sum(G_reservecost[g]*rg_lg2[g,t] for g in G2, t in T)*baseMVA
-                            +sum(G_reservecost[g]*rg_lc1[g,t] for g in G1, t in T)*baseMVA
-                            +sum(G_reservecost[g]*rg_lc2[g,t] for g in G2, t in T)*baseMVA
-                            +sum(G_reservecost[g]*rg_l_reserve_1[g,t] for g in G1, t in T)*baseMVA
-                            +sum(G_reservecost[g]*rg_l_reserve_2[g,t] for g in G2, t in T)*baseMVA
-                             
+                            +sum(G_reservecost[g]*r_proc_g_1[g,t] for g in G1, t in T)*baseMVA
+                            +sum(G_reservecost[g]*r_proc_g_2[g,t] for g in G2, t in T)*baseMVA
+
+                            +sum(load_shed_1[t]*10000 for t in T)*baseMVA
+                            +sum(load_shed_2[t]*10000 for t in T)*baseMVA
 
         )
     elseif max_gen_ncost == 2
@@ -397,26 +399,17 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
                             +sum(Estartupcost[e]*zesu[e,t] for e in E, t in T)
                             +sum(start_up_cost[g]*betag[g,t] for g in G, t in T)
                             +sum(Hydrogencost[e]*baseKG*(-hfginyect[e,t]+hfgconsum[e,t]) for e in E, t in T)
-                            +sum(Ereservecost[e]*re_lg1[e,t] for e in E1, t in T)*baseMVA
-                            +sum(Ereservecost[e]*re_lg2[e,t] for e in E2, t in T)*baseMVA
-                            +sum(Ereservecost[e]*re_lc1[e,t] for e in E1, t in T)*baseMVA
-                            +sum(Ereservecost[e]*re_lc2[e,t] for e in E2, t in T)*baseMVA
-                            +sum(Ereservecost[e]*re_l_reserve_1[e,t] for e in E1, t in T)*baseMVA
-                            +sum(Ereservecost[e]*re_l_reserve_2[e,t] for e in E2, t in T)*baseMVA
+                            +sum(Ereservecost[e]*r_proc_e_1[e,t] for e in E1, t in T)*baseMVA
+                            +sum(Ereservecost[e]*r_proc_e_2[e,t] for e in E2, t in T)*baseMVA
 
-                            +sum(Sreservecost[s]*rs_lg1[s,t] for s in S1, t in T)*baseMVA
-                            +sum(Sreservecost[s]*rs_lg2[s,t] for s in S2, t in T)*baseMVA
-                            +sum(Sreservecost[s]*rs_lc1[s,t] for s in S1, t in T)*baseMVA
-                            +sum(Sreservecost[s]*rs_lc2[s,t] for s in S2, t in T)*baseMVA
-                            +sum(Sreservecost[s]*rs_l_reserve_1[s,t] for s in S1, t in T)*baseMVA
-                            +sum(Sreservecost[s]*rs_l_reserve_2[s,t] for s in S2, t in T)*baseMVA
+                            +sum(Sreservecost[s]*r_proc_s_1[s,t] for s in S1, t in T)*baseMVA
+                            +sum(Sreservecost[s]*r_proc_s_2[s,t] for s in S2, t in T)*baseMVA
 
-                            +sum(G_reservecost[g]*rg_lg1[g,t] for g in G1, t in T)*baseMVA
-                            +sum(G_reservecost[g]*rg_lg2[g,t] for g in G2, t in T)*baseMVA
-                            +sum(G_reservecost[g]*rg_lc1[g,t] for g in G1, t in T)*baseMVA
-                            +sum(G_reservecost[g]*rg_lc2[g,t] for g in G2, t in T)*baseMVA
-                            +sum(G_reservecost[g]*rg_l_reserve_1[g,t] for g in G1, t in T)*baseMVA
-                            +sum(G_reservecost[g]*rg_l_reserve_2[g,t] for g in G2, t in T)*baseMVA
+                            +sum(G_reservecost[g]*r_proc_g_1[g,t] for g in G1, t in T)*baseMVA
+                            +sum(G_reservecost[g]*r_proc_g_2[g,t] for g in G2, t in T)*baseMVA
+
+                            +sum(load_shed_1[t]*10000 for t in T)*baseMVA
+                            +sum(load_shed_2[t]*10000 for t in T)*baseMVA
 
         )
     elseif max_gen_ncost == 3
@@ -426,27 +419,17 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
                             +sum(Estartupcost[e]*zesu[e,t] for e in E, t in T)
                             +sum(start_up_cost[g]*betag[g,t] for g in G, t in T)
                             +sum(Hydrogencost[e]*baseKG*(-hfginyect[e,t]+hfgconsum[e,t]) for e in E, t in T)
-                            +sum(Ereservecost[e]*re_lg1[e,t] for e in E1, t in T)*baseMVA
-                            +sum(Ereservecost[e]*re_lg2[e,t] for e in E2, t in T)*baseMVA
-                            +sum(Ereservecost[e]*re_lc1[e,t] for e in E1, t in T)*baseMVA
-                            +sum(Ereservecost[e]*re_lc2[e,t] for e in E2, t in T)*baseMVA
-                            +sum(Ereservecost[e]*re_l_reserve_1[e,t] for e in E1, t in T)*baseMVA
-                            +sum(Ereservecost[e]*re_l_reserve_2[e,t] for e in E2, t in T)*baseMVA
+                            +sum(Ereservecost[e]*r_proc_e_1[e,t] for e in E1, t in T)*baseMVA
+                            +sum(Ereservecost[e]*r_proc_e_2[e,t] for e in E2, t in T)*baseMVA
 
-                            +sum(Sreservecost[s]*rs_lg1[s,t] for s in S1, t in T)*baseMVA
-                            +sum(Sreservecost[s]*rs_lg2[s,t] for s in S2, t in T)*baseMVA
-                            +sum(Sreservecost[s]*rs_lc1[s,t] for s in S1, t in T)*baseMVA
-                            +sum(Sreservecost[s]*rs_lc2[s,t] for s in S2, t in T)*baseMVA
-                            +sum(Sreservecost[s]*rs_l_reserve_1[s,t] for s in S1, t in T)*baseMVA
-                            +sum(Sreservecost[s]*rs_l_reserve_2[s,t] for s in S2, t in T)*baseMVA
+                            +sum(Sreservecost[s]*r_proc_s_1[s,t] for s in S1, t in T)*baseMVA
+                            +sum(Sreservecost[s]*r_proc_s_2[s,t] for s in S2, t in T)*baseMVA
 
-                            +sum(G_reservecost[g]*rg_lg1[g,t] for g in G1, t in T)*baseMVA
-                            +sum(G_reservecost[g]*rg_lg2[g,t] for g in G2, t in T)*baseMVA
-                            +sum(G_reservecost[g]*rg_lc1[g,t] for g in G1, t in T)*baseMVA
-                            +sum(G_reservecost[g]*rg_lc2[g,t] for g in G2, t in T)*baseMVA
-                            +sum(G_reservecost[g]*rg_l_reserve_1[g,t] for g in G1, t in T)*baseMVA
-                            +sum(G_reservecost[g]*rg_l_reserve_2[g,t] for g in G2, t in T)*baseMVA
+                            +sum(G_reservecost[g]*r_proc_g_1[g,t] for g in G1, t in T)*baseMVA
+                            +sum(G_reservecost[g]*r_proc_g_2[g,t] for g in G2, t in T)*baseMVA
                              
+                            +sum(load_shed_1[t]*10000 for t in T)*baseMVA
+                            +sum(load_shed_2[t]*10000 for t in T)*baseMVA
        )   
     elseif max_gen_ncost == 4
         m.ext[:objective] = @NLobjective(m, Min,
@@ -455,28 +438,18 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
                             +sum(Estartupcost[e]*zesu[e,t] for e in E, t in T)
                             +sum(start_up_cost[g]*betag[g,t] for g in G, t in T)
                             +sum(Hydrogencost[e]*baseKG*(-hfginyect[e,t]+hfgconsum[e,t]) for e in E, t in T)
-                            +sum(Ereservecost[e]*re_lg1[e,t] for e in E1, t in T)*baseMVA
-                            +sum(Ereservecost[e]*re_lg2[e,t] for e in E2, t in T)*baseMVA
-                            +sum(Ereservecost[e]*re_lc1[e,t] for e in E1, t in T)*baseMVA
-                            +sum(Ereservecost[e]*re_lc2[e,t] for e in E2, t in T)*baseMVA
-                            +sum(Ereservecost[e]*re_l_reserve_1[e,t] for e in E1, t in T)*baseMVA
-                            +sum(Ereservecost[e]*re_l_reserve_2[e,t] for e in E2, t in T)*baseMVA
+                            +sum(Ereservecost[e]*r_proc_e_1[e,t] for e in E1, t in T)*baseMVA
+                            +sum(Ereservecost[e]*r_proc_e_2[e,t] for e in E2, t in T)*baseMVA
 
-                            +sum(Sreservecost[s]*rs_lg1[s,t] for s in S1, t in T)*baseMVA
-                            +sum(Sreservecost[s]*rs_lg2[s,t] for s in S2, t in T)*baseMVA
-                            +sum(Sreservecost[s]*rs_lc1[s,t] for s in S1, t in T)*baseMVA
-                            +sum(Sreservecost[s]*rs_lc2[s,t] for s in S2, t in T)*baseMVA
-                            +sum(Sreservecost[s]*rs_l_reserve_1[s,t] for s in S1, t in T)*baseMVA
-                            +sum(Sreservecost[s]*rs_l_reserve_2[s,t] for s in S2, t in T)*baseMVA
+                            +sum(Sreservecost[s]*r_proc_s_1[s,t] for s in S1, t in T)*baseMVA
+                            +sum(Sreservecost[s]*r_proc_s_2[s,t] for s in S2, t in T)*baseMVA
 
-                            +sum(G_reservecost[g]*rg_lg1[g,t] for g in G1, t in T)*baseMVA
-                            +sum(G_reservecost[g]*rg_lg2[g,t] for g in G2, t in T)*baseMVA
-                            +sum(G_reservecost[g]*rg_lc1[g,t] for g in G1, t in T)*baseMVA
-                            +sum(G_reservecost[g]*rg_lc2[g,t] for g in G2, t in T)*baseMVA
-                            +sum(G_reservecost[g]*rg_l_reserve_1[g,t] for g in G1, t in T)*baseMVA
-                            +sum(G_reservecost[g]*rg_l_reserve_2[g,t] for g in G2, t in T)*baseMVA
+                            +sum(G_reservecost[g]*r_proc_g_1[g,t] for g in G1, t in T)*baseMVA
+                            +sum(G_reservecost[g]*r_proc_g_2[g,t] for g in G2, t in T)*baseMVA
 
-                             
+                            +sum(load_shed_1[t]*10000 for t in T)*baseMVA
+                            +sum(load_shed_2[t]*10000 for t in T)*baseMVA
+                       
        )
     end
 
@@ -484,19 +457,78 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
     ####################    AC NETWORK AND AC/DC CONSTRAINTS
     ####################################################################################################
     
+     ####################################################################################################
+    ####################    Reserve provision constraints
+    ####################################################################################################
+    
+    #Generators
+    m.ext[:constraints][:r_proc_g_1_bound_lg] = @constraint(m, [g=G1,t=T],
+    r_proc_g_1[g,t] >= rg_lg1[g,t])
+
+    m.ext[:constraints][:r_proc_g_1_bound_lc] = @constraint(m, [g=G1,t=T],
+    r_proc_g_1[g,t] >= rg_lc1[g,t])
+
+    m.ext[:constraints][:r_proc_g_1_bound_lreserve] = @constraint(m, [g=G1,t=T],
+    r_proc_g_1[g,t] >= rg_l_reserve_1[g,t])
+
+    m.ext[:constraints][:r_proc_g_2_bound_lg] = @constraint(m, [g=G2,t=T],
+    r_proc_g_2[g,t] >= rg_lg2[g,t])
+
+    m.ext[:constraints][:r_proc_g_2_bound_lc] = @constraint(m, [g=G2,t=T],
+    r_proc_g_2[g,t] >= rg_lc2[g,t])
+
+    m.ext[:constraints][:r_proc_g_2_bound_lreserve] = @constraint(m, [g=G2,t=T],
+    r_proc_g_2[g,t] >= rg_l_reserve_2[g,t])
+
+    #Storage
+    m.ext[:constraints][:r_proc_s_1_bound_lg] = @constraint(m, [s=S1,t=T],
+    r_proc_s_1[s,t] >= rs_lg1[s,t])
+    m.ext[:constraints][:r_proc_s_1_bound_lc] = @constraint(m, [s=S1,t=T],
+    r_proc_s_1[s,t] >= rs_lc1[s,t])
+    m.ext[:constraints][:r_proc_s_1_bound_lreserve] = @constraint(m, [s=S1,t=T],
+    r_proc_s_1[s,t] >= rs_l_reserve_1[s,t])
+
+    m.ext[:constraints][:r_proc_s_2_bound_lg] = @constraint(m, [s=S2,t=T],
+    r_proc_s_2[s,t] >= rs_lg2[s,t])
+    m.ext[:constraints][:r_proc_s_2_bound_lc] = @constraint(m, [s=S2,t=T],
+    r_proc_s_2[s,t] >= rs_lc2[s,t])
+    m.ext[:constraints][:r_proc_s_2_bound_lreserve] = @constraint(m, [s=S2,t=T],
+    r_proc_s_2[s,t] >= rs_l_reserve_2[s,t])
+
+    #Electrolyzers
+    m.ext[:constraints][:r_proc_e_1_bound_lg] = @constraint(m, [e=E1,t=T],
+    r_proc_e_1[e,t] >= re_lg1[e,t])
+    m.ext[:constraints][:r_proc_e_1_bound_lc] = @constraint(m, [e=E1,t=T],
+    r_proc_e_1[e,t] >= re_lc1[e,t])
+    m.ext[:constraints][:r_proc_e_1_bound_lreserve] = @constraint(m, [e=E1,t=T],
+    r_proc_e_1[e,t] >= re_l_reserve_1[e,t]) 
+
+    m.ext[:constraints][:r_proc_e_2_bound_lg] = @constraint(m, [e=E2,t=T],
+    r_proc_e_2[e,t] >= re_lg2[e,t])
+    m.ext[:constraints][:r_proc_e_2_bound_lc] = @constraint(m, [e=E2,t=T],
+    r_proc_e_2[e,t] >= re_lc2[e,t])
+    m.ext[:constraints][:r_proc_e_2_bound_lreserve] = @constraint(m, [e=E2,t=T],
+    r_proc_e_2[e,t] >= re_l_reserve_2[e,t])
+
 
     # Bus angle difference limits
 
         # Voltage angle on reference bus = 0
 
 
-
     #Nodal power balance constraint AC taken from https://github.com/Electa-Git/OPES/blob/main/opf_acdc/build_ac_opf_acdc_tap.jl line 421
         m.ext[:constraints][:power_balance_1] = @constraint(m, [t=T],
-        sum(pg[g,t] for g in G1 )-sum(p_charge_pump[g,t] for g in G_pump_1)+  sum(conv_p_ac[cv,t] for cv in CV1) +sum(psd[s,t] for s in S1)-sum(psc[s,t] for s in S1)-sum(pe[e,t] for e in E1) -sum(pe_compressor[e,t] for e in E1)-demand["1"][t]== 0 #3.7
+        sum(pg[g,t] for g in G1 )-sum(p_charge_pump[g,t] for g in G_pump_1)+  sum(conv_p_ac[cv,t] for cv in CV1) +sum(psd[s,t] for s in S1)-sum(psc[s,t] for s in S1)-sum(pe[e,t] for e in E1) -sum(pe_compressor[e,t] for e in E1)-demand["1"][t]+load_shed_1[t]== 0 #3.7
         )
         m.ext[:constraints][:power_balance_2] = @constraint(m, [t=T],
-        sum(pg[g,t] for g in G2 )-sum(p_charge_pump[g,t] for g in G_pump_2)+  sum(conv_p_ac[cv,t] for cv in CV2) +sum(psd[s,t] for s in S2)-sum(psc[s,t] for s in S2)-sum(pe[e,t] for e in E2) -sum(pe_compressor[e,t] for e in E2)-demand["2"][t]== 0 #3.7
+        sum(pg[g,t] for g in G2 )-sum(p_charge_pump[g,t] for g in G_pump_2)+  sum(conv_p_ac[cv,t] for cv in CV2) +sum(psd[s,t] for s in S2)-sum(psc[s,t] for s in S2)-sum(pe[e,t] for e in E2) -sum(pe_compressor[e,t] for e in E2)-demand["2"][t]+load_shed_2[t]== 0 #3.7
+        )
+
+        m.ext[:constraints][:load_shed_1_limit] = @constraint(m, [t=T],
+        load_shed_1[t] <= demand["1"][t]
+        )
+        m.ext[:constraints][:load_shed_2_limit] = @constraint(m, [t=T],
+        load_shed_2[t] <= demand["2"][t]
         )
 
     #Online-unit contingency eligibility constraint
@@ -551,6 +583,26 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
     conv_p_ac[cv,t] == conv_p_ac_inj[cv,t]-conv_p_ac_abs[cv,t]
     )
 
+    #   m.ext[:constraints][:extra_binary] = @constraint(m,
+    # conv_p_ac["2","1"]==-5
+    # )
+
+    #     m.ext[:constraints][:extra_binary] = @constraint(m,
+    # conv_p_ac["2","2"]==-5
+    # )
+
+    #     m.ext[:constraints][:extra_binary] = @constraint(m,
+    # conv_p_ac["2","3"]==-5
+    # )
+
+    #     m.ext[:constraints][:extra_binary] = @constraint(m,
+    # conv_p_ac["2","4"]==-5
+    # )
+    #     m.ext[:constraints][:extra_binary] = @constraint(m,
+    # conv_p_ac["2","5"]==-5
+    # )
+
+
                     #It is assumed that the reactance is 0.13 p.u. based on the test system data
     m.ext[:constraints][:direccional_flow_dc] = @constraint(m, [(d,f,e) = BD_dc_fr,t=T],
         brdc_p[(d,f,e),t] ==  -brdc_p[(d, e, f),t]
@@ -563,6 +615,10 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
     m.ext[:constraints][:conv_abs_limit] = @constraint(m, [cv=CV,t=T],
     conv_p_ac_abs[cv,t] <= conv_p_ac_max[cv]*(1-u_conv_p_ac[cv,t])
     )
+
+  
+
+   
        #Solar generation constraint
     m.ext[:constraints][:solar_generation_1] = @constraint(m, [g=G_solar_1,t=T],
         pg[g,t] <= capacity_factor_solar["Nordic"][t]*pmax[g]

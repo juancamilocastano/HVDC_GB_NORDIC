@@ -1,30 +1,30 @@
 ===== AREA 1 COSTS =====
-storage_reserves                    = 130472.37279249988
-generation                          = 9.921143660678795e6
+storage_reserves                    = 941571.2340774994
+generation                          = 2.58619577468734e7
 generator_startup                   = 0.0
-total_area_1                        = 1.042723211302575e7
-electrolyzer_reserves               = 465299.2950084846
-generator_reserves                  = 207922.81301936635
+total_area_1                        = 2.8399295836053863e7
+electrolyzer_reserves               = 1.1828939095123035e6
+generator_reserves                  = 181361.55542813215
 electrolyzer_startup                = 0.0
-hvdc_reserves                       = 325.0060093635622
-total_generation_area_1             = 1.9231077106479094e6
-hydrogen                            = -297931.03448275884
+hvdc_reserves                       = 426.38450978448884
+total_generation_area_1             = 1.8023122296029942e6
+hydrogen                            = 231085.00565274333
 
 ===== AREA 2 COSTS =====
-storage_reserves                    = 521095.3630183048
-generation                          = 5.622934375178705e7
-generator_startup                   = 394776.0
-electrolyzer_reserves               = 1.6634633084402687e6
-generator_reserves                  = 481665.68494000414
+storage_reserves                    = 650516.7694596236
+generation                          = 1.7672805599999525e7
+generator_startup                   = 131592.0
+electrolyzer_reserves               = 2.157550491482655e6
+generator_reserves                  = 43154.80301778138
 electrolyzer_startup                = 0.0
-hvdc_reserves                       = 106.87938159315635
-total_area_2                        = 5.834348187676652e7
-total_generation_area_2             = 1.2157955236899208e6
-hydrogen                            = -946969.110800701
+hvdc_reserves                       = 131.8594270800965
+total_area_2                        = 1.966663401497291e7
+total_generation_area_2             = 214628.91957411947
+hydrogen                            = -989117.5084137528
 
 ===== TOTAL COSTS =====
-reconstructed_total                 = 6.877071398979227e7
-total_area_1                        = 1.042723211302575e7
-model_objective                     = 6.877028210440283e7
-total_area_2                        = 5.834348187676652e7
-absolute_error                      = 431.8853894472122
+reconstructed_total                 = 4.806592985102677e7
+total_area_1                        = 2.8399295836053863e7
+model_objective                     = 1.0795939676137625e10
+total_area_2                        = 1.966663401497291e7
+absolute_error                      = 1.0747873746286598e10

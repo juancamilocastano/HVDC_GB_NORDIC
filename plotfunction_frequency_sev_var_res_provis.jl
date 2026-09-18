@@ -49,6 +49,10 @@ G_wind=m.ext[:sets][:G_wind]
 G_wind_1=m.ext[:sets][:G_wind_1]
 G_wind_2=m.ext[:sets][:G_wind_2]
 
+Set_WWS=m.ext[:sets][:WWS] = setdiff(m.ext[:sets][:G], m.ext[:sets][:G_solar],m.ext[:sets][:G_wind])
+Set_WWS1=m.ext[:sets][:WWS1] = setdiff(m.ext[:sets][:G1], m.ext[:sets][:G_solar_1],m.ext[:sets][:G_wind_1])
+Set_WWS2=m.ext[:sets][:WWS2] = setdiff(m.ext[:sets][:G2], m.ext[:sets][:G_solar_2],m.ext[:sets][:G_wind_2])
+
 
 
 # ============================================================
@@ -380,6 +384,9 @@ Inertia_nadir_frequency_reserve_1=Dict()
 Inertia_nadir_frequency_reserve_2=Dict()
 procured_inertia_1=Dict()
 procured_inertia_2=Dict()
+headroom_1=Dict()
+headroom_2=Dict()
+
 
 
 
@@ -400,6 +407,8 @@ for t in T
         Inertia_nadir_frequency_reserve_2[t]=Inertia_nadir_frequency_converter_2[t]
         procured_inertia_1[t]=Inertia_nadir_frequency_converter_1[t] # When the converter fails, the total inertia is the inertia corresponding to the total procured inertia
         procured_inertia_2[t]=Inertia_nadir_frequency_converter_2[t]
+        headroom_1[t]=sum((zgvec[g,t]*(pmax[g]-pg[g,t]/baseMVA))*baseMVA for g in Set_WWS1)
+        headroom_2[t]=sum((zgvec[g,t]*(pmax[g]-pg[g,t]/baseMVA))*baseMVA for g in Set_WWS2)
 end
 
 Inertia_nadir_frequency_1_vec = [Inertia_nadir_frequency_1[t] for t in T]
@@ -420,7 +429,7 @@ procured_inertia_2=Inertia_nadir_frequency_converter_2_vec/1000
 
 fig1 = Figure()
 ax = fig1[1, 1] = Axis(fig1,
-    title = "Storage and Hydrogen flows Area 1",
+    title = "Storage and Hydrogen flows Area 1 (Nordic)",
     xlabel = "Time (hours)",
     ylabel = "Hydrogen Flow (Kg/h) and Storage (Kg)"
 )
@@ -439,7 +448,7 @@ fig1
 
 fig2 = Figure()
 ax2 = fig2[1, 1] = Axis(fig2,
-    title = "Storage and Hydrogen flows Area 2",
+    title = "Storage and Hydrogen flows Area 2 (GB)",
     xlabel = "Time (hours)",
     ylabel = "Hydrogen Flow (Kg/h) and Storage (Kg)"
 )
@@ -454,7 +463,7 @@ fig2
 
 fig3 = Figure()
 ax3 = fig3[1, 1] = Axis(fig3,
-    title = "Energy and power flows of the storage Area 1",
+    title = "Energy and power flows of the storage Area 1 (Nordic)",
     xlabel = "Time (hours)",
     ylabel = "Power (MW) and Storage (Mwh)"
 )
@@ -466,7 +475,7 @@ fig3
 
 fig4 = Figure()
 ax4 = fig4[1, 1] = Axis(fig4,
-    title = "Energy and power flows of the storage Area 2",
+    title = "Energy and power flows of the storage Area 2 (GB)",
     xlabel = "Time (hours)",
     ylabel = "Power (MW) and Storage (Mwh)"
 )
@@ -478,56 +487,56 @@ fig4
 
 fig5 = Figure()
 ax5 = fig5[1, 1] = Axis(fig5,
-    title = "Generation by unit Area 1",
+    title = "Generation by unit Area 1 (Nordic)",
     xlabel = "Time (hours)",
     ylabel = "Generation (MW)"
 )
 lines!(ax5, pg1[1, :], label = "Generator 1")
 lines!(ax5, pg1[2, :], label = "Generator 2")
 lines!(ax5, pg1[3, :], label = "Generator 3")
-fig5[1, 2] = Legend(fig5, ax5, "Generation Area 1", framevisible = false)
+fig5[1, 2] = Legend(fig5, ax5, "Generation Area 1 (Nordic)", framevisible = false)
 fig5
 
 fig6 = Figure()
 ax6 = fig6[1, 1] = Axis(fig6,
-    title = "Generation by unit Area 2",
+    title = "Generation by unit Area 2 (GB)",
     xlabel = "Time (hours)",
     ylabel = "Generation (MW)"
 )   
 lines!(ax6, pg2[1, :], label = "Generator 4")
 lines!(ax6, pg2[2, :], label = "Generator 5")
 lines!(ax6, pg2[3, :], label = "Generator 6")
-fig6[1, 2] = Legend(fig6, ax6, "Generation Area 2", framevisible = false)
+fig6[1, 2] = Legend(fig6, ax6, "Generation Area 2 (GB)", framevisible = false)
 fig6
 
 fig7 = Figure()
 ax7 = fig7[1, 1] = Axis(fig7,
-    title = "Loss of power area 1",
+    title = "Loss of power area 1 (Nordic)",
     xlabel = "Time (hours)",
     ylabel = "Power (MW)"
 )
 
 lines!(ax7, plg1vec, label = "Loss generator 1")
 lines!(ax7, plc1vec, label = "Loss converter 1")
-lines!(ax7, plreserve_1vec, label = "Loss reserve Area 1")
-fig7[1, 2] = Legend(fig7, ax7, "Power loss Area 1", framevisible = false)
+lines!(ax7, plreserve_1vec, label = "Loss reserve Area 1 (Nordic)")
+fig7[1, 2] = Legend(fig7, ax7, "Power loss Area 1 (Nordic)", framevisible = false)
 fig7
 
 fig8 = Figure()
 ax8 = fig8[1, 1] = Axis(fig8,
-    title = "Loss of power area 2",
+    title = "Loss of power area 2 (GB)",
     xlabel = "Time (hours)",
     ylabel = "Power (MW)"
 )
 lines!(ax8, plg2vec, label = "Loss generator 2")    
 lines!(ax8, plc2vec, label = "Loss converter 2")
-lines!(ax8, plreserve_2vec, label = "Loss reserve Area 2")
-fig8[1, 2] = Legend(fig8, ax8, "Power loss Area 2", framevisible = false)
+lines!(ax8, plreserve_2vec, label = "Loss reserve Area 2 (GB)")
+fig8[1, 2] = Legend(fig8, ax8, "Power loss Area 2 (GB)", framevisible = false)
 fig8
 
 fig9 = Figure()
 ax9 = fig9[1, 1] = Axis(fig9,
-     title  = "Reserve allocation Area 1 plg",
+     title  = "Reserve allocation Area 1 (Nordic) plg",
      xlabel = "Time (hours)",
      ylabel = "Reserve Power (MW)"
 )
@@ -535,17 +544,17 @@ rg9    = vec(sum(rg_lg1vec,    dims=1))
 re9    = vec(sum(re_lg1vec,    dims=1))
 rhvdc9 = vec(sum(rhvdc_lg1vec, dims=1))
 rs9    = vec(sum(rs_lg1vec,    dims=1))
-lines!(ax9, rg9, label = "Reserve thermal generators Area 1")
-lines!(ax9, re9, label = "Reserve electrolyzers Area 1")
-lines!(ax9, rhvdc9, label = "Reserve HVDC Area 1")
-lines!(ax9, rs9, label = "Reserve storage Area 1")
-fig9[1, 2] = Legend(fig9, ax9, "Reserve Area 1", framevisible = false)
+lines!(ax9, rg9, label = "Reserve thermal generators Area 1 (Nordic)")
+lines!(ax9, re9, label = "Reserve electrolyzers Area 1 (Nordic)")
+lines!(ax9, rhvdc9, label = "Reserve HVDC Area 1 (Nordic)")
+lines!(ax9, rs9, label = "Reserve storage Area 1 (Nordic)")
+fig9[1, 2] = Legend(fig9, ax9, "Reserve Area 1 (Nordic)", framevisible = false)
 fig9
 
 
 fig10 = Figure()
 ax10 = fig10[1, 1] = Axis(fig10,
-     title  = "Reserve allocation Area 1 plc",
+     title  = "Reserve allocation Area 1 (Nordic) plc",
      xlabel = "Time (hours)",
      ylabel = "Reserve Power (MW)"
 )
@@ -553,16 +562,16 @@ rg10    = vec(sum(rg_lc1vec,    dims=1))
 re10    = vec(sum(re_lc1vec,    dims=1))
 rhvdc10 = vec(sum(rhvdc_lc1vec, dims=1))
 rs10    = vec(sum(rs_lc1vec,    dims=1))
-lines!(ax10, rg10, label = "Reserve thermal generators Area 1")
-lines!(ax10, re10, label = "Reserve electrolyzers Area 1")
-lines!(ax10, rhvdc10, label = "Reserve HVDC Area 1")
-lines!(ax10, rs10, label = "Reserve storage Area 1")
-fig10[1, 2] = Legend(fig10, ax10, "Reserve Area 1", framevisible = false)
+lines!(ax10, rg10, label = "Reserve thermal generators Area 1 (Nordic)")
+lines!(ax10, re10, label = "Reserve electrolyzers Area 1 (Nordic)")
+lines!(ax10, rhvdc10, label = "Reserve HVDC Area 1 (Nordic)")
+lines!(ax10, rs10, label = "Reserve storage Area 1 (Nordic)")
+fig10[1, 2] = Legend(fig10, ax10, "Reserve Area 1 (Nordic)", framevisible = false)
 fig10
 
 fig11 = Figure()
 ax11 = fig11[1, 1] = Axis(fig11,
-     title  = "Reserve allocation Area 2 plg",
+     title  = "Reserve allocation Area 2 (GB) plg",
      xlabel = "Time (hours)",
      ylabel = "Reserve Power (MW)"
 )
@@ -570,16 +579,16 @@ rg11    = vec(sum(rg_lg2vec,    dims=1))
 re11    = vec(sum(re_lg2vec,    dims=1))
 rhvdc11 = vec(sum(rhvdc_lg2vec, dims=1))
 rs11    = vec(sum(rs_lg2vec,    dims=1))
-lines!(ax11, rg11, label = "Reserve thermal generators Area 2")
-lines!(ax11, re11, label = "Reserve electrolyzers Area 2")
-lines!(ax11, rhvdc11, label = "Reserve HVDC Area 2")
-lines!(ax11, rs11, label = "Reserve storage Area 2")
-fig11[1, 2] = Legend(fig11, ax11, "Reserve Area 2", framevisible = false)
+lines!(ax11, rg11, label = "Reserve thermal generators Area 2 (GB)")
+lines!(ax11, re11, label = "Reserve electrolyzers Area 2 (GB)")
+lines!(ax11, rhvdc11, label = "Reserve HVDC Area 2 (GB)")
+lines!(ax11, rs11, label = "Reserve storage Area 2 (GB)")
+fig11[1, 2] = Legend(fig11, ax11, "Reserve Area 2 (GB)", framevisible = false)
 fig11
 
 fig12 = Figure()
 ax12 = fig12[1, 1] = Axis(fig12,
-     title  = "Reserve allocation Area 2 plc",
+     title  = "Reserve allocation Area 2 (GB) plc",
      xlabel = "Time (hours)",
      ylabel = "Reserve Power (MW)"
 )
@@ -587,16 +596,16 @@ rg12    = vec(sum(rg_lc2vec,    dims=1))
 re12    = vec(sum(re_lc2vec,    dims=1))
 rhvdc12 = vec(sum(rhvdc_lc2vec, dims=1))
 rs12    = vec(sum(rs_lc2vec,    dims=1))
-lines!(ax12, rg12, label = "Reserve thermal generators Area 2")
-lines!(ax12, re12, label = "Reserve electrolyzers Area 2")
-lines!(ax12, rhvdc12, label = "Reserve HVDC Area 2")
-lines!(ax12, rs12, label = "Reserve storage Area 2")
-fig12[1, 2] = Legend(fig12, ax12, "Reserve Area 2", framevisible = false)
+lines!(ax12, rg12, label = "Reserve thermal generators Area 2 (GB)")
+lines!(ax12, re12, label = "Reserve electrolyzers Area 2 (GB)")
+lines!(ax12, rhvdc12, label = "Reserve HVDC Area 2 (GB)")
+lines!(ax12, rs12, label = "Reserve storage Area 2 (GB)")
+fig12[1, 2] = Legend(fig12, ax12, "Reserve Area 2 (GB)", framevisible = false)
 fig12
 
 # fig9 = Figure()
 # ax9 = Axis(fig9[1, 1];
-#     title  = "Reserve allocation Area 1",
+#     title  = "Reserve allocation Area 1 (Nordic)",
 #     xlabel = "Time (hours)",
 #     ylabel = "Reserve Power (MW)"
 # )
@@ -620,10 +629,10 @@ fig12
 # )
 # ax9.xticks = (1:T, string.(0:T-1))
 # labels = [
-#     "Reserve thermal generators Area 1",
-#     "Reserve electrolyzers Area 1",
-#     "Reserve HVDC Area 1",
-#     "Reserve storage Area 1"
+#     "Reserve thermal generators Area 1 (Nordic)",
+#     "Reserve electrolyzers Area 1 (Nordic)",
+#     "Reserve HVDC Area 1 (Nordic)",
+#     "Reserve storage Area 1 (Nordic)"
 # ]
 # colors = Makie.wong_colors()[1:4]
 # elements = [PolyElement(polycolor = colors[i]) for i in 1:4]
@@ -631,14 +640,14 @@ fig12
 #     fig9[1, 2],
 #     elements,
 #     labels,
-#     "Reserve Area 1";
+#     "Reserve Area 1 (Nordic)";
 #     framevisible = false
 # )
 # fig9
 
 # fig10 = Figure()
 # ax10 = Axis(fig10[1, 1];
-#     title  = "Reserve allocation Area 2",
+#     title  = "Reserve allocation Area 2 (GB)",
 #     xlabel = "Time (hours)",
 #     ylabel = "Reserve Power (MW)"
 # )
@@ -662,10 +671,10 @@ fig12
 # )  
 # ax10.xticks = (1:T, string.(0:T-1))
 # labels = [
-#     "Reserve thermal generators Area 2",
-#     "Reserve electrolyzers Area 2",
-#     "Reserve HVDC Area 2",
-#     "Reserve storage Area 2"
+#     "Reserve thermal generators Area 2 (GB)",
+#     "Reserve electrolyzers Area 2 (GB)",
+#     "Reserve HVDC Area 2 (GB)",
+#     "Reserve storage Area 2 (GB)"
 # ] 
 # colors = Makie.wong_colors()[1:4]
 # elements = [PolyElement(polycolor = colors[i]) for i in 1:4]
@@ -673,7 +682,7 @@ fig12
 #     fig10[1, 2],
 #     elements,
 #     labels,
-#     "Reserve Area 2";
+#     "Reserve Area 2 (GB)";
 #     framevisible = false
 # )       
 # fig10  
@@ -705,8 +714,8 @@ ax15=fig15[1, 1] = Axis(fig15,
     xlabel = "Time (hours)",
     ylabel = "Power (MW)"
 )
-lines!(ax15, demandwithoutEB1, label = "Total Demand Area 1")
-lines!(ax15, demandwithoutEB2, label = "Total Demand Area 2")
+lines!(ax15, demandwithoutEB1, label = "Total Demand Area 1 (Nordic)")
+lines!(ax15, demandwithoutEB2, label = "Total Demand Area 2 (GB)")
 fig15[1, 2] = Legend(fig15, ax15, "Demand", framevisible = false)
 fig15
 
@@ -716,41 +725,41 @@ ax16=fig16[1, 1] = Axis(fig16,
     xlabel = "Time (hours)",
     ylabel = "Power (MW)"
 )
-lines!(ax16, demandwithoutEB1+pevec[1,:]+pevec_compressor[1,:]+pscvec[1,:]-psdvec[1,:], label = "Demand Area 1 ")
-lines!(ax16, demandwithoutEB2+pevec[2,:]+pevec_compressor[2,:]+pscvec[2,:]-psdvec[2,:], label = "Demand Area 2 ")
+lines!(ax16, demandwithoutEB1+pevec[1,:]+pevec_compressor[1,:]+pscvec[1,:]-psdvec[1,:], label = "Demand Area 1 (Nordic) ")
+lines!(ax16, demandwithoutEB2+pevec[2,:]+pevec_compressor[2,:]+pscvec[2,:]-psdvec[2,:], label = "Demand Area 2 (GB) ")
 fig16[1, 2] = Legend(fig16, ax16, "Demand with EB and BESS", framevisible = false)
 fig16
 
 # fig17=Figure()
 # ax17=fig17[1, 1] = Axis(fig17,
-#     title = "Wind generation Area 1 and 2",
+#     title = "Wind generation Area 1 (Nordic) and 2 (GB)",
 #     xlabel = "Time (hours)",
 #     ylabel = "Power (MW)"
 # )
-# lines!(ax17, wind1vec, label = "Wind Area 1 ")
-# lines!(ax17,wind2vec, label = "Wind Area 2")
+# lines!(ax17, wind1vec, label = "Wind Area 1 (Nordic) ")
+# lines!(ax17,wind2vec, label = "Wind Area 2 (GB)")
 # fig17[1, 2] = Legend(fig17, ax17, "Wind Generation", framevisible = false)
 # fig17
 
 # fig18=Figure()
 # ax18=fig18[1, 1] = Axis(fig18,
-#     title = "Net demand Area 1 and 2",
+#     title = "Net demand Area 1 (Nordic) and 2 (GB)",
 #     xlabel = "Time (hours)",
 #     ylabel = "Power (MW)"
 # )
-# lines!(ax18, demandwithoutEB1+pevec[1,:]+pevec_compressor[1,:]+pscvec[1,:]-psdvec[1,:]- wind1vec+flows_hvdc12, label = "Net Demand Area 1 ")
-# lines!(ax18, demandwithoutEB2+pevec[2,:]+pevec_compressor[2,:]+pscvec[2,:]-psdvec[2,:]- wind2vec-flows_hvdc12, label = "Net Demand Area 2 ")
+# lines!(ax18, demandwithoutEB1+pevec[1,:]+pevec_compressor[1,:]+pscvec[1,:]-psdvec[1,:]- wind1vec+flows_hvdc12, label = "Net Demand Area 1 (Nordic) ")
+# lines!(ax18, demandwithoutEB2+pevec[2,:]+pevec_compressor[2,:]+pscvec[2,:]-psdvec[2,:]- wind2vec-flows_hvdc12, label = "Net Demand Area 2 (GB) ")
 # fig18[1, 2] = Legend(fig18, ax18, "Net Demand", framevisible = false)
 # fig18
 
 # fig19=Figure()
 # ax19=fig19[1, 1] = Axis(fig19,
-#     title = "Net demand Area 1 and 2 without HVDC flows",
+#     title = "Net demand Area 1 (Nordic) and 2 (GB) without HVDC flows",
 #     xlabel = "Time (hours)",
 #     ylabel = "Power (MW)"
 # )
-# lines!(ax19, demandwithoutEB1+pevec[1,:]+pevec_compressor[1,:]+pscvec[1,:]-psdvec[1,:]- wind1vec, label = "Net Demand Area 1 ")
-# lines!(ax19, demandwithoutEB2+pevec[2,:]+pevec_compressor[2,:]+pscvec[2,:]-psdvec[2,:]- wind2vec, label = "Net Demand Area 2 ")
+# lines!(ax19, demandwithoutEB1+pevec[1,:]+pevec_compressor[1,:]+pscvec[1,:]-psdvec[1,:]- wind1vec, label = "Net Demand Area 1 (Nordic) ")
+# lines!(ax19, demandwithoutEB2+pevec[2,:]+pevec_compressor[2,:]+pscvec[2,:]-psdvec[2,:]- wind2vec, label = "Net Demand Area 2 (GB) ")
 # fig19[1, 2] = Legend(fig19, ax19, "Net Demand", framevisible = false)
 # fig19
 
@@ -766,15 +775,17 @@ ax22=fig22[1, 1] = Axis(fig22,
     xlabel = "Time (hours)",
     ylabel = "Power (MW)"
 )
-   lines!(ax22, flows_hvdc12 + vec(rhvdc_lg1vec), label = "Flow12 + Reserve Converter 1")
-    lines!(ax22, flows_hvdc12 + vec(rhvdc_lg2vec), label = "Flow12 + Reserve Converter 2")
+   lines!(ax22, -flows_hvdc12 + vec(rhvdc_lg1vec), label = "Flow12 + Reserve(lg)  Converter 1")
+    lines!(ax22, flows_hvdc12 + vec(rhvdc_lg2vec), label = "Flow12 + Reserve(lg) Converter 2")
+    lines!(ax22, -flows_hvdc12 + vec(rhvdc_lc1vec), label = "Flow12 + Reserve(lc) Converter 1")
+    lines!(ax22, flows_hvdc12 + vec(rhvdc_lc2vec), label = "Flow12 + Reserve(lc) Converter 2")
     
 fig22[1, 2] = Legend(fig22, ax22, "Flow + Reserve", framevisible = false)
 fig22
 
 fig23=Figure()
 ax23=fig23[1, 1] = Axis(fig23,
-    title = "Reserve per converter Area 1 plg",
+    title = "Reserve per converter Area 1 (Nordic) plg",
     xlabel = "Time (hours)",
     ylabel = "Power (MW)"
 )
@@ -784,7 +795,7 @@ fig23
 
 fig24=Figure()
 ax24=fig24[1, 1] = Axis(fig24,
-    title = "Reserve per converter Area 1 plc",
+    title = "Reserve per converter Area 1 (Nordic) plc",
     xlabel = "Time (hours)",
     ylabel = "Power (MW)"
 )
@@ -795,7 +806,7 @@ fig24
 
 fig25=Figure()
 ax25=fig25[1, 1] = Axis(fig25,
-    title = "Reserve per converter Area 2 plg",
+    title = "Reserve per converter Area 2 (GB) plg",
     xlabel = "Time (hours)",
     ylabel = "Power (MW)"
 )
@@ -805,7 +816,7 @@ fig25
 
 fig26=Figure()
 ax26=fig26[1, 1] = Axis(fig26,
-    title = "Reserve per converter Area 2 plc",
+    title = "Reserve per converter Area 2 (GB) plc",
     xlabel = "Time (hours)",
     ylabel = "Power (MW)"
 )
@@ -873,32 +884,32 @@ fig30
 
 fig31 = Figure()
 ax31 = fig31[1, 1] = Axis(fig31,
-     title  = "Reserve allocation Area 1 pl reserve",
+     title  = "Reserve allocation Area 1 (Nordic) pl reserve",
      xlabel = "Time (hours)",
      ylabel = "Reserve Power (MW)"
 )
 rg31    = vec(sum(rg_l_reserve_1vec,    dims=1))
 re31    = vec(sum(re_l_reserve_1vec,    dims=1))
 rs31    = vec(sum(rs_l_reserve_1vec,    dims=1))
-lines!(ax31, rg31, label = "Reserve thermal generators Area 1")
-lines!(ax31, re31, label = "Reserve electrolyzers Area 1")
-lines!(ax31, rs31, label = "Reserve storage Area 1")
-fig31[1, 2] = Legend(fig31, ax31, "Reserve Area 1", framevisible = false)
+lines!(ax31, rg31, label = "Reserve thermal generators Area 1 (Nordic)")
+lines!(ax31, re31, label = "Reserve electrolyzers Area 1 (Nordic)")
+lines!(ax31, rs31, label = "Reserve storage Area 1 (Nordic)")
+fig31[1, 2] = Legend(fig31, ax31, "Reserve Area 1 (Nordic)", framevisible = false)
 fig31
 
 fig32 = Figure()
 ax32 = fig32[1, 1] = Axis(fig32,
-     title  = "Reserve allocation Area 2 pl reserve",
+     title  = "Reserve allocation Area 2 (GB) pl reserve",
      xlabel = "Time (hours)",
      ylabel = "Reserve Power (MW)"
 )
 rg32    = vec(sum(rg_l_reserve_2vec,    dims=1))
 re32    = vec(sum(re_l_reserve_2vec,    dims=1))
 rs32    = vec(sum(rs_l_reserve_2vec,    dims=1))
-lines!(ax32, rg32, label = "Reserve thermal generators Area 2")
-lines!(ax32, re32, label = "Reserve electrolyzers Area 2")
-lines!(ax32, rs32, label = "Reserve storage Area 2")
-fig32[1, 2] = Legend(fig32, ax32, "Reserve Area 2", framevisible = false)
+lines!(ax32, rg32, label = "Reserve thermal generators Area 2 (GB)")
+lines!(ax32, re32, label = "Reserve electrolyzers Area 2 (GB)")
+lines!(ax32, rs32, label = "Reserve storage Area 2 (GB)")
+fig32[1, 2] = Legend(fig32, ax32, "Reserve Area 2 (GB)", framevisible = false)
 fig32
 
 
@@ -906,18 +917,18 @@ fig33 = Figure()
 
 ax33 = fig33[1, 1] = Axis(
     fig33,
-    title  = "Procured Inertia Area 1",
+    title  = "Procured Inertia Area 1 (Nordic)",
     xlabel = "Time (hours)",
     ylabel = "Procured inertia (GW·s)"
 )
 
 inertia33 = procured_inertia_1
-barplot!(ax33, 1:length(inertia33), inertia33, label = "Inertia Area 1")
+barplot!(ax33, 1:length(inertia33), inertia33, label = "Inertia Area 1 (Nordic)")
 
 fig33[1, 2] = Legend(
     fig33,
     ax33,
-    "Inertia Area 1",
+    "Inertia Area 1 (Nordic)",
     framevisible = false
 )
 
@@ -928,18 +939,18 @@ fig34 = Figure()
 
 ax34 = fig34[1, 1] = Axis(
     fig34,
-    title  = "Procured Inertia Area 2",
+    title  = "Procured Inertia Area 2 (GB)",
     xlabel = "Time (hours)",
     ylabel = "Procured inertia (GW·s)"
 )
 
 inertia34 = procured_inertia_2
-barplot!(ax34, 1:length(inertia34), inertia34, label = "Inertia Area 2")
+barplot!(ax34, 1:length(inertia34), inertia34, label = "Inertia Area 2 (GB)")
 
 fig34[1, 2] = Legend(
     fig34,
     ax34,
-    "Inertia Area 2",
+    "Inertia Area 2 (GB)",
     framevisible = false
 )
 
@@ -987,37 +998,47 @@ wind_vector_2 = [get(wind_per_hour_2, string(t), 0.0) for t in T]
 
 fig35 = Figure()
 ax35 = fig35[1, 1] = Axis(fig35,
-    title  = "Renewable Generation by type Area 1",
+    title  = "Renewable Generation by type Area 1 (Nordic)",
     xlabel = "Time (hours)",
     ylabel = "Generation (MW)"
 )
-lines!(ax35, reservoir_vector_1, label = "Reservoir Generation Area 1")
-lines!(ax35, wind_vector_1, label = "Wind Generation Area 1")
-lines!(ax35, solar_vector_1, label = "Solar Generation Area 1")
-fig35[1, 2] = Legend(fig35, ax35, "RenewableGeneration by type Area 1", framevisible = false)
+lines!(ax35, reservoir_vector_1, label = "Reservoir Generation Area 1 (Nordic)")
+lines!(ax35, wind_vector_1, label = "Wind Generation Area 1 (Nordic)")
+lines!(ax35, solar_vector_1, label = "Solar Generation Area 1 (Nordic)")
+fig35[1, 2] = Legend(fig35, ax35, "RenewableGeneration by type Area 1 (Nordic)", framevisible = false)
 fig35
 
 
 fig36 = Figure()
 ax36 = fig36[1, 1] = Axis(fig36,
-    title  = "Renewable Generation by type Area 2",
+    title  = "Renewable Generation by type Area 2 (GB)",
     xlabel = "Time (hours)",
     ylabel = "Generation (MW)"
 )
-lines!(ax36, reservoir_vector_2, label = "Reservoir Generation Area 2")
-lines!(ax36, wind_vector_2, label = "Wind Generation Area 2")
-lines!(ax36, solar_vector_2, label = "Solar Generation Area 2")
-fig36[1, 2] = Legend(fig36, ax36, "RenewableGeneration by type Area 2", framevisible = false)
+lines!(ax36, reservoir_vector_2, label = "Reservoir Generation Area 2 (GB)")
+lines!(ax36, wind_vector_2, label = "Wind Generation Area 2 (GB)")
+lines!(ax36, solar_vector_2, label = "Solar Generation Area 2 (GB)")
+fig36[1, 2] = Legend(fig36, ax36, "RenewableGeneration by type Area 2 (GB)", framevisible = false)
 fig36
 
+fig37 = Figure()
+ax37 = fig37[1, 1] = Axis(fig37,
+    title  = "Headroom by Area",
+    xlabel = "Time (hours)",
+    ylabel = "Headroom (MW)"
+)
+lines!(ax37, [get(headroom_1, string(t), 0.0) for t in T], label = "Area 1 (Nordic)")
+lines!(ax37, [get(headroom_2, string(t), 0.0) for t in T], label = "Area 2 (GB)")
+fig37[1, 2] = Legend(fig37, ax37, "Headroom by Area", framevisible = false)
+fig37
 
 save("Failure_binary_variable.png", fig30)
 
 
 
 
-save("hydrogen_storage1.png", fig1)
-save("hydrogen_storage_2.png", fig2)
+#save("hydrogen_storage1.png", fig1)
+#save("hydrogen_storage_2.png", fig2)
 save("storage_power_energy_1.png", fig3)
 save("storage_power_energy_2.png", fig4)
 save("4_generation_area1.png", fig5)
@@ -1051,8 +1072,7 @@ save("Procured Inertia area 1.png", fig33)
 save("Procured Inertia area 2.png", fig34)
 save("Renewable Generation by type Area 1.png", fig35)
 save("Renewable Generation by type Area 2.png", fig36)
+save("Headroom by Area.png", fig37)
 
 
 end
-
-
