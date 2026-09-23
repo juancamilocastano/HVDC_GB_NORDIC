@@ -277,16 +277,16 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
     
     # Branches
     brdc_p = m.ext[:variables][:brdc_p] = @variable(m, [(d,e,f)=BD_dc, t=T], lower_bound=-brdc_rate_a[d], upper_bound=brdc_rate_a[d], base_name="brdc_p")
-    conv_p_ac = m.ext[:variables][:conv_p_ac] = @variable(m, [cv=CV,t=T], lower_bound=-conv_p_ac_max[cv], upper_bound=conv_p_ac_max[cv], base_name="conv_p_ac") # converter active power
+    conv_p_ac = m.ext[:variables][:conv_p_ac] = @variable(m, [cv=CV,t=T], lower_bound=-conv_p_ac_max[cv]*0, upper_bound=conv_p_ac_max[cv]*0, base_name="conv_p_ac") # converter active power
     conv_p_ac_abs = m.ext[:variables][:conv_p_ac_abs] = @variable(m, [cv=CV,t=T], lower_bound=0,upper_bound=conv_p_ac_max[cv], base_name="conv_p_ac_abs") # absorve power converter
     conv_p_ac_inj= m.ext[:variables][:conv_p_ac_inj] = @variable(m, [cv=CV,t=T], lower_bound=0, upper_bound=conv_p_ac_max[cv], base_name="conv_p_ac_inj") # injected power converter
     u_conv_p_ac = m.ext[:variables][:u_conv_p_ac] = @variable(m, [cv=CV,t=T], binary=true, base_name="u_conv_p_ac") # binary variable for converter active power
     conv_p_dc = m.ext[:variables][:conv_p_dc] = @variable(m, [cv=CV,t=T], lower_bound=-conv_p_dc_max[cv], upper_bound=conv_p_dc_max[cv], base_name="conv_p_dc") # converter active power
     δhvdc= m.ext[:variables][:δhvdc] = @variable(m, [cv=CV,t=T], binary=true, base_name="δhvdc") #binary variable event converter
-    rhvdc_lg1 = m.ext[:variables][:rhvdc_lg1] = @variable(m, [cv=CV1,t=T], lower_bound=0,  upper_bound=2*(40/40)conv_p_dc_max[cv], base_name="rhvdc_lg1") #frequency reserve HHDC loss of generation area 1
-    rhvdc_lc1 = m.ext[:variables][:rhvdc_lc1] = @variable(m, [cv=CV1,t=T], lower_bound=0,  upper_bound=2*(40/40)conv_p_dc_max[cv], base_name="rhvdc_lc1") #frequency reserve HVDC loss of converter area 1
-    rhvdc_lg2 = m.ext[:variables][:rhvdc_lg2] = @variable(m, [cv=CV2,t=T], lower_bound=0,  upper_bound=2*(40/40)conv_p_dc_max[cv], base_name="rhvdc_lg2") #frequency reserve HVDC loss of generation area 2
-    rhvdc_lc2 = m.ext[:variables][:rhvdc_lc2] = @variable(m, [cv=CV2,t=T], lower_bound=0,  upper_bound=2*(40/40)conv_p_dc_max[cv], base_name="rhvdc_lc2") #frequency reserve HVDC loss of converter area 2
+    rhvdc_lg1 = m.ext[:variables][:rhvdc_lg1] = @variable(m, [cv=CV1,t=T], lower_bound=0,  upper_bound=2*(40/40)conv_p_dc_max[cv]*0, base_name="rhvdc_lg1") #frequency reserve HHDC loss of generation area 1
+    rhvdc_lc1 = m.ext[:variables][:rhvdc_lc1] = @variable(m, [cv=CV1,t=T], lower_bound=0,  upper_bound=2*(40/40)conv_p_dc_max[cv]*0, base_name="rhvdc_lc1") #frequency reserve HVDC loss of converter area 1
+    rhvdc_lg2 = m.ext[:variables][:rhvdc_lg2] = @variable(m, [cv=CV2,t=T], lower_bound=0,  upper_bound=2*(40/40)conv_p_dc_max[cv]*0, base_name="rhvdc_lg2") #frequency reserve HVDC loss of generation area 2
+    rhvdc_lc2 = m.ext[:variables][:rhvdc_lc2] = @variable(m, [cv=CV2,t=T], lower_bound=0,  upper_bound=2*(40/40)conv_p_dc_max[cv]*0, base_name="rhvdc_lc2") #frequency reserve HVDC loss of converter area 2
 
 
    #Reservoir storage variables
@@ -461,7 +461,12 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
     ####################    Reserve provision constraints
     ####################################################################################################
     
-    #Generators
+#     #Generators
+# m.ext[:constraints][:r_flow_enforced] = @constraint(m, [t=T],
+#     conv_p_ac["2",t] == conv_p_ac_max["2"])
+
+
+
     m.ext[:constraints][:r_proc_g_1_bound_lg] = @constraint(m, [g=G1,t=T],
     r_proc_g_1[g,t] >= rg_lg1[g,t])
 
@@ -582,25 +587,6 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
     m.ext[:constraints][:conv_injec_ac_abs_inj] = @constraint(m, [cv=CV,t=T],
     conv_p_ac[cv,t] == conv_p_ac_inj[cv,t]-conv_p_ac_abs[cv,t]
     )
-
-    #   m.ext[:constraints][:extra_binary] = @constraint(m,
-    # conv_p_ac["2","1"]==-5
-    # )
-
-    #     m.ext[:constraints][:extra_binary] = @constraint(m,
-    # conv_p_ac["2","2"]==-5
-    # )
-
-    #     m.ext[:constraints][:extra_binary] = @constraint(m,
-    # conv_p_ac["2","3"]==-5
-    # )
-
-    #     m.ext[:constraints][:extra_binary] = @constraint(m,
-    # conv_p_ac["2","4"]==-5
-    # )
-    #     m.ext[:constraints][:extra_binary] = @constraint(m,
-    # conv_p_ac["2","5"]==-5
-    # )
 
 
                     #It is assumed that the reactance is 0.13 p.u. based on the test system data
@@ -960,14 +946,14 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
 
     #event constraint (frequency reserve provision)
     m.ext[:constraints][:loss_of_power_frequency_reserve_G_A_1]= @constraint(m, [t=T],
-    sum(rhvdc_lg2[cv,t] for cv in CV2)<=plreserve_1[t]
+    sum(rhvdc_lg2[cv,t] for cv in CV2)==plreserve_1[t]
     )
     m.ext[:constraints][:loss_of_power_frequency_reserve_C_A_1]= @constraint(m, [t=T],
     sum(rhvdc_lc2[cv,t] for cv in CV2)<=plreserve_1[t]
     )
     
     m.ext[:constraints][:loss_of_power_frequency_reserve_G_A_2]= @constraint(m, [t=T],
-    sum(rhvdc_lg1[cv,t] for cv in CV1)<=plreserve_2[t]
+    sum(rhvdc_lg1[cv,t] for cv in CV1)==plreserve_2[t]
     )
     m.ext[:constraints][:loss_of_power_frequency_reserve_C_A_2]= @constraint(m, [t=T],
     sum(rhvdc_lc1[cv,t] for cv in CV1)<=plreserve_2[t]

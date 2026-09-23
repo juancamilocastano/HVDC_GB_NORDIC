@@ -1,0 +1,96 @@
+
+Hour 1:
+  Generator = 450, generation type = nuclear, rated power = 1800.0 [MW], area = area 2
+  Generator = 290, generation type = wind, rated power = 4212.514715 [MW], area = area 1
+
+Hour 2:
+  Generator = 454, generation type = pump, rated power = 2600.0 [MW], area = area 2
+  Generator = 294, generation type = wind, rated power = 3884.11975 [MW], area = area 1
+
+Hour 3:
+  Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
+  Generator = 290, generation type = wind, rated power = 4212.514715 [MW], area = area 1
+
+Hour 4:
+  Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
+  Generator = 290, generation type = wind, rated power = 4212.514715 [MW], area = area 1
+
+Hour 5:
+  Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
+  Generator = 290, generation type = wind, rated power = 4212.514715 [MW], area = area 1
+
+Hour 6:
+  Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
+  Generator = 290, generation type = wind, rated power = 4212.514715 [MW], area = area 1
+
+Hour 7:
+  Generator = 306, generation type = wind, rated power = 3687.7439780000004 [MW], area = area 1
+  Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
+
+Hour 8:
+  Generator = 306, generation type = wind, rated power = 3687.7439780000004 [MW], area = area 1
+  Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
+
+Hour 9:
+  Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
+  Generator = 290, generation type = wind, rated power = 4212.514715 [MW], area = area 1
+
+Hour 10:
+  Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
+  Generator = 290, generation type = wind, rated power = 4212.514715 [MW], area = area 1
+
+Hour 11:
+  Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
+  Generator = 290, generation type = wind, rated power = 4212.514715 [MW], area = area 1
+
+Hour 12:
+  Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
+  Generator = 294, generation type = wind, rated power = 3884.11975 [MW], area = area 1
+
+Hour 13:
+  Generator = 306, generation type = wind, rated power = 3687.7439780000004 [MW], area = area 1
+  Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
+
+Hour 14:
+  Generator = 300, generation type = wind, rated power = 3376.4103660000005 [MW], area = area 1
+  Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
+
+Hour 15:
+  Generator = 306, generation type = wind, rated power = 3687.7439780000004 [MW], area = area 1
+  Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
+
+Hour 16:
+  Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
+  Generator = 290, generation type = wind, rated power = 4212.514715 [MW], area = area 1
+
+Hour 17:
+  Generator = 458, generation type = wind, rated power = 2600.0 [MW], area = area 2
+  Generator = 295, generation type = wind, rated power = 2778.063712 [MW], area = area 1
+
+Hour 18:
+  Generator = 300, generation type = wind, rated power = 3376.4103660000005 [MW], area = area 1
+  Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
+
+Hour 19:
+  Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
+  Generator = 294, generation type = wind, rated power = 3884.11975 [MW], area = area 1
+
+Hour 20:
+  Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
+  Generator = 290, generation type = wind, rated power = 4212.514715 [MW], area = area 1
+
+Hour 21:
+  Generator = 306, generation type = wind, rated power = 3687.7439780000004 [MW], area = area 1
+  Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
+
+Hour 22:
+  Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
+  Generator = 290, generation type = wind, rated power = 4212.514715 [MW], area = area 1
+
+Hour 23:
+  Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
+  Generator = 290, generation type = wind, rated power = 4212.514715 [MW], area = area 1
+
+Hour 24:
+  Generator = 508, generation type = wind, rated power = 4100.0 [MW], area = area 2
+  Generator = 294, generation type = wind, rated power = 3884.11975 [MW], area = area 1

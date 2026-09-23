@@ -1,0 +1,7 @@
+-La generacion, no alcanza
+-Esperaria uno que aumentar las renovables en el area GB fomentara el maximo uso del link HVDC, pero esto no es lo que sucede porque la reserva
+del electrolizador se pierde, ya que se tiene que realizar loadsheding
+-Los generadores de la zona nordica estan a tope por lo cual no se puede entregar mucha reserva de potencia
+-Las baterias se estan descargando para suplir la demanda, lo que también disminuye su capacidad de entregar reserva de potencia
+-La unica reserva de potencia disponible es el link HVDC, al exportar el flujo, esto le permite tener dos veces la capacidad del link de entregar reserva, 
+lo que permite aumentar el dimensioning event.

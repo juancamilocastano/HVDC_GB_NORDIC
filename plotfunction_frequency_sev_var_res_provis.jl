@@ -339,6 +339,8 @@ conv_p_ac_vec = Array(
 )
 
 
+
+
 # ============================================================
 # DEMANDA POR ÁREA
 # ============================================================
@@ -360,6 +362,12 @@ demandwithoutEB2 =
     vec(sum(demandmatrix2, dims = 1)) .* baseMVA
 
 
+load_shed_1 = JuMP.value.(m.ext[:variables][:load_shed_1]) .* baseMVA
+load_shed_2 = JuMP.value.(m.ext[:variables][:load_shed_2]) .* baseMVA
+
+load_shed_1_vec = [load_shed_1[t] for t in T]
+load_shed_2_vec = [load_shed_2[t] for t in T]
+
 # ============================================================
 # VARIABLES BINARIAS Y DE ESTADO
 # ============================================================
@@ -372,8 +380,10 @@ zgvec = JuMP.value.(m.ext[:variables][:zg])
 
 δhvdc = JuMP.value.(m.ext[:variables][:δhvdc])
 
-u_conv_p_ac =
-    JuMP.value.(m.ext[:variables][:u_conv_p_ac])
+u_conv_p_ac = JuMP.value.(m.ext[:variables][:u_conv_p_ac])
+
+capacity_factor_solar= m.ext[:parameters][:capacity_factor_solar]
+capacity_factor_wind= m.ext[:parameters][:capacity_factor_wind]
 
 
 Inertia_nadir_frequency_1=Dict()
@@ -962,30 +972,42 @@ wind_per_hour_1=Dict()
 wind_per_hour_2=Dict()
 solar_per_hour_1=Dict()
 solar_per_hour_2=Dict()
+reservoir_per_hour_curtailment_1=Dict()
+reservoir_per_hour_curtailment_2=Dict()
+wind_per_hour_curtailment_1=Dict()
+wind_per_hour_curtailment_2=Dict()
+solar_per_hour_1_curtailment_1=Dict()
+solar_per_hour_2_curtailment_2=Dict()
 
 for t in T
     if !isempty(G_reservoir_1)
         reservoir_per_hour_1[t] = sum(pg[g, t] for g in G_reservoir_1)
+        reservoir_per_hour_curtailment_1[t] = -sum(sum(pg[g, t] - pmax[g]*baseMVA) for g in G_reservoir_1)
     end
 
     if !isempty(G_reservoir_2)
         reservoir_per_hour_2[t] = sum(pg[g, t] for g in G_reservoir_2)
+        reservoir_per_hour_curtailment_2[t] = -sum(sum(pg[g, t] - pmax[g]*baseMVA) for g in G_reservoir_2)
     end
 
     if !isempty(G_wind_1)
         wind_per_hour_1[t] = sum(pg[g, t] for g in G_wind_1)
+        wind_per_hour_curtailment_1[t] = -sum(sum(pg[g, t] - pmax[g]*capacity_factor_wind["Nordic"][t]*baseMVA) for g in G_wind_1)
     end
 
     if !isempty(G_wind_2)
         wind_per_hour_2[t] = sum(pg[g, t] for g in G_wind_2)
+        wind_per_hour_curtailment_2[t] = -sum(sum(pg[g, t] - pmax[g]*capacity_factor_wind["GB"][t]*baseMVA) for g in G_wind_2)
     end
 
     if !isempty(G_solar_1)
         solar_per_hour_1[t] = sum(pg[g, t] for g in G_solar_1)
+        solar_per_hour_1_curtailment_1[t] = -sum(sum(pg[g, t] - pmax[g]*capacity_factor_solar["Nordic"][t]*baseMVA) for g in G_solar_1)
     end
 
     if !isempty(G_solar_2)
         solar_per_hour_2[t] = sum(pg[g, t] for g in G_solar_2)
+        solar_per_hour_2_curtailment_2[t] = -sum(sum(pg[g, t] - pmax[g]*capacity_factor_solar["GB"][t]*baseMVA) for g in G_solar_2)
     end
 end
 
@@ -995,6 +1017,15 @@ wind_vector_1 = [get(wind_per_hour_1, string(t), 0.0) for t in T]
 solar_vector_2 = [get(solar_per_hour_2, string(t), 0.0) for t in T]
 reservoir_vector_2 = [get(reservoir_per_hour_2, string(t), 0.0) for t in T]
 wind_vector_2 = [get(wind_per_hour_2, string(t), 0.0) for t in T]
+
+solar_curtailment_vector_1 = [get(solar_per_hour_1_curtailment_1, string(t), 0.0) for t in T]
+reservoir_curtailment_vector_1 = [get(reservoir_per_hour_curtailment_1, string(t), 0.0) for t in T]
+wind_curtailment_vector_1 = [get(wind_per_hour_curtailment_1, string(t), 0.0) for t in T]
+solar_curtailment_vector_2 = [get(solar_per_hour_2_curtailment_2, string(t), 0.0) for t in T]
+reservoir_curtailment_vector_2 = [get(reservoir_per_hour_curtailment_2, string(t), 0.0) for t in T]
+wind_curtailment_vector_2 = [get(wind_per_hour_curtailment_2, string(t), 0.0) for t in T]
+
+
 
 fig35 = Figure()
 ax35 = fig35[1, 1] = Axis(fig35,
@@ -1032,13 +1063,73 @@ lines!(ax37, [get(headroom_2, string(t), 0.0) for t in T], label = "Area 2 (GB)"
 fig37[1, 2] = Legend(fig37, ax37, "Headroom by Area", framevisible = false)
 fig37
 
+
+
+fig38= Figure()
+ax38=fig38[1,1]=Axis(fig38,
+    title= "Load shedding Area 1 (Nordic) and Area 2 (GB)",
+    xlabel= "Time (hours)",
+    ylabel= "Load shedding (MW)"
+)
+lines!(ax38, load_shed_1_vec, label = "Area 1 (Nordic)")
+lines!(ax38, load_shed_2_vec, label = "Area 2 (GB)")
+fig38[1, 2] = Legend(fig38, ax38, "Load shedding by Area", framevisible = false)
+fig38
+
+fig39= Figure()
+ax39=fig39[1,1]=Axis(fig39,
+    title= " Reserve lg 2 and power loss reserve 1",
+    xlabel= "Time (hours)",
+    ylabel= "Power (MW)"
+)
+
+lines!(ax39, vec(rhvdc_lg2vec), label = "Reserve lg 2")
+lines!(ax39, plreserve_1vec, label = "Power loss reserve 1")
+fig39[1, 2] = Legend(fig39, ax39, "Reserve lg 2 and power loss reserve 1", framevisible = false)
+fig39
+
+
+fig40= Figure()
+ax40=fig40[1,1]=Axis(fig40,
+    title= " Reserve lg 1 and power loss reserve 2",
+    xlabel= "Time (hours)",
+    ylabel= "Power (MW)"
+)
+
+lines!(ax40, vec(rhvdc_lg1vec), label = "Reserve lg 1")
+lines!(ax40, plreserve_2vec, label = "Power loss reserve 2")
+fig40[1, 2] = Legend(fig40, ax40, "Reserve lg 1 and power loss reserve 2", framevisible = false)
+fig40
+
+fig41= Figure()
+ax41=fig41[1,1]=Axis(fig41,
+    title= " Renewable curtailment Area 1 (Nordic)",
+    xlabel= "Time (hours)",
+    ylabel= "Power (MW)"
+)
+lines!(ax41, solar_curtailment_vector_1, label = "Solar Curtailment Area 1 (Nordic)")
+lines!(ax41, wind_curtailment_vector_1, label = "Wind Curtailment Area 1 (Nordic)")
+fig41[1, 2] = Legend(fig41, ax41, "Renewable Curtailment by type Area 1 (Nordic)", framevisible = false)
+fig41
+
+fig42= Figure()
+ax42=fig42[1,1]=Axis(fig42,
+    title= " Renewable curtailment Area 2 (GB)",
+    xlabel= "Time (hours)",
+    ylabel= "Power (MW)"
+)
+lines!(ax42, solar_curtailment_vector_2, label = "Solar Curtailment Area 2 (GB)")
+lines!(ax42, wind_curtailment_vector_2, label = "Wind Curtailment Area 2 (GB)")
+fig42[1, 2] = Legend(fig42, ax42, "Renewable Curtailment by type Area 2 (GB)", framevisible = false)
+fig42
+
+save("renewable_curtailment_area1.png", fig41)
+save("renewable_curtailment_area2.png", fig42)
+save("Reserve_lg1_and_power_loss_reserve_2.png", fig40)
+save("rhvdc_lg2vec_and_plreserve_1vec.png", fig39)
 save("Failure_binary_variable.png", fig30)
-
-
-
-
-#save("hydrogen_storage1.png", fig1)
-#save("hydrogen_storage_2.png", fig2)
+save("hydrogen_storage1.png", fig1)
+save("hydrogen_storage_2.png", fig2)
 save("storage_power_energy_1.png", fig3)
 save("storage_power_energy_2.png", fig4)
 save("4_generation_area1.png", fig5)
@@ -1073,6 +1164,203 @@ save("Procured Inertia area 2.png", fig34)
 save("Renewable Generation by type Area 1.png", fig35)
 save("Renewable Generation by type Area 2.png", fig36)
 save("Headroom by Area.png", fig37)
+save("Load shedding Area 1 and Area 2.png", fig38)
+
+
+# ============================================================
+# GUARDAR EN TXT LOS DATOS USADOS EN LAS FIGURAS
+# ============================================================
+
+function write_plot_block(io, times, title, series)
+    println(io, "===== ", title, " =====")
+    println(io, join(vcat("t", [s.first for s in series]), "\t"))
+    for i in eachindex(times)
+        println(io, join(vcat(string(times[i]), [string(s.second[i]) for s in series]), "\t"))
+    end
+    println(io)
+end
+
+open("Plot_data.txt", "w") do io
+
+    write_plot_block(io, T, "fig1 - Storage and Hydrogen flows Area 1 (Nordic)", [
+        "Hydrogen injected [kg/h]" => hfginyectvec[1, :],
+        "Hydrogen stored [kg]" => hssvec[1, :],
+        "Hydrogen Electrolyzer [kg/h]" => hfevec[1, :],
+        "Hydrogen consumed [kg/h]" => hfgconsumvec[1, :]
+    ])
+
+    write_plot_block(io, T, "fig2 - Storage and Hydrogen flows Area 2 (GB)", [
+        "Hydrogen injected [kg/h]" => hfginyectvec[2, :],
+        "Hydrogen stored [kg]" => hssvec[2, :],
+        "Hydrogen Electrolyzer [kg/h]" => hfevec[2, :],
+        "Hydrogen consumed [kg/h]" => hfgconsumvec[2, :]
+    ])
+
+    write_plot_block(io, T, "fig3 - Energy and power flows of the storage Area 1 (Nordic)", [
+        "charging power [MW]" => pscvec[1, :],
+        "discharging power [MW]" => psdvec[1, :],
+        "Energy stored [MWh]" => esvec[1, :]
+    ])
+
+    write_plot_block(io, T, "fig4 - Energy and power flows of the storage Area 2 (GB)", [
+        "charging power [MW]" => pscvec[2, :],
+        "discharging power [MW]" => psdvec[2, :],
+        "Energy stored [MWh]" => esvec[2, :]
+    ])
+
+    write_plot_block(io, T, "fig5 - Generation by unit Area 1 (Nordic)", [
+        "Generator 1 [MW]" => pg1[1, :],
+        "Generator 2 [MW]" => pg1[2, :],
+        "Generator 3 [MW]" => pg1[3, :]
+    ])
+
+    write_plot_block(io, T, "fig6 - Generation by unit Area 2 (GB)", [
+        "Generator 4 [MW]" => pg2[1, :],
+        "Generator 5 [MW]" => pg2[2, :],
+        "Generator 6 [MW]" => pg2[3, :]
+    ])
+
+    write_plot_block(io, T, "fig7 - Loss of power area 1 (Nordic)", [
+        "Loss generator 1 [MW]" => plg1vec,
+        "Loss converter 1 [MW]" => plc1vec,
+        "Loss reserve Area 1 [MW]" => plreserve_1vec
+    ])
+
+    write_plot_block(io, T, "fig8 - Loss of power area 2 (GB)", [
+        "Loss generator 2 [MW]" => plg2vec,
+        "Loss converter 2 [MW]" => plc2vec,
+        "Loss reserve Area 2 [MW]" => plreserve_2vec
+    ])
+
+    write_plot_block(io, T, "fig9 - Reserve allocation Area 1 (Nordic) plg", [
+        "Reserve thermal generators [MW]" => rg9,
+        "Reserve electrolyzers [MW]" => re9,
+        "Reserve HVDC [MW]" => rhvdc9,
+        "Reserve storage [MW]" => rs9
+    ])
+
+    write_plot_block(io, T, "fig10 - Reserve allocation Area 1 (Nordic) plc", [
+        "Reserve thermal generators [MW]" => rg10,
+        "Reserve electrolyzers [MW]" => re10,
+        "Reserve HVDC [MW]" => rhvdc10,
+        "Reserve storage [MW]" => rs10
+    ])
+
+    write_plot_block(io, T, "fig11 - Reserve allocation Area 2 (GB) plg", [
+        "Reserve thermal generators [MW]" => rg11,
+        "Reserve electrolyzers [MW]" => re11,
+        "Reserve HVDC [MW]" => rhvdc11,
+        "Reserve storage [MW]" => rs11
+    ])
+
+    write_plot_block(io, T, "fig12 - Reserve allocation Area 2 (GB) plc", [
+        "Reserve thermal generators [MW]" => rg12,
+        "Reserve electrolyzers [MW]" => re12,
+        "Reserve HVDC [MW]" => rhvdc12,
+        "Reserve storage [MW]" => rs12
+    ])
+
+    write_plot_block(io, T, "fig13 - HVDC power flows", [
+        "Flow HVDC 1-2 [MW]" => flows_hvdc12
+    ])
+
+    write_plot_block(io, T, "fig14 - Sum Of Power Flows HVDC Links", [
+        "Sum Of Flows 12 [MW]" => flows_hvdc12
+    ])
+
+    write_plot_block(io, T, "fig15 - Demand without Electrolyzers and BESS", [
+        "Total Demand Area 1 (Nordic) [MW]" => demandwithoutEB1,
+        "Total Demand Area 2 (GB) [MW]" => demandwithoutEB2
+    ])
+
+    write_plot_block(io, T, "fig16 - Demand with Electrolyzers and BESS", [
+        "Demand Area 1 (Nordic) [MW]" => demandwithoutEB1+pevec[1,:]+pevec_compressor[1,:]+pscvec[1,:]-psdvec[1,:],
+        "Demand Area 2 (GB) [MW]" => demandwithoutEB2+pevec[2,:]+pevec_compressor[2,:]+pscvec[2,:]-psdvec[2,:]
+    ])
+
+    write_plot_block(io, T, "fig22 - Flow+Reserve", [
+        "-Flow12 + Reserve(lg) Converter 1 [MW]" => -flows_hvdc12 + vec(rhvdc_lg1vec),
+        "Flow12 + Reserve(lg) Converter 2 [MW]" => flows_hvdc12 + vec(rhvdc_lg2vec),
+        "-Flow12 + Reserve(lc) Converter 1 [MW]" => -flows_hvdc12 + vec(rhvdc_lc1vec),
+        "Flow12 + Reserve(lc) Converter 2 [MW]" => flows_hvdc12 + vec(rhvdc_lc2vec)
+    ])
+
+    write_plot_block(io, T, "fig23 - Reserve per converter Area 1 (Nordic) plg", [
+        "Reserve Converter 1 [MW]" => vec(rhvdc_lg1vec)
+    ])
+
+    write_plot_block(io, T, "fig24 - Reserve per converter Area 1 (Nordic) plc", [
+        "Reserve Converter 1 [MW]" => vec(rhvdc_lc1vec)
+    ])
+
+    write_plot_block(io, T, "fig25 - Reserve per converter Area 2 (GB) plg", [
+        "Reserve Converter 2 [MW]" => vec(rhvdc_lg2vec)
+    ])
+
+    write_plot_block(io, T, "fig26 - Reserve per converter Area 2 (GB) plc", [
+        "Reserve Converter 2 [MW]" => vec(rhvdc_lc2vec)
+    ])
+
+    write_plot_block(io, T, "fig29 - Power per converter", [
+        "Converter 1 AC power [MW]" => conv_p_ac_vec[1, :],
+        "Converter 2 AC power [MW]" => conv_p_ac_vec[2, :]
+    ])
+
+    write_plot_block(io, col_labels, "fig30 - Failure binary variable (delta hvdc)", [
+        "HVDC $(row_labels[i])" => data[i, :] for i in 1:size(data, 1)
+    ])
+
+    write_plot_block(io, T, "fig31 - Reserve allocation Area 1 (Nordic) pl reserve", [
+        "Reserve thermal generators [MW]" => rg31,
+        "Reserve electrolyzers [MW]" => re31,
+        "Reserve storage [MW]" => rs31
+    ])
+
+    write_plot_block(io, T, "fig32 - Reserve allocation Area 2 (GB) pl reserve", [
+        "Reserve thermal generators [MW]" => rg32,
+        "Reserve electrolyzers [MW]" => re32,
+        "Reserve storage [MW]" => rs32
+    ])
+
+    write_plot_block(io, T, "fig33 - Procured Inertia Area 1 (Nordic)", [
+        "Inertia Area 1 (Nordic) [GW*s]" => inertia33
+    ])
+
+    write_plot_block(io, T, "fig34 - Procured Inertia Area 2 (GB)", [
+        "Inertia Area 2 (GB) [GW*s]" => inertia34
+    ])
+
+    write_plot_block(io, T, "fig35 - Renewable Generation by type Area 1 (Nordic)", [
+        "Reservoir Generation [MW]" => reservoir_vector_1,
+        "Wind Generation [MW]" => wind_vector_1,
+        "Solar Generation [MW]" => solar_vector_1
+    ])
+
+    write_plot_block(io, T, "fig36 - Renewable Generation by type Area 2 (GB)", [
+        "Reservoir Generation [MW]" => reservoir_vector_2,
+        "Wind Generation [MW]" => wind_vector_2,
+        "Solar Generation [MW]" => solar_vector_2
+    ])
+
+    write_plot_block(io, T, "fig37 - Headroom by Area", [
+        "Area 1 (Nordic) [MW]" => [get(headroom_1, string(t), 0.0) for t in T],
+        "Area 2 (GB) [MW]" => [get(headroom_2, string(t), 0.0) for t in T]
+    ])
+
+    write_plot_block(io, T, "fig38 - Load shedding Area 1 (Nordic) and Area 2 (GB)", [
+        "Area 1 (Nordic) [MW]" => load_shed_1_vec,
+        "Area 2 (GB) [MW]" => load_shed_2_vec
+    ])
+
+    write_plot_block(io, T, "fig39 - Reserve lg 2 and power loss reserve 1", [
+        "Reserve lg 2 [MW]" => vec(rhvdc_lg2vec),
+        "Power loss reserve 1 [MW]" => plreserve_1vec
+    ])
+
+end
+
+println("Plot data written to Plot_data.txt")
+
 
 
 end

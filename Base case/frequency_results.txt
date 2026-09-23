@@ -1,0 +1,619 @@
+===== ROCOF =====
+rocof_plg1:
+t=1  value=0.2292268514499974
+t=2  value=0.18847236031894551
+t=3  value=0.18594531125261685
+t=4  value=0.18386543991645155
+t=5  value=0.17983219498221817
+t=6  value=0.17408129635554048
+t=7  value=0.19906836848864445
+t=8  value=0.21083534125114384
+t=9  value=0.2202427693116889
+t=10  value=0.22866425406237906
+t=11  value=0.24045227713098405
+t=12  value=0.28108279590306595
+t=13  value=0.32324614830628157
+t=14  value=0.27310006919842267
+t=15  value=0.24984925021347715
+t=16  value=0.2419109756512321
+t=17  value=0.25463304079155974
+t=18  value=0.25584564438422586
+t=19  value=0.24786527168013456
+t=20  value=0.24984925021347715
+t=21  value=0.26728980403415065
+t=22  value=0.25232825143139836
+t=23  value=0.24156316798635707
+t=24  value=0.24305727558152496
+
+rocof_plg2:
+t=1  value=0.3389830508474576
+t=2  value=0.3665987780040733
+t=3  value=0.41379310344827586
+t=4  value=0.43795620437956206
+t=5  value=0.5714285714285714
+t=6  value=0.5661666381196582
+t=7  value=0.6404008596581198
+t=8  value=0.7013565665527066
+t=9  value=0.7441457995441595
+t=10  value=0.7798514146438746
+t=11  value=0.8065130009401709
+t=12  value=0.8387421547863247
+t=13  value=1.0
+t=14  value=1.0
+t=15  value=1.0
+t=16  value=1.0
+t=17  value=1.0
+t=18  value=1.0
+t=19  value=1.0
+t=20  value=1.0
+t=21  value=1.0
+t=22  value=1.0
+t=23  value=1.0
+t=24  value=1.0
+
+rocof_plc1:
+t=1  value=0.0
+t=2  value=0.0
+t=3  value=0.0
+t=4  value=0.0
+t=5  value=0.0
+t=6  value=0.0
+t=7  value=0.0
+t=8  value=0.0
+t=9  value=0.0
+t=10  value=0.0
+t=11  value=0.0
+t=12  value=0.0
+t=13  value=0.0
+t=14  value=0.0
+t=15  value=0.0
+t=16  value=0.0
+t=17  value=0.0
+t=18  value=0.0
+t=19  value=0.0
+t=20  value=0.0
+t=21  value=0.0
+t=22  value=0.0
+t=23  value=0.0
+t=24  value=0.0
+
+rocof_plc2:
+t=1  value=0.24691358024691357
+t=2  value=0.2656546489563567
+t=3  value=0.29723991507430997
+t=4  value=0.3131991051454139
+t=5  value=0.39886039886039887
+t=6  value=0.39886039886039887
+t=7  value=0.39886039886039887
+t=8  value=0.39886039886039887
+t=9  value=0.39886039886039887
+t=10  value=0.39886039886039887
+t=11  value=0.39886039886039887
+t=12  value=0.39886039886039887
+t=13  value=0.45016077170418006
+t=14  value=0.5017904860407899
+t=15  value=0.5017921146953405
+t=16  value=0.5017921146953405
+t=17  value=0.5017906854043389
+t=18  value=0.5017921146953405
+t=19  value=0.5017921146953405
+t=20  value=0.5017921146953405
+t=21  value=0.5017921146953405
+t=22  value=0.5490196078431373
+t=23  value=0.5668016194331984
+t=24  value=0.6278026905829597
+rocof_plreserve_1:
+t=1  value=0.0
+t=2  value=0.0
+t=3  value=0.0
+t=4  value=0.0
+t=5  value=0.0
+t=6  value=0.0
+t=7  value=0.0
+t=8  value=0.0
+t=9  value=0.0
+t=10  value=0.0
+t=11  value=0.0
+t=12  value=0.0
+t=13  value=0.0
+t=14  value=4.1691153136482486e-7
+t=15  value=0.0
+t=16  value=0.0
+t=17  value=3.2077188667551745e-7
+t=18  value=0.0
+t=19  value=0.0
+t=20  value=0.0
+t=21  value=0.0
+t=22  value=0.0
+t=23  value=0.0
+t=24  value=0.0
+rocof_plreserve_2:
+t=1  value=0.31746031746031744
+t=2  value=0.3415559772296015
+t=3  value=0.3821656050955414
+t=4  value=0.40268456375838924
+t=5  value=0.5128205128205128
+t=6  value=0.5661666352706554
+t=7  value=0.640400853960114
+t=8  value=0.7013565637037039
+t=9  value=0.7441457966951566
+t=10  value=0.7798514146438748
+t=11  value=0.7977208547008547
+t=12  value=0.7977208547008547
+t=13  value=0.9003216045016078
+t=14  value=0.9999983355031556
+t=15  value=1.0
+t=16  value=1.0
+t=17  value=0.9999985348667046
+t=18  value=1.0
+t=19  value=1.0
+t=20  value=1.0
+t=21  value=1.0
+t=22  value=1.0
+t=23  value=1.0
+t=24  value=1.0
+
+===== INERTIA =====
+Inertia_nadir_frequency_1:
+t=1  value=196312.07999999996
+t=2  value=238761.8
+t=3  value=242006.64
+t=4  value=244744.2
+t=5  value=250233.28000000003
+t=6  value=291118.08
+t=7  value=314770.52
+t=8  value=314770.52
+t=9  value=311719.44000000006
+t=10  value=307481.00000000006
+t=11  value=291118.08
+t=12  value=249036.96000000002
+t=13  value=228754.83999999997
+t=14  value=278473.12
+t=15  value=309025.96
+t=16  value=321887.00000000006
+t=17  value=318584.80000000005
+t=18  value=323326.04000000004
+t=19  value=318441.24000000005
+t=20  value=309025.96
+t=21  value=278473.12
+t=22  value=272293.76
+t=23  value=259241.76
+t=24  value=238481.0
+
+Inertia_nadir_frequency_2:
+t=1  value=132750.0
+t=2  value=122750.0
+t=3  value=108750.0
+t=4  value=102750.0
+t=5  value=78750.0
+t=6  value=87750.0
+t=7  value=87750.0
+t=8  value=87750.0
+t=9  value=87750.0
+t=10  value=87750.0
+t=11  value=87750.0
+t=12  value=87750.0
+t=13  value=77750.0
+t=14  value=69750.0
+t=15  value=69750.0
+t=16  value=69750.0
+t=17  value=69750.0
+t=18  value=69750.0
+t=19  value=69750.0
+t=20  value=69750.0
+t=21  value=69750.0
+t=22  value=63750.0
+t=23  value=61750.0
+t=24  value=55750.0
+
+procured_inertia_1:
+t=1  value=214219.95999999996
+t=2  value=256669.68
+t=3  value=259914.52000000002
+t=4  value=262652.08
+t=5  value=268141.16000000003
+t=6  value=309025.96
+t=7  value=325388.88
+t=8  value=325388.88
+t=9  value=325388.88
+t=10  value=325388.88
+t=11  value=309025.96
+t=12  value=266944.84
+t=13  value=246662.72000000003
+t=14  value=278473.12
+t=15  value=309025.96
+t=16  value=321887.00000000006
+t=17  value=318584.80000000005
+t=18  value=323326.04000000004
+t=19  value=318441.24000000005
+t=20  value=309025.96
+t=21  value=278473.12
+t=22  value=272293.76
+t=23  value=259241.76
+t=24  value=238481.0
+
+procured_inertia_2:
+t=1  value=141750.0
+t=2  value=131750.0
+t=3  value=117750.0
+t=4  value=111750.0
+t=5  value=87750.0
+t=6  value=87750.0
+t=7  value=87750.0
+t=8  value=87750.0
+t=9  value=87750.0
+t=10  value=87750.0
+t=11  value=87750.0
+t=12  value=87750.0
+t=13  value=77750.0
+t=14  value=69750.0
+t=15  value=69750.0
+t=16  value=69750.0
+t=17  value=69750.0
+t=18  value=69750.0
+t=19  value=69750.0
+t=20  value=69750.0
+t=21  value=69750.0
+t=22  value=63750.0
+t=23  value=61750.0
+t=24  value=55750.0
+
+===== NADIR FREQUENCY DEVIATION =====
+Deltaf_nadir_plg1:
+t=1  value=NaN
+t=2  value=NaN
+t=3  value=NaN
+t=4  value=NaN
+t=5  value=NaN
+t=6  value=0.04276026160947268
+t=7  value=0.1719507939443505
+t=8  value=0.13444518813918752
+t=9  value=0.1016949170326828
+t=10  value=0.0680744211183603
+t=11  value=Inf
+t=12  value=NaN
+t=13  value=0.15994747960533007
+t=14  value=0.19479860024975548
+t=15  value=0.20366962965685742
+t=16  value=0.20344025304407262
+t=17  value=0.20457187962790516
+t=18  value=0.20489408380254806
+t=19  value=0.20388892500657127
+t=20  value=0.20366962965685742
+t=21  value=0.1512068915383518
+t=22  value=0.1599943948503172
+t=23  value=0.04909008070433389
+t=24  value=0.09304093457742249
+
+Deltaf_nadir_plg2:
+t=1  value=0.3836466006349097
+t=2  value=0.3772024952636859
+t=3  value=0.3661896934279008
+t=4  value=0.360551230757024
+t=5  value=0.32940543695599184
+t=6  value=0.3009548764647799
+t=7  value=0.30837834108017115
+t=8  value=0.31447386930808474
+t=9  value=0.31875279260723105
+t=10  value=0.32232331165566447
+t=11  value=0.32498951274682736
+t=12  value=0.3282124281314447
+t=13  value=0.3162468703993362
+t=14  value=0.3078774024691363
+t=15  value=0.3675869225551633
+t=16  value=0.36758686913580757
+t=17  value=0.3277805580246937
+t=18  value=0.36758686913580657
+t=19  value=0.32758925621531676
+t=20  value=0.2879742469135829
+t=21  value=0.28797435375230995
+t=22  value=0.26211321349466304
+t=23  value=0.2523761010670494
+t=24  value=0.2189726742401623
+
+Deltaf_nadir_plc1:
+t=1  value=NaN
+t=2  value=NaN
+t=3  value=NaN
+t=4  value=NaN
+t=5  value=NaN
+t=6  value=NaN
+t=7  value=NaN
+t=8  value=NaN
+t=9  value=NaN
+t=10  value=NaN
+t=11  value=NaN
+t=12  value=NaN
+t=13  value=NaN
+t=14  value=0.0
+t=15  value=NaN
+t=16  value=NaN
+t=17  value=NaN
+t=18  value=NaN
+t=19  value=NaN
+t=20  value=NaN
+t=21  value=NaN
+t=22  value=NaN
+t=23  value=NaN
+t=24  value=NaN
+
+Deltaf_nadir_plc2:
+t=1  value=Inf
+t=2  value=0.05466378291771664
+t=3  value=Inf
+t=4  value=Inf
+t=5  value=Inf
+t=6  value=Inf
+t=7  value=Inf
+t=8  value=Inf
+t=9  value=0.03988603760729345
+t=10  value=Inf
+t=11  value=0.03988603760770129
+t=12  value=Inf
+t=13  value=Inf
+t=14  value=Inf
+t=15  value=Inf
+t=16  value=Inf
+t=17  value=Inf
+t=18  value=Inf
+t=19  value=Inf
+t=20  value=Inf
+t=21  value=Inf
+t=22  value=0.05490195765082354
+t=23  value=0.05668015911068516
+t=24  value=Inf
+
+Deltaf_nadir_plreserve_1:
+t=1  value=NaN
+t=2  value=NaN
+t=3  value=NaN
+t=4  value=NaN
+t=5  value=NaN
+t=6  value=NaN
+t=7  value=NaN
+t=8  value=NaN
+t=9  value=NaN
+t=10  value=NaN
+t=11  value=NaN
+t=12  value=NaN
+t=13  value=NaN
+t=14  value=4.17811221421031e-8
+t=15  value=NaN
+t=16  value=NaN
+t=17  value=NaN
+t=18  value=NaN
+t=19  value=NaN
+t=20  value=NaN
+t=21  value=NaN
+t=22  value=NaN
+t=23  value=NaN
+t=24  value=NaN
+
+Deltaf_nadir_plreserve_2:
+t=1  value=0.35928808630888365
+t=2  value=0.3514353418870394
+t=3  value=0.3382006722741759
+t=4  value=0.3315135477430355
+t=5  value=0.29562026393486446
+t=6  value=0.30095483371834025
+t=7  value=0.3083782555872861
+t=8  value=0.314473826561647
+t=9  value=0.31875274986078933
+t=10  value=0.3223233116556664
+t=11  value=0.2590308102862568
+t=12  value=0.07977208575500548
+t=13  value=Inf
+t=14  value=0.3078772360194538
+t=15  value=0.3675868956662724
+t=16  value=0.36758686913580757
+t=17  value=0.32778041151136705
+t=18  value=0.36758686913580657
+t=19  value=0.32758925621531676
+t=20  value=0.2879742469135829
+t=21  value=0.28797435375230995
+t=22  value=0.26211321349466304
+t=23  value=0.2523761010670494
+t=24  value=0.2189726742401623
+
+===== TOTAL RESERVES LG1 =====
+t=1  rg_lg1 =0.0, re_lg1=0.0, rs_lg1=0.0, rhvdc_lg1=1800.0, fast_reserve_lg1=1800.0
+t=2  rg_lg1 =0.0, re_lg1=0.0, rs_lg1=0.0, rhvdc_lg1=1800.0, fast_reserve_lg1=1800.0
+t=3  rg_lg1 =0.0, re_lg1=0.0, rs_lg1=0.0, rhvdc_lg1=1800.0, fast_reserve_lg1=1800.0
+t=4  rg_lg1 =0.0, re_lg1=0.0, rs_lg1=0.0, rhvdc_lg1=1800.0, fast_reserve_lg1=1800.0
+t=5  rg_lg1 =0.0, re_lg1=0.0, rs_lg1=0.0, rhvdc_lg1=1800.0, fast_reserve_lg1=1800.0
+t=6  rg_lg1 =39.88362055743764, re_lg1=0.0, rs_lg1=0.0, rhvdc_lg1=1987.2448898000002, fast_reserve_lg1=1987.2448898000002
+t=7  rg_lg1 =258.62715718888893, re_lg1=0.0, rs_lg1=0.0, rhvdc_lg1=2247.8069974000005, fast_reserve_lg1=2247.8069974000005
+t=8  rg_lg1 =192.82846139999955, re_lg1=0.0, rs_lg1=0.0, rhvdc_lg1=2461.7615386000007, fast_reserve_lg1=2461.7615386000007
+t=9  rg_lg1 =134.20636215555558, re_lg1=0.0, rs_lg1=0.0, rhvdc_lg1=2611.9517463999996, fast_reserve_lg1=2611.9517463999996
+t=10  rg_lg1 =75.11807473417491, re_lg1=0.0, rs_lg1=0.0, rhvdc_lg1=2737.2784654000006, fast_reserve_lg1=2737.2784654000006
+t=11  rg_lg1 =0.0, re_lg1=0.0, rs_lg1=0.0, rhvdc_lg1=2800.0002, fast_reserve_lg1=2800.0002
+t=12  rg_lg1 =0.0, re_lg1=0.0, rs_lg1=0.0, rhvdc_lg1=2800.0002, fast_reserve_lg1=2800.0002
+t=13  rg_lg1 =157.76464745678783, re_lg1=0.0, rs_lg1=0.0, rhvdc_lg1=2800.00019, fast_reserve_lg1=2800.00019
+t=14  rg_lg1 =252.04577762222226, re_lg1=0.0, rs_lg1=0.0, rhvdc_lg1=2789.9953560538042, fast_reserve_lg1=2789.9953560538042
+t=15  rg_lg1 =298.3961761, re_lg1=0.0, rs_lg1=0.0, rhvdc_lg1=2790.0, fast_reserve_lg1=2790.0
+t=16  rg_lg1 =311.7966652777777, re_lg1=12.923263500149051, rs_lg1=0.0, rhvdc_lg1=2790.0, fast_reserve_lg1=2802.923263500149
+t=17  rg_lg1 =308.35595633333327, re_lg1=0.0, rs_lg1=146.5367863473971, rhvdc_lg1=2789.995912278106, fast_reserve_lg1=2936.532698625503
+t=18  rg_lg1 =313.29606501111107, re_lg1=0.0, rs_lg1=205.56629698888918, rhvdc_lg1=2790.0, fast_reserve_lg1=2995.566296988889
+t=19  rg_lg1 =308.2063747888888, re_lg1=0.0, rs_lg1=59.014603881469085, rhvdc_lg1=2790.0, fast_reserve_lg1=2849.014603881469
+t=20  rg_lg1 =298.3961761, re_lg1=0.0, rs_lg1=0.0, rhvdc_lg1=2790.0, fast_reserve_lg1=2790.0
+t=21  rg_lg1 =187.3210469431407, re_lg1=0.0, rs_lg1=0.0, rhvdc_lg1=2790.0, fast_reserve_lg1=2790.0
+t=22  rg_lg1 =198.29634405673858, re_lg1=0.0, rs_lg1=0.0, rhvdc_lg1=2550.0, fast_reserve_lg1=2550.0
+t=23  rg_lg1 =34.93045279835449, re_lg1=0.0, rs_lg1=0.0, rhvdc_lg1=2470.0, fast_reserve_lg1=2470.0
+t=24  rg_lg1 =88.58168551830624, re_lg1=0.0, rs_lg1=0.0, rhvdc_lg1=2230.0, fast_reserve_lg1=2230.0
+
+===== TOTAL RESERVES LC1 =====
+t=1  rg_lc1 =0.0, re_lc1=0.0, rs_lc1=0.0, rhvdc_lc1=0.0, fast_reserve_lc1=0.0
+t=2  rg_lc1 =0.0, re_lc1=0.0, rs_lc1=0.0, rhvdc_lc1=0.0, fast_reserve_lc1=0.0
+t=3  rg_lc1 =0.0, re_lc1=0.0, rs_lc1=0.0, rhvdc_lc1=0.0, fast_reserve_lc1=0.0
+t=4  rg_lc1 =0.0, re_lc1=0.0, rs_lc1=0.0, rhvdc_lc1=0.0, fast_reserve_lc1=0.0
+t=5  rg_lc1 =0.0, re_lc1=0.0, rs_lc1=0.0, rhvdc_lc1=0.0, fast_reserve_lc1=0.0
+t=6  rg_lc1 =0.0, re_lc1=0.0, rs_lc1=0.0, rhvdc_lc1=0.0, fast_reserve_lc1=0.0
+t=7  rg_lc1 =0.0, re_lc1=0.0, rs_lc1=0.0, rhvdc_lc1=0.0, fast_reserve_lc1=0.0
+t=8  rg_lc1 =0.0, re_lc1=0.0, rs_lc1=0.0, rhvdc_lc1=0.0, fast_reserve_lc1=0.0
+t=9  rg_lc1 =0.0, re_lc1=0.0, rs_lc1=0.0, rhvdc_lc1=0.0, fast_reserve_lc1=0.0
+t=10  rg_lc1 =0.0, re_lc1=0.0, rs_lc1=0.0, rhvdc_lc1=0.0, fast_reserve_lc1=0.0
+t=11  rg_lc1 =0.0, re_lc1=0.0, rs_lc1=0.0, rhvdc_lc1=0.0, fast_reserve_lc1=0.0
+t=12  rg_lc1 =0.0, re_lc1=0.0, rs_lc1=0.0, rhvdc_lc1=0.0, fast_reserve_lc1=0.0
+t=13  rg_lc1 =0.0, re_lc1=0.0, rs_lc1=0.0, rhvdc_lc1=0.0, fast_reserve_lc1=0.0
+t=14  rg_lc1 =0.00022452806804767924, re_lc1=0.0, rs_lc1=0.0, rhvdc_lc1=0.0, fast_reserve_lc1=0.0
+t=15  rg_lc1 =0.0, re_lc1=0.0, rs_lc1=0.0, rhvdc_lc1=0.0, fast_reserve_lc1=0.0
+t=16  rg_lc1 =0.0, re_lc1=0.0, rs_lc1=0.0, rhvdc_lc1=0.0, fast_reserve_lc1=0.0
+t=17  rg_lc1 =0.0, re_lc1=0.0, rs_lc1=0.0, rhvdc_lc1=0.0, fast_reserve_lc1=0.0
+t=18  rg_lc1 =0.0, re_lc1=0.0, rs_lc1=0.0, rhvdc_lc1=0.0, fast_reserve_lc1=0.0
+t=19  rg_lc1 =0.0, re_lc1=0.0, rs_lc1=0.0, rhvdc_lc1=0.0, fast_reserve_lc1=0.0
+t=20  rg_lc1 =0.0, re_lc1=0.0, rs_lc1=0.0, rhvdc_lc1=0.0, fast_reserve_lc1=0.0
+t=21  rg_lc1 =0.0, re_lc1=0.0, rs_lc1=0.0, rhvdc_lc1=0.0, fast_reserve_lc1=0.0
+t=22  rg_lc1 =0.0, re_lc1=0.0, rs_lc1=0.0, rhvdc_lc1=0.0, fast_reserve_lc1=0.0
+t=23  rg_lc1 =0.0, re_lc1=0.0, rs_lc1=0.0, rhvdc_lc1=0.0, fast_reserve_lc1=0.0
+t=24  rg_lc1 =0.0, re_lc1=0.0, rs_lc1=0.0, rhvdc_lc1=0.0, fast_reserve_lc1=0.0
+===== TOTAL RESERVES LG2 =====
+t=1  rg_lg2 =250.90022162471706, re_lg2=719.996320000001, rs_lg2=829.1034577777768, rhvdc_lg2=0.0, fast_reserve_lg2=1549.099777777778
+t=2  rg_lg2 =225.89355495805026, re_lg2=0.0, rs_lg2=1574.1064344444453, rhvdc_lg2=0.0, fast_reserve_lg2=1574.1064344444453
+t=3  rg_lg2 =190.88422162471718, re_lg2=1609.1157677777783, rs_lg2=0.0, rhvdc_lg2=0.0, fast_reserve_lg2=1609.1157677777783
+t=4  rg_lg2 =175.8802216247172, re_lg2=719.996320000001, rs_lg2=904.1234477777772, rhvdc_lg2=0.0, fast_reserve_lg2=1624.1197677777782
+t=5  rg_lg2 =115.86422162471732, re_lg2=1684.135767777778, rs_lg2=0.0, rhvdc_lg2=0.0, fast_reserve_lg2=1684.135767777778
+t=6  rg_lg2 =115.86422162471732, re_lg2=1871.3806675777778, rs_lg2=0.0, rhvdc_lg2=0.0, fast_reserve_lg2=1871.3806675777778
+t=7  rg_lg2 =115.86422162471732, re_lg2=2131.942775177778, rs_lg2=0.0, rhvdc_lg2=0.0, fast_reserve_lg2=2131.942775177778
+t=8  rg_lg2 =115.86422162471732, re_lg2=1799.994280000002, rs_lg2=545.9030363777758, rhvdc_lg2=0.0, fast_reserve_lg2=2345.8973163777778
+t=9  rg_lg2 =115.86422162471732, re_lg2=719.996320000001, rs_lg2=1776.0912041777763, rhvdc_lg2=0.0, fast_reserve_lg2=2496.087524177777
+t=10  rg_lg2 =115.86422162471732, re_lg2=2481.4094531777787, rs_lg2=140.0047899999985, rhvdc_lg2=0.0, fast_reserve_lg2=2621.4142431777773
+t=11  rg_lg2 =115.86422162471732, re_lg2=2714.9964010777785, rs_lg2=0.0, rhvdc_lg2=0.0, fast_reserve_lg2=2714.9964010777785
+t=12  rg_lg2 =115.86422162471732, re_lg2=2828.120731077778, rs_lg2=0.0, rhvdc_lg2=0.0, fast_reserve_lg2=2828.120731077778
+t=13  rg_lg2 =90.85755615306554, re_lg2=1839.1374547019457, rs_lg2=1180.0049799999983, rhvdc_lg2=0.0, fast_reserve_lg2=3019.142434701944
+t=14  rg_lg2 =78.35422222222223, re_lg2=719.996320000001, rs_lg2=1991.6448138315804, rhvdc_lg2=0.004643946196125626, fast_reserve_lg2=2711.6457777777778
+t=15  rg_lg2 =100.86022222222223, re_lg2=1799.994280000002, rs_lg2=889.1454877777752, rhvdc_lg2=0.0, fast_reserve_lg2=2689.1397677777773
+t=16  rg_lg2 =100.86022222222223, re_lg2=2569.9958500000007, rs_lg2=119.14392777777611, rhvdc_lg2=0.0, fast_reserve_lg2=2689.139777777777
+t=17  rg_lg2 =85.85622222222223, re_lg2=1934.140467777778, rs_lg2=769.9992222781049, rhvdc_lg2=0.004087721894485696, fast_reserve_lg2=2704.1437777777774
+t=18  rg_lg2 =100.86022222222223, re_lg2=1799.994280000002, rs_lg2=889.1454977777751, rhvdc_lg2=0.0, fast_reserve_lg2=2689.139777777777
+t=19  rg_lg2 =85.78409562290179, re_lg2=2704.215894377098, rs_lg2=0.0, rhvdc_lg2=0.0, fast_reserve_lg2=2704.215894377098
+t=20  rg_lg2 =70.85222222222224, re_lg2=2719.1477777777773, rs_lg2=0.0, rhvdc_lg2=0.0, fast_reserve_lg2=2719.1477777777773
+t=21  rg_lg2 =70.85222222222224, re_lg2=2719.147757777777, rs_lg2=0.0, rhvdc_lg2=0.0, fast_reserve_lg2=2719.147757777777
+t=22  rg_lg2 =55.848221624717354, re_lg2=2494.1517677777774, rs_lg2=0.0, rhvdc_lg2=0.0, fast_reserve_lg2=2494.1517677777774
+t=23  rg_lg2 =50.8468888888889, re_lg2=2419.1530911111113, rs_lg2=0.0, rhvdc_lg2=0.0, fast_reserve_lg2=2419.1530911111113
+t=24  rg_lg2 =35.84288888888889, re_lg2=1799.994280000002, rs_lg2=394.16283111110874, rhvdc_lg2=0.0, fast_reserve_lg2=2194.1571111111107
+===== TOTAL RESERVES LC2 =====
+t=1  rg_lc2 =0.0, re_lc2=719.996320000001, rs_lc2=680.003769999999, rhvdc_lc2=0.0, fast_reserve_lc2=1400.00009
+t=2  rg_lc2 =20.005333333333333, re_lc2=0.0, rs_lc2=1379.994756666667, rhvdc_lc2=0.0, fast_reserve_lc2=1379.994756666667
+t=3  rg_lc2 =0.0, re_lc2=1400.0000800000007, rs_lc2=0.0, rhvdc_lc2=0.0, fast_reserve_lc2=1400.0000800000007
+t=4  rg_lc2 =0.0, re_lc2=719.996320000001, rs_lc2=680.0037699999991, rhvdc_lc2=0.0, fast_reserve_lc2=1400.00009
+t=5  rg_lc2 =0.0, re_lc2=1400.0000800000007, rs_lc2=0.0, rhvdc_lc2=0.0, fast_reserve_lc2=1400.0000800000007
+t=6  rg_lc2 =0.0, re_lc2=1400.0000800000007, rs_lc2=0.0, rhvdc_lc2=0.0, fast_reserve_lc2=1400.0000800000007
+t=7  rg_lc2 =0.0, re_lc2=1400.0000700000003, rs_lc2=0.0, rhvdc_lc2=0.0, fast_reserve_lc2=1400.0000700000003
+t=8  rg_lc2 =0.0, re_lc2=854.0970536222244, rs_lc2=545.9030363777758, rhvdc_lc2=0.0, fast_reserve_lc2=1400.0000900000002
+t=9  rg_lc2 =30.008000000000003, re_lc2=719.996320000001, rs_lc2=679.6037599999988, rhvdc_lc2=0.0, fast_reserve_lc2=1399.6000799999997
+t=10  rg_lc2 =0.0, re_lc2=1259.9953000000014, rs_lc2=140.0047899999985, rhvdc_lc2=0.0, fast_reserve_lc2=1400.00009
+t=11  rg_lc2 =15.837555555555555, re_lc2=1399.7889688888893, rs_lc2=0.0, rhvdc_lc2=0.0, fast_reserve_lc2=1399.7889688888893
+t=12  rg_lc2 =0.0, re_lc2=1400.0000800000007, rs_lc2=0.0, rhvdc_lc2=0.0, fast_reserve_lc2=1400.0000800000007
+t=13  rg_lc2 =0.0, re_lc2=219.99511000000192, rs_lc2=1180.0049799999983, rhvdc_lc2=0.0, fast_reserve_lc2=1400.0000900000002
+t=14  rg_lc2 =0.0, re_lc2=629.9967800000009, rs_lc2=769.9986760538028, rhvdc_lc2=0.0, fast_reserve_lc2=1399.9954560538035
+t=15  rg_lc2 =0.0, re_lc2=539.9989800000008, rs_lc2=860.0010999999993, rhvdc_lc2=0.0, fast_reserve_lc2=1400.00008
+t=16  rg_lc2 =0.0, re_lc2=1400.00009, rs_lc2=0.0, rhvdc_lc2=0.0, fast_reserve_lc2=1400.00009
+t=17  rg_lc2 =0.0, re_lc2=629.9967800000009, rs_lc2=769.9992222781049, rhvdc_lc2=0.0, fast_reserve_lc2=1399.9960022781056
+t=18  rg_lc2 =0.0, re_lc2=719.996320000001, rs_lc2=680.0037699999987, rhvdc_lc2=0.0, fast_reserve_lc2=1400.0000899999995
+t=19  rg_lc2 =0.0, re_lc2=1400.0000800000005, rs_lc2=0.0, rhvdc_lc2=0.0, fast_reserve_lc2=1400.0000800000005
+t=20  rg_lc2 =0.0, re_lc2=1400.0000899999998, rs_lc2=0.0, rhvdc_lc2=0.0, fast_reserve_lc2=1400.0000899999998
+t=21  rg_lc2 =0.0, re_lc2=1400.0000700000003, rs_lc2=0.0, rhvdc_lc2=0.0, fast_reserve_lc2=1400.0000700000003
+t=22  rg_lc2 =5.001333333333333, re_lc2=1399.933413333333, rs_lc2=0.0, rhvdc_lc2=0.0, fast_reserve_lc2=1399.933413333333
+t=23  rg_lc2 =10.836222222222222, re_lc2=1399.8556255555554, rs_lc2=0.0, rhvdc_lc2=0.0, fast_reserve_lc2=1399.8556255555554
+t=24  rg_lc2 =0.0, re_lc2=1259.9953000000016, rs_lc2=140.00479999999806, rhvdc_lc2=0.0, fast_reserve_lc2=1400.0000999999997
+===== TOTAL RESERVES RESERVE PROCUREMENT LOSS OF POWER 1 =====
+t=1  rg_l_reserve_1 =0.0, re_l_reserve_1=0.0, rs_l_reserve_1=0.0, fast_reserve_1=0.0
+t=2  rg_l_reserve_1 =0.0, re_l_reserve_1=0.0, rs_l_reserve_1=0.0, fast_reserve_1=0.0
+t=3  rg_l_reserve_1 =0.0, re_l_reserve_1=0.0, rs_l_reserve_1=0.0, fast_reserve_1=0.0
+t=4  rg_l_reserve_1 =0.0, re_l_reserve_1=0.0, rs_l_reserve_1=0.0, fast_reserve_1=0.0
+t=5  rg_l_reserve_1 =0.0, re_l_reserve_1=0.0, rs_l_reserve_1=0.0, fast_reserve_1=0.0
+t=6  rg_l_reserve_1 =0.0, re_l_reserve_1=0.0, rs_l_reserve_1=0.0, fast_reserve_1=0.0
+t=7  rg_l_reserve_1 =0.0, re_l_reserve_1=0.0, rs_l_reserve_1=0.0, fast_reserve_1=0.0
+t=8  rg_l_reserve_1 =0.0, re_l_reserve_1=0.0, rs_l_reserve_1=0.0, fast_reserve_1=0.0
+t=9  rg_l_reserve_1 =0.0, re_l_reserve_1=0.0, rs_l_reserve_1=0.0, fast_reserve_1=0.0
+t=10  rg_l_reserve_1 =0.0, re_l_reserve_1=0.0, rs_l_reserve_1=0.0, fast_reserve_1=0.0
+t=11  rg_l_reserve_1 =0.0, re_l_reserve_1=0.0, rs_l_reserve_1=0.0, fast_reserve_1=0.0
+t=12  rg_l_reserve_1 =0.0, re_l_reserve_1=0.0, rs_l_reserve_1=0.0, fast_reserve_1=0.0
+t=13  rg_l_reserve_1 =0.0, re_l_reserve_1=0.0, rs_l_reserve_1=0.0, fast_reserve_1=0.0
+t=14  rg_l_reserve_1 =0.3476386436333444, re_l_reserve_1=0.0, rs_l_reserve_1=0.0, fast_reserve_1=0.0
+t=15  rg_l_reserve_1 =0.0, re_l_reserve_1=0.0, rs_l_reserve_1=0.0, fast_reserve_1=0.0
+t=16  rg_l_reserve_1 =0.0, re_l_reserve_1=0.0, rs_l_reserve_1=0.0, fast_reserve_1=0.0
+t=17  rg_l_reserve_1 =0.0, re_l_reserve_1=0.0, rs_l_reserve_1=0.004087721894485696, fast_reserve_1=0.004087721894485696
+t=18  rg_l_reserve_1 =0.0, re_l_reserve_1=0.0, rs_l_reserve_1=0.0, fast_reserve_1=0.0
+t=19  rg_l_reserve_1 =0.0, re_l_reserve_1=0.0, rs_l_reserve_1=0.0, fast_reserve_1=0.0
+t=20  rg_l_reserve_1 =0.0, re_l_reserve_1=0.0, rs_l_reserve_1=0.0, fast_reserve_1=0.0
+t=21  rg_l_reserve_1 =0.0, re_l_reserve_1=0.0, rs_l_reserve_1=0.0, fast_reserve_1=0.0
+t=22  rg_l_reserve_1 =0.0, re_l_reserve_1=0.0, rs_l_reserve_1=0.0, fast_reserve_1=0.0
+t=23  rg_l_reserve_1 =0.0, re_l_reserve_1=0.0, rs_l_reserve_1=0.0, fast_reserve_1=0.0
+t=24  rg_l_reserve_1 =0.0, re_l_reserve_1=0.0, rs_l_reserve_1=0.0, fast_reserve_1=0.0
+===== TOTAL RESERVES RESERVE PROCUREMENT LOSS OF POWER 2 =====
+t=1  rg_l_reserve_2 =250.90022162471706, re_l_reserve_2=719.996320000001, rs_l_reserve_2=829.1034577777768, fast_reserve_2=1549.099777777778
+t=2  rg_l_reserve_2 =225.89355495805026, re_l_reserve_2=0.0, rs_l_reserve_2=1574.1064344444453, fast_reserve_2=1574.1064344444453
+t=3  rg_l_reserve_2 =190.88422162471718, re_l_reserve_2=1609.1157677777783, rs_l_reserve_2=0.0, fast_reserve_2=1609.1157677777783
+t=4  rg_l_reserve_2 =175.8802216247172, re_l_reserve_2=719.996320000001, rs_l_reserve_2=904.1234477777772, fast_reserve_2=1624.1197677777782
+t=5  rg_l_reserve_2 =115.86422162471732, re_l_reserve_2=1684.135767777778, rs_l_reserve_2=0.0, fast_reserve_2=1684.135767777778
+t=6  rg_l_reserve_2 =115.86422162471732, re_l_reserve_2=1871.3806675777778, rs_l_reserve_2=0.0, fast_reserve_2=1871.3806675777778
+t=7  rg_l_reserve_2 =115.86422162471732, re_l_reserve_2=2131.942775177778, rs_l_reserve_2=0.0, fast_reserve_2=2131.942775177778
+t=8  rg_l_reserve_2 =115.86422162471732, re_l_reserve_2=1799.994280000002, rs_l_reserve_2=545.9030363777758, fast_reserve_2=2345.8973163777778
+t=9  rg_l_reserve_2 =115.86422162471732, re_l_reserve_2=719.996320000001, rs_l_reserve_2=1776.0912041777763, fast_reserve_2=2496.087524177777
+t=10  rg_l_reserve_2 =115.86422162471732, re_l_reserve_2=2481.4094531777787, rs_l_reserve_2=140.0047899999985, fast_reserve_2=2621.4142431777773
+t=11  rg_l_reserve_2 =85.00379832471704, re_l_reserve_2=2714.9964010777785, rs_l_reserve_2=0.0, fast_reserve_2=2714.9964010777785
+t=12  rg_l_reserve_2 =10.836222222222222, re_l_reserve_2=2799.855745555555, rs_l_reserve_2=0.0, fast_reserve_2=2799.855745555555
+t=13  rg_l_reserve_2 =0.0, re_l_reserve_2=1619.995200000002, rs_l_reserve_2=1180.0049799999983, fast_reserve_2=2800.00018
+t=14  rg_l_reserve_2 =78.35422222222223, re_l_reserve_2=719.996320000001, rs_l_reserve_2=1991.6448138315804, fast_reserve_2=2711.6411338315816
+t=15  rg_l_reserve_2 =100.860232222222, re_l_reserve_2=1799.994280000002, rs_l_reserve_2=889.1454877777752, fast_reserve_2=2689.1397677777773
+t=16  rg_l_reserve_2 =100.86022222222223, re_l_reserve_2=2569.9958500000007, rs_l_reserve_2=119.14392777777611, fast_reserve_2=2689.139777777777
+t=17  rg_l_reserve_2 =85.85622222222223, re_l_reserve_2=1934.140467777778, rs_l_reserve_2=769.9992222781049, fast_reserve_2=2704.139690055883
+t=18  rg_l_reserve_2 =100.86022222222223, re_l_reserve_2=1799.994280000002, rs_l_reserve_2=889.1454977777751, fast_reserve_2=2689.139777777777
+t=19  rg_l_reserve_2 =85.78409562290179, re_l_reserve_2=2704.215894377098, rs_l_reserve_2=0.0, fast_reserve_2=2704.215894377098
+t=20  rg_l_reserve_2 =70.85222222222224, re_l_reserve_2=2719.1477777777773, rs_l_reserve_2=0.0, fast_reserve_2=2719.1477777777773
+t=21  rg_l_reserve_2 =70.85222222222224, re_l_reserve_2=2719.147757777777, rs_l_reserve_2=0.0, fast_reserve_2=2719.147757777777
+t=22  rg_l_reserve_2 =55.848221624717354, re_l_reserve_2=2494.1517677777774, rs_l_reserve_2=0.0, fast_reserve_2=2494.1517677777774
+t=23  rg_l_reserve_2 =50.8468888888889, re_l_reserve_2=2419.1530911111113, rs_l_reserve_2=0.0, fast_reserve_2=2419.1530911111113
+t=24  rg_l_reserve_2 =35.84288888888889, re_l_reserve_2=1799.994280000002, rs_l_reserve_2=394.16283111110874, fast_reserve_2=2194.1571111111107
+===== LOSS OF POWER A1 =====
+t=1  PLG1=1800.0, PLC1=0.0, PLRESERVE_1=0.0
+t=2  PLG1=1800.0, PLC1=0.0, PLRESERVE_1=0.0
+t=3  PLG1=1800.0, PLC1=0.0, PLRESERVE_1=0.0
+t=4  PLG1=1800.0, PLC1=0.0, PLRESERVE_1=0.0
+t=5  PLG1=1800.0, PLC1=0.0, PLRESERVE_1=0.0
+t=6  PLG1=2027.1285103574378, PLC1=0.0, PLRESERVE_1=0.0
+t=7  PLG1=2506.434154588889, PLC1=0.0, PLRESERVE_1=0.0
+t=8  PLG1=2654.59, PLC1=0.0, PLRESERVE_1=0.0
+t=9  PLG1=2746.158108555555, PLC1=0.0, PLRESERVE_1=0.0
+t=10  PLG1=2812.3965401341757, PLC1=0.0, PLRESERVE_1=0.0
+t=11  PLG1=2800.0002099999992, PLC1=0.0, PLRESERVE_1=0.0
+t=12  PLG1=2800.0002, PLC1=0.0, PLRESERVE_1=0.0
+t=13  PLG1=2957.764837456788, PLC1=0.0, PLRESERVE_1=0.0
+t=14  PLG1=3042.041133676026, PLC1=0.0, PLRESERVE_1=0.004643946196125626
+t=15  PLG1=3088.3961760999996, PLC1=0.0, PLRESERVE_1=0.0
+t=16  PLG1=3114.7199287779263, PLC1=0.0, PLRESERVE_1=0.0
+t=17  PLG1=3244.888654958836, PLC1=0.0, PLRESERVE_1=0.004087721894485696
+t=18  PLG1=3308.862362, PLC1=0.0, PLRESERVE_1=0.0
+t=19  PLG1=3157.2209786703575, PLC1=0.0, PLRESERVE_1=0.0
+t=20  PLG1=3088.3961760999996, PLC1=0.0, PLRESERVE_1=0.0
+t=21  PLG1=2977.3210269431406, PLC1=0.0, PLRESERVE_1=0.0
+t=22  PLG1=2748.296333459234, PLC1=0.0, PLRESERVE_1=0.0
+t=23  PLG1=2504.9304327983546, PLC1=0.0, PLRESERVE_1=0.0
+t=24  PLG1=2318.581685518306, PLC1=0.0, PLRESERVE_1=0.0
+===== LOSS OF POWER A2 =====
+t=1  PLG2=1800.0, PLC2=1400.0, PLRESERVE_2=1800.0
+t=2  PLG2=1800.0, PLC2=1400.0, PLRESERVE_2=1800.0
+t=3  PLG2=1800.0, PLC2=1400.0, PLRESERVE_2=1800.0
+t=4  PLG2=1800.0, PLC2=1400.0, PLRESERVE_2=1800.0
+t=5  PLG2=1800.0, PLC2=1400.0, PLRESERVE_2=1800.0
+t=6  PLG2=1987.2448998, PLC2=1400.0, PLRESERVE_2=1987.2448898000002
+t=7  PLG2=2247.8070174000004, PLC2=1400.0, PLRESERVE_2=2247.8069974000005
+t=8  PLG2=2461.7615486, PLC2=1400.0, PLRESERVE_2=2461.7615386000007
+t=9  PLG2=2611.9517564, PLC2=1400.0, PLRESERVE_2=2611.9517463999996
+t=10  PLG2=2737.2784654, PLC2=1400.0, PLRESERVE_2=2737.2784654000006
+t=11  PLG2=2830.8606333, PLC2=1400.0, PLRESERVE_2=2800.0002
+t=12  PLG2=2943.9849633, PLC2=1400.0, PLRESERVE_2=2800.0002
+t=13  PLG2=3110.0, PLC2=1400.0, PLRESERVE_2=2800.00019
+t=14  PLG2=2790.0, PLC2=1399.9954560538038, PLRESERVE_2=2789.9953560538042
+t=15  PLG2=2790.0, PLC2=1400.0, PLRESERVE_2=2790.0
+t=16  PLG2=2790.0, PLC2=1400.0, PLRESERVE_2=2790.0
+t=17  PLG2=2790.0, PLC2=1399.9960122781054, PLRESERVE_2=2789.995912278106
+t=18  PLG2=2790.0, PLC2=1400.0, PLRESERVE_2=2790.0
+t=19  PLG2=2790.0, PLC2=1400.0, PLRESERVE_2=2790.0
+t=20  PLG2=2790.0, PLC2=1400.0, PLRESERVE_2=2790.0
+t=21  PLG2=2790.0, PLC2=1400.0, PLRESERVE_2=2790.0
+t=22  PLG2=2550.0, PLC2=1400.0, PLRESERVE_2=2550.0
+t=23  PLG2=2470.0, PLC2=1400.0, PLRESERVE_2=2470.0
+t=24  PLG2=2230.0, PLC2=1400.0, PLRESERVE_2=2230.0
+
