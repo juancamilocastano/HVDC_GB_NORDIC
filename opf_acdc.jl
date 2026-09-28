@@ -50,7 +50,6 @@ process_parameters!(m, data,ts,tsw,tss) # Pass the parameters to the JuMP model
 include(joinpath(path,"printparameters_frequency_sev_var_res_provi.jl")) # Define build_ac_opf_acdc! function
 include(joinpath(path,"build_ac_opf_acdc_frequency_sev_var_res_provi.jl")) # Define build_ac_opf_acdc! function
 include(joinpath(path,"build_ac_opf_acdc_frequency_sev_var_res_provi_optimized.jl")) # Define build_ac_opf_acdc! function
-include(joinpath(path,"plotfunction_frequency_sev_var_res_provis.jl")) # Define build_ac_opf_acdc! function
 
 #build_ac_opf_acdc_modify!(m) # Pass the model to the build_ac_opf_acdc! function
 #build_ac_opf_acdc_frequency!(m) # Pass the model to the build_ac_opf_acdc! function
@@ -77,6 +76,7 @@ optimize!(m)
 # plotfunction_frequency_several_res_var_without_loss_res!(m) # Plot the results
 #printparameters_frequency_several_res_var_without_loss_res!(m) # Print the results
 
+include(joinpath(path,"plotfunction_frequency_sev_var_res_provis.jl")) # Define build_ac_opf_acdc! function
 plotfunction_frequency_sev_var_res_provis!(m) # Plot the results
 
 
@@ -96,6 +96,5 @@ end
 # println("Optimization time: ", optimization_time, " Seconds")
 solution_summary(m)
 #println(objective_value(m)) # Print the objective value of the model
-
 
 

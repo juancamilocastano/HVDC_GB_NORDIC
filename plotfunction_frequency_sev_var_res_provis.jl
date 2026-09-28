@@ -1123,6 +1123,130 @@ lines!(ax42, wind_curtailment_vector_2, label = "Wind Curtailment Area 2 (GB)")
 fig42[1, 2] = Legend(fig42, ax42, "Renewable Curtailment by type Area 2 (GB)", framevisible = false)
 fig42
 
+gen_per_hour_nuclear_1=Dict()
+gen_per_hour_gas_1=Dict()
+gen_per_hour_biomass_1=Dict()
+gen_per_hour_oil_1=Dict()
+gen_per_hour_reservoir_1=Dict()
+gen_per_hour_pump_1=Dict()
+gen_per_hour_solar_1=Dict()
+gen_per_hour_wind_1=Dict()
+
+gen_per_hour_nuclear_2=Dict()
+gen_per_hour_gas_2=Dict()
+gen_per_hour_biomass_2=Dict()
+gen_per_hour_oil_2=Dict()
+gen_per_hour_reservoir_2=Dict()
+gen_per_hour_pump_2=Dict()
+gen_per_hour_solar_2=Dict()
+gen_per_hour_wind_2=Dict()
+
+for t in T
+    if !isempty(G_nuclear_1)
+        gen_per_hour_nuclear_1[t] = sum(pg[g, t] for g in G_nuclear_1)
+    end
+    if !isempty(G_gas_1)
+        gen_per_hour_gas_1[t] = sum(pg[g, t] for g in G_gas_1)
+    end
+    if !isempty(G_biomass_1)
+        gen_per_hour_biomass_1[t] = sum(pg[g, t] for g in G_biomass_1)
+    end
+    if !isempty(G_oil_1)
+        gen_per_hour_oil_1[t] = sum(pg[g, t] for g in G_oil_1)
+    end
+    if !isempty(G_reservoir_1)
+        gen_per_hour_reservoir_1[t] = sum(pg[g, t] for g in G_reservoir_1)
+    end
+    if !isempty(G_pump_1)
+        gen_per_hour_pump_1[t] = sum(pg[g, t] for g in G_pump_1)
+    end
+    if !isempty(G_solar_1)
+        gen_per_hour_solar_1[t] = sum(pg[g, t] for g in G_solar_1)
+    end
+    if !isempty(G_wind_1)
+        gen_per_hour_wind_1[t] = sum(pg[g, t] for g in G_wind_1)
+    end
+
+    if !isempty(G_nuclear_2)
+        gen_per_hour_nuclear_2[t] = sum(pg[g, t] for g in G_nuclear_2)
+    end
+    if !isempty(G_gas_2)
+        gen_per_hour_gas_2[t] = sum(pg[g, t] for g in G_gas_2)
+    end
+    if !isempty(G_biomass_2)
+        gen_per_hour_biomass_2[t] = sum(pg[g, t] for g in G_biomass_2)
+    end
+    if !isempty(G_oil_2)
+        gen_per_hour_oil_2[t] = sum(pg[g, t] for g in G_oil_2)
+    end
+    if !isempty(G_reservoir_2)
+        gen_per_hour_reservoir_2[t] = sum(pg[g, t] for g in G_reservoir_2)
+    end
+    if !isempty(G_pump_2)
+        gen_per_hour_pump_2[t] = sum(pg[g, t] for g in G_pump_2)
+    end
+    if !isempty(G_solar_2)
+        gen_per_hour_solar_2[t] = sum(pg[g, t] for g in G_solar_2)
+    end
+    if !isempty(G_wind_2)
+        gen_per_hour_wind_2[t] = sum(pg[g, t] for g in G_wind_2)
+    end
+end
+
+nuclear_gen_vec_1 = [get(gen_per_hour_nuclear_1, string(t), 0.0) for t in T]
+gas_gen_vec_1 = [get(gen_per_hour_gas_1, string(t), 0.0) for t in T]
+biomass_gen_vec_1 = [get(gen_per_hour_biomass_1, string(t), 0.0) for t in T]
+oil_gen_vec_1 = [get(gen_per_hour_oil_1, string(t), 0.0) for t in T]
+reservoir_gen_vec_1 = [get(gen_per_hour_reservoir_1, string(t), 0.0) for t in T]
+pump_gen_vec_1 = [get(gen_per_hour_pump_1, string(t), 0.0) for t in T]
+solar_gen_vec_1 = [get(gen_per_hour_solar_1, string(t), 0.0) for t in T]
+wind_gen_vec_1 = [get(gen_per_hour_wind_1, string(t), 0.0) for t in T]
+
+nuclear_gen_vec_2 = [get(gen_per_hour_nuclear_2, string(t), 0.0) for t in T]
+gas_gen_vec_2 = [get(gen_per_hour_gas_2, string(t), 0.0) for t in T]
+biomass_gen_vec_2 = [get(gen_per_hour_biomass_2, string(t), 0.0) for t in T]
+oil_gen_vec_2 = [get(gen_per_hour_oil_2, string(t), 0.0) for t in T]
+reservoir_gen_vec_2 = [get(gen_per_hour_reservoir_2, string(t), 0.0) for t in T]
+pump_gen_vec_2 = [get(gen_per_hour_pump_2, string(t), 0.0) for t in T]
+solar_gen_vec_2 = [get(gen_per_hour_solar_2, string(t), 0.0) for t in T]
+wind_gen_vec_2 = [get(gen_per_hour_wind_2, string(t), 0.0) for t in T]
+
+fig43 = Figure()
+ax43 = fig43[1, 1] = Axis(fig43,
+    title  = "Total generation by technology Area 1 (Nordic)",
+    xlabel = "Time (hours)",
+    ylabel = "Generation (MW)"
+)
+scatterlines!(ax43, nuclear_gen_vec_1, label = "Nuclear", marker = :circle)
+scatterlines!(ax43, gas_gen_vec_1, label = "Gas", marker = :rect)
+scatterlines!(ax43, biomass_gen_vec_1, label = "Biomass", marker = :utriangle)
+scatterlines!(ax43, oil_gen_vec_1, label = "Oil", marker = :dtriangle)
+scatterlines!(ax43, reservoir_gen_vec_1, label = "Reservoir (Hydro)", marker = :diamond)
+scatterlines!(ax43, pump_gen_vec_1, label = "Pump", marker = :cross)
+scatterlines!(ax43, solar_gen_vec_1, label = "Solar", marker = :star5)
+scatterlines!(ax43, wind_gen_vec_1, label = "Wind", marker = :xcross)
+fig43[1, 2] = Legend(fig43, ax43, "Generation by technology Area 1 (Nordic)", framevisible = false)
+fig43
+
+fig44 = Figure()
+ax44 = fig44[1, 1] = Axis(fig44,
+    title  = "Total generation by technology Area 2 (GB)",
+    xlabel = "Time (hours)",
+    ylabel = "Generation (MW)"
+)
+scatterlines!(ax44, nuclear_gen_vec_2, label = "Nuclear", marker = :circle)
+scatterlines!(ax44, gas_gen_vec_2, label = "Gas", marker = :rect)
+scatterlines!(ax44, biomass_gen_vec_2, label = "Biomass", marker = :utriangle)
+scatterlines!(ax44, oil_gen_vec_2, label = "Oil", marker = :dtriangle)
+scatterlines!(ax44, reservoir_gen_vec_2, label = "Reservoir (Hydro)", marker = :diamond)
+scatterlines!(ax44, pump_gen_vec_2, label = "Pump", marker = :cross)
+scatterlines!(ax44, solar_gen_vec_2, label = "Solar", marker = :star5)
+scatterlines!(ax44, wind_gen_vec_2, label = "Wind", marker = :xcross)
+fig44[1, 2] = Legend(fig44, ax44, "Generation by technology Area 2 (GB)", framevisible = false)
+fig44
+
+save("Total generation by technology Area 1.png", fig43)
+save("Total generation by technology Area 2.png", fig44)
 save("renewable_curtailment_area1.png", fig41)
 save("renewable_curtailment_area2.png", fig42)
 save("Reserve_lg1_and_power_loss_reserve_2.png", fig40)
@@ -1171,11 +1295,14 @@ save("Load shedding Area 1 and Area 2.png", fig38)
 # GUARDAR EN TXT LOS DATOS USADOS EN LAS FIGURAS
 # ============================================================
 
-function write_plot_block(io, times, title, series)
+fmtcol(x::AbstractString, width) = rpad(x, width)
+fmtcol(x::Real, width) = rpad(string(round(x, digits = 3)), width)
+
+function write_plot_block(io, times, title, series; timewidth = 8, colwidth = 24)
     println(io, "===== ", title, " =====")
-    println(io, join(vcat("t", [s.first for s in series]), "\t"))
+    println(io, fmtcol("t", timewidth), join([fmtcol(s.first, colwidth) for s in series]))
     for i in eachindex(times)
-        println(io, join(vcat(string(times[i]), [string(s.second[i]) for s in series]), "\t"))
+        println(io, fmtcol(string(times[i]), timewidth), join([fmtcol(s.second[i], colwidth) for s in series]))
     end
     println(io)
 end
@@ -1357,10 +1484,70 @@ open("Plot_data.txt", "w") do io
         "Power loss reserve 1 [MW]" => plreserve_1vec
     ])
 
+    write_plot_block(io, T, "fig41 - Renewable curtailment Area 1 (Nordic)", [
+        "Solar Curtailment [MW]" => solar_curtailment_vector_1,
+        "Wind Curtailment [MW]" => wind_curtailment_vector_1
+    ])
+
+    write_plot_block(io, T, "fig42 - Renewable curtailment Area 2 (GB)", [
+        "Solar Curtailment [MW]" => solar_curtailment_vector_2,
+        "Wind Curtailment [MW]" => wind_curtailment_vector_2
+    ])
+
+    write_plot_block(io, T, "fig43 - Total generation by technology Area 1 (Nordic)", [
+        "Nuclear [MW]" => nuclear_gen_vec_1,
+        "Gas [MW]" => gas_gen_vec_1,
+        "Biomass [MW]" => biomass_gen_vec_1,
+        "Oil [MW]" => oil_gen_vec_1,
+        "Reservoir (Hydro) [MW]" => reservoir_gen_vec_1,
+        "Pump [MW]" => pump_gen_vec_1,
+        "Solar [MW]" => solar_gen_vec_1,
+        "Wind [MW]" => wind_gen_vec_1
+    ])
+
+    write_plot_block(io, T, "fig44 - Total generation by technology Area 2 (GB)", [
+        "Nuclear [MW]" => nuclear_gen_vec_2,
+        "Gas [MW]" => gas_gen_vec_2,
+        "Biomass [MW]" => biomass_gen_vec_2,
+        "Oil [MW]" => oil_gen_vec_2,
+        "Reservoir (Hydro) [MW]" => reservoir_gen_vec_2,
+        "Pump [MW]" => pump_gen_vec_2,
+        "Solar [MW]" => solar_gen_vec_2,
+        "Wind [MW]" => wind_gen_vec_2
+    ])
+
+    println(io, "===== Total energy generated by technology (sum over all hours) =====")
+    println(io, fmtcol("technology", 20), fmtcol("Area 1 (Nordic) [MWh]", 24), fmtcol("Area 2 (GB) [MWh]", 24))
+    for (name, v1, v2) in [
+        ("Nuclear", nuclear_gen_vec_1, nuclear_gen_vec_2),
+        ("Gas", gas_gen_vec_1, gas_gen_vec_2),
+        ("Biomass", biomass_gen_vec_1, biomass_gen_vec_2),
+        ("Oil", oil_gen_vec_1, oil_gen_vec_2),
+        ("Reservoir (Hydro)", reservoir_gen_vec_1, reservoir_gen_vec_2),
+        ("Pump", pump_gen_vec_1, pump_gen_vec_2),
+        ("Solar", solar_gen_vec_1, solar_gen_vec_2),
+        ("Wind", wind_gen_vec_1, wind_gen_vec_2)
+    ]
+        println(io, fmtcol(name, 20), fmtcol(sum(v1), 24), fmtcol(sum(v2), 24))
+    end
+    println(io)
+
 end
 
 println("Plot data written to Plot_data.txt")
 
 
+
+open("unidades_en_tope_plg1.txt", "w") do io
+total_wind_at_cap = 0
+for t in T
+        cap = value(plg1[t])
+        at_cap = [g for g in G1 if value(pg[g,t]) >= cap - 1e-4]
+        wind_units = [g for g in at_cap if g in G_wind_1]
+        total_wind_at_cap += length(wind_units)
+        println(io, t, "  plg1=", round(cap, digits=4), "  at cap: ", at_cap, "  wind: ", wind_units, "  n_wind=", length(wind_units))
+    end
+    println(io, "\nTotal wind units at cap (unit-hours): ", total_wind_at_cap)
+end
 
 end
