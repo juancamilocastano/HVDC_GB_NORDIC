@@ -88,6 +88,7 @@ start_up_cost = m.ext[:parameters][:startup_cost]
 # ============================================================
 
 pg  = JuMP.value.(m.ext[:variables][:pg]) .* baseMVA
+solar_roof_pmax = m.ext[:parameters][:solar_roof_pmax]
 pev = JuMP.value.(m.ext[:variables][:pe]) .* baseMVA
 
 pgvec = [pg[g, t] for g in G, t in T]
@@ -1211,20 +1212,24 @@ pump_gen_vec_2 = [get(gen_per_hour_pump_2, string(t), 0.0) for t in T]
 solar_gen_vec_2 = [get(gen_per_hour_solar_2, string(t), 0.0) for t in T]
 wind_gen_vec_2 = [get(gen_per_hour_wind_2, string(t), 0.0) for t in T]
 
+gen_tech_colors9 = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22"]
+gen_tech_markers9 = [:circle, :rect, :utriangle, :dtriangle, :diamond, :cross, :star5, :xcross, :pentagon]
+
 fig43 = Figure()
 ax43 = fig43[1, 1] = Axis(fig43,
     title  = "Total generation by technology Area 1 (Nordic)",
     xlabel = "Time (hours)",
     ylabel = "Generation (MW)"
 )
-scatterlines!(ax43, nuclear_gen_vec_1, label = "Nuclear", marker = :circle)
-scatterlines!(ax43, gas_gen_vec_1, label = "Gas", marker = :rect)
-scatterlines!(ax43, biomass_gen_vec_1, label = "Biomass", marker = :utriangle)
-scatterlines!(ax43, oil_gen_vec_1, label = "Oil", marker = :dtriangle)
-scatterlines!(ax43, reservoir_gen_vec_1, label = "Reservoir (Hydro)", marker = :diamond)
-scatterlines!(ax43, pump_gen_vec_1, label = "Pump", marker = :cross)
-scatterlines!(ax43, solar_gen_vec_1, label = "Solar", marker = :star5)
-scatterlines!(ax43, wind_gen_vec_1, label = "Wind", marker = :xcross)
+scatterlines!(ax43, nuclear_gen_vec_1, label = "Nuclear", color = gen_tech_colors9[1], marker = gen_tech_markers9[1])
+scatterlines!(ax43, gas_gen_vec_1, label = "Gas", color = gen_tech_colors9[2], marker = gen_tech_markers9[2])
+scatterlines!(ax43, biomass_gen_vec_1, label = "Biomass", color = gen_tech_colors9[3], marker = gen_tech_markers9[3])
+scatterlines!(ax43, oil_gen_vec_1, label = "Oil", color = gen_tech_colors9[4], marker = gen_tech_markers9[4])
+scatterlines!(ax43, reservoir_gen_vec_1, label = "Reservoir (Hydro)", color = gen_tech_colors9[5], marker = gen_tech_markers9[5])
+scatterlines!(ax43, pump_gen_vec_1, label = "Pump", color = gen_tech_colors9[6], marker = gen_tech_markers9[6])
+scatterlines!(ax43, solar_gen_vec_1, label = "Solar", color = gen_tech_colors9[7], marker = gen_tech_markers9[7])
+scatterlines!(ax43, wind_gen_vec_1, label = "Wind", color = gen_tech_colors9[8], marker = gen_tech_markers9[8])
+scatterlines!(ax43, solar_roof_pmax["1"]*[capacity_factor_solar["Nordic"][t] for t in T]*baseMVA, label = "Rooftop Solar", color = gen_tech_colors9[9], marker = gen_tech_markers9[9])
 fig43[1, 2] = Legend(fig43, ax43, "Generation by technology Area 1 (Nordic)", framevisible = false)
 fig43
 
@@ -1234,14 +1239,15 @@ ax44 = fig44[1, 1] = Axis(fig44,
     xlabel = "Time (hours)",
     ylabel = "Generation (MW)"
 )
-scatterlines!(ax44, nuclear_gen_vec_2, label = "Nuclear", marker = :circle)
-scatterlines!(ax44, gas_gen_vec_2, label = "Gas", marker = :rect)
-scatterlines!(ax44, biomass_gen_vec_2, label = "Biomass", marker = :utriangle)
-scatterlines!(ax44, oil_gen_vec_2, label = "Oil", marker = :dtriangle)
-scatterlines!(ax44, reservoir_gen_vec_2, label = "Reservoir (Hydro)", marker = :diamond)
-scatterlines!(ax44, pump_gen_vec_2, label = "Pump", marker = :cross)
-scatterlines!(ax44, solar_gen_vec_2, label = "Solar", marker = :star5)
-scatterlines!(ax44, wind_gen_vec_2, label = "Wind", marker = :xcross)
+scatterlines!(ax44, nuclear_gen_vec_2, label = "Nuclear", color = gen_tech_colors9[1], marker = gen_tech_markers9[1])
+scatterlines!(ax44, gas_gen_vec_2, label = "Gas", color = gen_tech_colors9[2], marker = gen_tech_markers9[2])
+scatterlines!(ax44, biomass_gen_vec_2, label = "Biomass", color = gen_tech_colors9[3], marker = gen_tech_markers9[3])
+scatterlines!(ax44, oil_gen_vec_2, label = "Oil", color = gen_tech_colors9[4], marker = gen_tech_markers9[4])
+scatterlines!(ax44, reservoir_gen_vec_2, label = "Reservoir (Hydro)", color = gen_tech_colors9[5], marker = gen_tech_markers9[5])
+scatterlines!(ax44, pump_gen_vec_2, label = "Pump", color = gen_tech_colors9[6], marker = gen_tech_markers9[6])
+scatterlines!(ax44, solar_gen_vec_2, label = "Solar", color = gen_tech_colors9[7], marker = gen_tech_markers9[7])
+scatterlines!(ax44, wind_gen_vec_2, label = "Wind", color = gen_tech_colors9[8], marker = gen_tech_markers9[8])
+scatterlines!(ax44, solar_roof_pmax["2"]*[capacity_factor_solar["GB"][t] for t in T]*baseMVA, label = "Rooftop Solar", color = gen_tech_colors9[9], marker = gen_tech_markers9[9])
 fig44[1, 2] = Legend(fig44, ax44, "Generation by technology Area 2 (GB)", framevisible = false)
 fig44
 
@@ -1505,6 +1511,9 @@ open("Plot_data.txt", "w") do io
         "Wind [MW]" => wind_gen_vec_1
     ])
 
+    rooftop_solar_vec_1 = solar_roof_pmax["1"]*[capacity_factor_solar["Nordic"][t] for t in T]*baseMVA
+    rooftop_solar_vec_2 = solar_roof_pmax["2"]*[capacity_factor_solar["GB"][t] for t in T]*baseMVA
+
     write_plot_block(io, T, "fig44 - Total generation by technology Area 2 (GB)", [
         "Nuclear [MW]" => nuclear_gen_vec_2,
         "Gas [MW]" => gas_gen_vec_2,
@@ -1513,7 +1522,8 @@ open("Plot_data.txt", "w") do io
         "Reservoir (Hydro) [MW]" => reservoir_gen_vec_2,
         "Pump [MW]" => pump_gen_vec_2,
         "Solar [MW]" => solar_gen_vec_2,
-        "Wind [MW]" => wind_gen_vec_2
+        "Wind [MW]" => wind_gen_vec_2,
+        "Rooftop Solar [MW]" => rooftop_solar_vec_2
     ])
 
     println(io, "===== Total energy generated by technology (sum over all hours) =====")
@@ -1526,7 +1536,8 @@ open("Plot_data.txt", "w") do io
         ("Reservoir (Hydro)", reservoir_gen_vec_1, reservoir_gen_vec_2),
         ("Pump", pump_gen_vec_1, pump_gen_vec_2),
         ("Solar", solar_gen_vec_1, solar_gen_vec_2),
-        ("Wind", wind_gen_vec_1, wind_gen_vec_2)
+        ("Wind", wind_gen_vec_1, wind_gen_vec_2),
+        ("Rooftop Solar", rooftop_solar_vec_1, rooftop_solar_vec_2)
     ]
         println(io, fmtcol(name, 20), fmtcol(sum(v1), 24), fmtcol(sum(v2), 24))
     end

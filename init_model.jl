@@ -78,10 +78,17 @@ function define_sets!(m::Model, data::Dict, ts::DataFrame, tsw::DataFrame, tss::
     end
 
     #wind connectivity
-    W_ac = m.ext[:sets][:W_ac] = Dict((i, []) for i in N)
-    for (w, wind) in data["wind"]
-        push!(W_ac[string(wind["col_1"])], w)
-    end
+    # W_ac = m.ext[:sets][:W_ac] = Dict((i, []) for i in N)
+    # for (w, wind) in data["wind"]
+    #     push!(W_ac[string(wind["col_1"])], w)
+    # end
+
+    #solar_roof connectivity
+
+    solar_roof = m.ext[:sets][:solar_roof] = [solar_roof_id for (solar_roof_id,solar) in data["solar_roof"]] # set of solar roof units
+    solar_roof1= m.ext[:sets][:solar_roof1] = [solar_roof_id for (solar_roof_id,solar) in data["solar_roof"] if data["solar_roof"][solar_roof_id]["col_2"]==1] #Solar roof area 1
+    solar_roof2= m.ext[:sets][:solar_roof2] = [solar_roof_id for (solar_roof_id,solar) in data["solar_roof"] if data["solar_roof"][solar_roof_id]["col_2"]==2] #Solar roof area 2
+
 
 
     S_ac = m.ext[:sets][:S_ac] = Dict((i, []) for i in N)
@@ -331,7 +338,7 @@ function process_parameters!(m::Model, data::Dict, ts::DataFrame, tsw::DataFrame
     
 
     # Generator parameters
-    gen_bus = m.ext[:parameters][:gen_bus] =  Dict(g => string(data["gen"][g]["gen_bus"]) for g in G)
+     gen_bus = m.ext[:parameters][:gen_bus] =  Dict(g => string(data["gen"][g]["gen_bus"]) for g in G)
     pmax = m.ext[:parameters][:pmax] = Dict(g => data["gen"][g]["pmax"] for g in G)  # maximum active power in pu
     pmin = m.ext[:parameters][:pmin] = Dict(g => data["gen"][g]["pmin"] for g in G)  # minimum active power in pu
     G_dt= m.ext[:parameters][:G_dt] = Dict(g => data["genextra"][g]["col_2"] for g in G) # deploytment time of reserve in seconds
@@ -350,7 +357,8 @@ function process_parameters!(m::Model, data::Dict, ts::DataFrame, tsw::DataFrame
     E_reservoirs_min=m.ext[:parameters][:E_reservoirs_min] = Dict(g => data["genextra"][g]["col_15"]/baseMVA for g in G) # Minimum resorvoir energy in pu
     E_reservoirs_ini=m.ext[:parameters][:E_reservoirs_ini] = Dict(g => data["genextra"][g]["col_16"]/baseMVA for g in G) # Initial resorvoir energy in pu
     E_reservoirs_end=m.ext[:parameters][:E_reservoirs_end] = Dict(g => data["genextra"][g]["col_17"]/baseMVA for g in G) # End resorvoir energy in pu
-    
+    solar_roof_pmax = m.ext[:parameters][:solar_roof_pmax] =  Dict(solar_roof_id => data["solar_roof"][solar_roof_id]["col_3"]/baseMVA for solar_roof_id in solar_roof)
+   
 
     
     max_gen_ncost = m.ext[:parameters][:gen_max_ncost] = maximum([data["gen"][g]["ncost"] for g in G])

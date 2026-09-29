@@ -20,7 +20,8 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
     G_ac = m.ext[:sets][:G_ac]
     L = m.ext[:sets][:L]
     L_ac = m.ext[:sets][:L_ac]
-    W_ac = m.ext[:sets][:W_ac]
+    # W_ac = m.ext[:sets][:W_ac]
+    solar_roof = m.ext[:sets][:solar_roof]
     B_ac = m.ext[:sets][:B_ac]
     B_arcs = m.ext[:sets][:B_arcs]
     bus_ij = m.ext[:sets][:bus_ij]
@@ -207,6 +208,7 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
     Sdeployment = m.ext[:parameters][:Sdeployment]
     Sreservecost = m.ext[:parameters][:Sreservecost]
     storage_bus = m.ext[:parameters][:storage_bus]
+    solar_roof_pmax = m.ext[:parameters][:solar_roof_pmax]
     
     #Area elements
     S1= m.ext[:sets][:S1]
@@ -519,11 +521,13 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
 
     #Nodal power balance constraint AC taken from https://github.com/Electa-Git/OPES/blob/main/opf_acdc/build_ac_opf_acdc_tap.jl line 421
         m.ext[:constraints][:power_balance_1] = @constraint(m, [t=T],
-        sum(pg[g,t] for g in G1 )-sum(p_charge_pump[g,t] for g in G_pump_1)+  sum(conv_p_ac[cv,t] for cv in CV1) +sum(psd[s,t] for s in S1)-sum(psc[s,t] for s in S1)-sum(pe[e,t] for e in E1) -sum(pe_compressor[e,t] for e in E1)-demand["1"][t]+load_shed_1[t]== 0 #3.7
+        sum(pg[g,t] for g in G1 )-sum(p_charge_pump[g,t] for g in G_pump_1)+  sum(conv_p_ac[cv,t] for cv in CV1) +sum(psd[s,t] for s in S1)-sum(psc[s,t] for s in S1)-sum(pe[e,t] for e in E1) -sum(pe_compressor[e,t] for e in E1)-demand["1"][t]+load_shed_1[t]+solar_roof_pmax["1"]*capacity_factor_solar["Nordic"][t]== 0 #3.7
         )
         m.ext[:constraints][:power_balance_2] = @constraint(m, [t=T],
-        sum(pg[g,t] for g in G2 )-sum(p_charge_pump[g,t] for g in G_pump_2)+  sum(conv_p_ac[cv,t] for cv in CV2) +sum(psd[s,t] for s in S2)-sum(psc[s,t] for s in S2)-sum(pe[e,t] for e in E2) -sum(pe_compressor[e,t] for e in E2)-demand["2"][t]+load_shed_2[t]== 0 #3.7
+        sum(pg[g,t] for g in G2 )-sum(p_charge_pump[g,t] for g in G_pump_2)+  sum(conv_p_ac[cv,t] for cv in CV2) +sum(psd[s,t] for s in S2)-sum(psc[s,t] for s in S2)-sum(pe[e,t] for e in E2) -sum(pe_compressor[e,t] for e in E2)-demand["2"][t]+load_shed_2[t]+solar_roof_pmax["2"]*capacity_factor_solar["GB"][t]== 0 #3.7
         )
+
+        
 
         m.ext[:constraints][:load_shed_1_limit] = @constraint(m, [t=T],
         load_shed_1[t] <= demand["1"][t]
@@ -536,9 +540,9 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
     m.ext[:constraints][:event_binary_constraint]= @constraint(m, [g=G,t=T],
     zg[g,t]>=δg[g,t])
 
-    #Enforce  hvdc links power flow direction constraints
-    m.ext[:constraints][:hvdc_flow_direction_1] = @constraint(m, [t=T],
-        conv_p_ac["2",t]==-conv_p_ac_max["2"])
+    # #Enforce  hvdc links power flow direction constraints
+    # m.ext[:constraints][:hvdc_flow_direction_1] = @constraint(m, [t=T],
+    #     conv_p_ac["2",t]==-conv_p_ac_max["2"])
 
 
 

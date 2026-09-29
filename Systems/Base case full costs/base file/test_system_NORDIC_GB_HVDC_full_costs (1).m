@@ -1813,7 +1813,7 @@ mpc.elec = [
 
 %% Wind data (reduced to 3 columns)
 % 1-AC_bus   2-area   3-Pmax_MW
-mpc.solar_roof = [
-    1   1   0;
-    2   2   42300;
+mpc.wind = [
+    2   2   100;
+    1   1   33.3;
 ];
