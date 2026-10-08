@@ -1,0 +1,26 @@
+1  plg2=1800.0  at cap: ["453", "450", "452", "451"]  wind: String[]  n_wind=0
+2  plg2=1800.0  at cap: ["453", "450", "452", "451"]  wind: String[]  n_wind=0
+3  plg2=1800.0  at cap: ["453", "450", "452", "451"]  wind: String[]  n_wind=0
+4  plg2=1800.0  at cap: ["453", "450", "452", "451"]  wind: String[]  n_wind=0
+5  plg2=1800.0  at cap: ["453", "450", "452", "451"]  wind: String[]  n_wind=0
+6  plg2=1987.2449  at cap: ["508"]  wind: ["508"]  n_wind=1
+7  plg2=2247.807  at cap: ["508"]  wind: ["508"]  n_wind=1
+8  plg2=2461.7615  at cap: ["508"]  wind: ["508"]  n_wind=1
+9  plg2=2611.9518  at cap: ["508"]  wind: ["508"]  n_wind=1
+10  plg2=2737.2785  at cap: ["508"]  wind: ["508"]  n_wind=1
+11  plg2=2830.8606  at cap: ["508"]  wind: ["508"]  n_wind=1
+12  plg2=2788.9732  at cap: ["508"]  wind: ["508"]  n_wind=1
+13  plg2=2790.0  at cap: ["508"]  wind: ["508"]  n_wind=1
+14  plg2=2790.0  at cap: ["508", "515"]  wind: ["508", "515"]  n_wind=2
+15  plg2=2790.0  at cap: ["508", "515"]  wind: ["508", "515"]  n_wind=2
+16  plg2=3859.4388  at cap: ["508"]  wind: ["508"]  n_wind=1
+17  plg2=4020.7304  at cap: ["508"]  wind: ["508"]  n_wind=1
+18  plg2=4100.0  at cap: ["508"]  wind: ["508"]  n_wind=1
+19  plg2=3912.1017  at cap: ["508"]  wind: ["508"]  n_wind=1
+20  plg2=3514.2857  at cap: ["508"]  wind: ["508"]  n_wind=1
+21  plg2=3142.8012  at cap: ["508"]  wind: ["508"]  n_wind=1
+22  plg2=2901.0473  at cap: ["508"]  wind: ["508"]  n_wind=1
+23  plg2=2644.155  at cap: ["508"]  wind: ["508"]  n_wind=1
+24  plg2=2447.449  at cap: ["508"]  wind: ["508"]  n_wind=1
+
+Total wind units at cap (unit-hours): 21

@@ -53,6 +53,10 @@ function define_sets!(m::Model, data::Dict, ts::DataFrame, tsw::DataFrame, tss::
     S1=m.ext[:sets][:S1]= [stor_id for (stor_id,stor) in data["bess"] if data["bess"][stor_id]["col_2"]==1]
     S2=m.ext[:sets][:S2]= [stor_id for (stor_id,stor) in data["bess"] if data["bess"][stor_id]["col_2"]==2]
 
+    solar_roof = m.ext[:sets][:solar_roof] = [solar_roof_id for (solar_roof_id,solar) in data["solar_roof"]] # set of solar roof units
+    solar_roof1= m.ext[:sets][:solar_roof1] = [solar_roof_id for (solar_roof_id,solar) in data["solar_roof"] if data["solar_roof"][solar_roof_id]["col_2"]==1] #Solar roof area 1
+    solar_roof2= m.ext[:sets][:solar_roof2] = [solar_roof_id for (solar_roof_id,solar) in data["solar_roof"] if data["solar_roof"][solar_roof_id]["col_2"]==2] #Solar roof area 2
+
     # Set of AC topology from side (i->j) and to side (j->i)
     B_ac_fr = m.ext[:sets][:B_ac_fr] = [(br_id, string(br["f_bus"]), string(br["t_bus"])) for (br_id,br) in data["branch"]] 
     B_ac_to = m.ext[:sets][:B_ac_to] = [(br_id, string(br["t_bus"]), string(br["f_bus"])) for (br_id,br) in data["branch"]]
@@ -85,9 +89,6 @@ function define_sets!(m::Model, data::Dict, ts::DataFrame, tsw::DataFrame, tss::
 
     #solar_roof connectivity
 
-    solar_roof = m.ext[:sets][:solar_roof] = [solar_roof_id for (solar_roof_id,solar) in data["solar_roof"]] # set of solar roof units
-    solar_roof1= m.ext[:sets][:solar_roof1] = [solar_roof_id for (solar_roof_id,solar) in data["solar_roof"] if data["solar_roof"][solar_roof_id]["col_2"]==1] #Solar roof area 1
-    solar_roof2= m.ext[:sets][:solar_roof2] = [solar_roof_id for (solar_roof_id,solar) in data["solar_roof"] if data["solar_roof"][solar_roof_id]["col_2"]==2] #Solar roof area 2
 
 
 
@@ -199,6 +200,11 @@ function process_parameters!(m::Model, data::Dict, ts::DataFrame, tsw::DataFrame
     S= m.ext[:sets][:S]
     S1= m.ext[:sets][:S1]
     S2= m.ext[:sets][:S2]
+    solar_roof_pmax= m.ext[:sets][:solar_roof]
+    solar_roof_pmax1= m.ext[:sets][:solar_roof1]
+    solar_roof_pmax2= m.ext[:sets][:solar_roof2]
+
+  
 
     # Create parameter dictionary
     m.ext[:parameters] = Dict()
@@ -263,6 +269,8 @@ function process_parameters!(m::Model, data::Dict, ts::DataFrame, tsw::DataFrame
     #m.ext[:parameters][:total_wind]=total_wind
     m.ext[:parameters][:capacity_factor_solar]=capacity_factor_solar
     m.ext[:parameters][:capacity_factor_wind]=capacity_factor_wind
+
+
 
     
     #solar input
@@ -338,7 +346,7 @@ function process_parameters!(m::Model, data::Dict, ts::DataFrame, tsw::DataFrame
     
 
     # Generator parameters
-     gen_bus = m.ext[:parameters][:gen_bus] =  Dict(g => string(data["gen"][g]["gen_bus"]) for g in G)
+    gen_bus = m.ext[:parameters][:gen_bus] =  Dict(g => string(data["gen"][g]["gen_bus"]) for g in G)
     pmax = m.ext[:parameters][:pmax] = Dict(g => data["gen"][g]["pmax"] for g in G)  # maximum active power in pu
     pmin = m.ext[:parameters][:pmin] = Dict(g => data["gen"][g]["pmin"] for g in G)  # minimum active power in pu
     G_dt= m.ext[:parameters][:G_dt] = Dict(g => data["genextra"][g]["col_2"] for g in G) # deploytment time of reserve in seconds
@@ -357,7 +365,7 @@ function process_parameters!(m::Model, data::Dict, ts::DataFrame, tsw::DataFrame
     E_reservoirs_min=m.ext[:parameters][:E_reservoirs_min] = Dict(g => data["genextra"][g]["col_15"]/baseMVA for g in G) # Minimum resorvoir energy in pu
     E_reservoirs_ini=m.ext[:parameters][:E_reservoirs_ini] = Dict(g => data["genextra"][g]["col_16"]/baseMVA for g in G) # Initial resorvoir energy in pu
     E_reservoirs_end=m.ext[:parameters][:E_reservoirs_end] = Dict(g => data["genextra"][g]["col_17"]/baseMVA for g in G) # End resorvoir energy in pu
-    solar_roof_pmax = m.ext[:parameters][:solar_roof_pmax] =  Dict(solar_roof_id => data["solar_roof"][solar_roof_id]["col_3"]/baseMVA for solar_roof_id in solar_roof)
+    solar_roof_pmax = m.ext[:parameters][:solar_roof_pmax] =  Dict(solar_roof_id => data["solar_roof"][solar_roof_id]["col_3"]/baseMVA for solar_roof_id in solar_roof_pmax)
    
 
     

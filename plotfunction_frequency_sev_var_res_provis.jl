@@ -741,6 +741,50 @@ lines!(ax16, demandwithoutEB2+pevec[2,:]+pevec_compressor[2,:]+pscvec[2,:]-psdve
 fig16[1, 2] = Legend(fig16, ax16, "Demand with EB and BESS", framevisible = false)
 fig16
 
+net_demand_1_vec = [
+    demand["1"][t]*baseMVA +
+    sum(psc[s,t] for s in S1) +
+    sum(pev[e,t] for e in E1) +
+    sum(pe_compressor[e,t] for e in E1) -
+    sum(conv_p_ac[cv,t] for cv in CV1) -
+    sum(psd[s,t] for s in S1) -
+    load_shed_1[t] -
+    solar_roof_pmax["1"]*capacity_factor_solar["Nordic"][t]*baseMVA
+    for t in T
+]
+
+net_demand_2_vec = [
+    demand["2"][t]*baseMVA +
+    sum(psc[s,t] for s in S2) +
+    sum(pev[e,t] for e in E2) +
+    sum(pe_compressor[e,t] for e in E2) -
+    sum(conv_p_ac[cv,t] for cv in CV2) -
+    sum(psd[s,t] for s in S2) -
+    load_shed_2[t] -
+    solar_roof_pmax["2"]*capacity_factor_solar["GB"][t]*baseMVA
+    for t in T
+]
+
+fig45 = Figure()
+ax45 = fig45[1, 1] = Axis(fig45,
+    title  = "Net demand Area 1 (Nordic)",
+    xlabel = "Time (hours)",
+    ylabel = "Power (MW)"
+)
+lines!(ax45, net_demand_1_vec, label = "Net demand Area 1 (Nordic)")
+fig45[1, 2] = Legend(fig45, ax45, "Net demand Area 1 (Nordic)", framevisible = false)
+fig45
+
+fig46 = Figure()
+ax46 = fig46[1, 1] = Axis(fig46,
+    title  = "Net demand Area 2 (GB)",
+    xlabel = "Time (hours)",
+    ylabel = "Power (MW)"
+)
+lines!(ax46, net_demand_2_vec, label = "Net demand Area 2 (GB)")
+fig46[1, 2] = Legend(fig46, ax46, "Net demand Area 2 (GB)", framevisible = false)
+fig46
+
 # fig17=Figure()
 # ax17=fig17[1, 1] = Axis(fig17,
 #     title = "Wind generation Area 1 (Nordic) and 2 (GB)",
@@ -1274,6 +1318,8 @@ save("1_HVDC_power_flows.png", fig13)
 save("3_Sum Of Power Flows HVDC Links.png",fig14)
 save("Demand without Electrolyzers and BESS.png",fig15)
 save("Demand with Electrolyzers and BESS.png",fig16)
+save("Net demand Area 1.png", fig45)
+save("Net demand Area 2.png", fig46)
 # save("Wind generation Area 1 and 2.png",fig17)
 #save("Net demand Area 1 and 2.png",fig18)
 #save("Net demand Area 1 and 2 without HVDC flows.png",fig19)
@@ -1409,6 +1455,14 @@ open("Plot_data.txt", "w") do io
     write_plot_block(io, T, "fig16 - Demand with Electrolyzers and BESS", [
         "Demand Area 1 (Nordic) [MW]" => demandwithoutEB1+pevec[1,:]+pevec_compressor[1,:]+pscvec[1,:]-psdvec[1,:],
         "Demand Area 2 (GB) [MW]" => demandwithoutEB2+pevec[2,:]+pevec_compressor[2,:]+pscvec[2,:]-psdvec[2,:]
+    ])
+
+    write_plot_block(io, T, "fig45 - Net demand Area 1 (Nordic)", [
+        "Net demand [MW]" => net_demand_1_vec
+    ])
+
+    write_plot_block(io, T, "fig46 - Net demand Area 2 (GB)", [
+        "Net demand [MW]" => net_demand_2_vec
     ])
 
     write_plot_block(io, T, "fig22 - Flow+Reserve", [
@@ -1559,6 +1613,20 @@ for t in T
         println(io, t, "  plg1=", round(cap, digits=4), "  at cap: ", at_cap, "  wind: ", wind_units, "  n_wind=", length(wind_units))
     end
     println(io, "\nTotal wind units at cap (unit-hours): ", total_wind_at_cap)
+end
+
+
+open("unidades_en_tope_plg2.txt", "w") do io
+total_wind_at_cap = 0   
+for t in T
+        cap = value(plg2[t])
+        at_cap = [g for g in G2 if value(pg[g,t]) >= cap - 1e-4]
+        wind_units = [g for g in at_cap if g in G_wind_2]
+        total_wind_at_cap += length(wind_units)
+        println(io, t, "  plg2=", round(cap, digits=4), "  at cap: ", at_cap, "  wind: ", wind_units, "  n_wind=", length(wind_units))
+    end
+    println(io, "\nTotal wind units at cap (unit-hours): ", total_wind_at_cap)
+
 end
 
 end
