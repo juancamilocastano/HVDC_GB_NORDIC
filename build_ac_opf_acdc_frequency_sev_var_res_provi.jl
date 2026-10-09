@@ -1365,7 +1365,6 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
 
 
 
-
       
     return m 
 end

@@ -7,6 +7,8 @@ function plotfunction_frequency_sev_var_res_provis!(m::Model)
 G   = m.ext[:sets][:G]
 G1  = m.ext[:sets][:G1]
 G2  = m.ext[:sets][:G2]
+WWS1=m.ext[:sets][:WWS1] 
+WWS2=m.ext[:sets][:WWS2] 
 
 E   = m.ext[:sets][:E]
 E1  = m.ext[:sets][:E1]
@@ -82,7 +84,7 @@ gen_cost     = m.ext[:parameters][:gen_cost]
 Estartupcost = m.ext[:parameters][:Estartupcost]
 start_up_cost = m.ext[:parameters][:startup_cost]
 
-
+conv_p_ac_max = m.ext[:parameters][:convdc][:p_ac_max]
 # ============================================================
 # GENERACIÓN Y ELECTROLIZADORES
 # ============================================================
@@ -226,6 +228,7 @@ rs_l_reserve_1vec = [
 
 rhvdc_lg1 = JuMP.value.(m.ext[:variables][:rhvdc_lg1]) .* baseMVA
 rhvdc_lc1 = JuMP.value.(m.ext[:variables][:rhvdc_lc1]) .* baseMVA
+
 
 
 # ============================================================
@@ -1629,4 +1632,479 @@ for t in T
 
 end
 
+#Available reserve from HVDC link
+
+HVDC_reserve_row_1 = Dict()
+HVDC_reserve_row_2 = Dict()
+
+for (i, t) in enumerate(T)
+    HVDC_reserve_row_1[t] = conv_p_ac_max["1"]*baseMVA + flows_hvdc12[i]
+    HVDC_reserve_row_2[t] = conv_p_ac_max["2"]*baseMVA - flows_hvdc12[i]
+end
+
+r_proc_g_1 = JuMP.value.(m.ext[:variables][:r_proc_g_1]) .* baseMVA
+r_proc_s_1 = JuMP.value.(m.ext[:variables][:r_proc_s_1]) .* baseMVA
+r_proc_e_1 = JuMP.value.(m.ext[:variables][:r_proc_e_1]) .* baseMVA
+r_proc_g_2 = JuMP.value.(m.ext[:variables][:r_proc_g_2]) .* baseMVA
+r_proc_s_2 = JuMP.value.(m.ext[:variables][:r_proc_s_2]) .* baseMVA
+r_proc_e_2 = JuMP.value.(m.ext[:variables][:r_proc_e_2]) .* baseMVA
+
+
+fast_reserve_procured_1_per_hour = Dict()
+slow_reserve_procured_1_per_hour = Dict()
+fast_reserve_procured_2_per_hour = Dict()
+slow_reserve_procured_2_per_hour = Dict()
+
+for t in T
+    fast_reserve_procured_1_per_hour[t] = sum(r_proc_s_1[s,t] for s in S1) + sum(r_proc_e_1[e,t] for e in E1)
+    slow_reserve_procured_1_per_hour[t] = sum(r_proc_g_1[g,t] for g in G1)
+    fast_reserve_procured_2_per_hour[t] = sum(r_proc_s_2[s,t] for s in S2) + sum(r_proc_e_2[e,t] for e in E2)
+    slow_reserve_procured_2_per_hour[t] = sum(r_proc_g_2[g,t] for g in G2)
+end
+
+available_HVDC_reserve_1=Dict()
+available_HVDC_reserve_2=Dict()
+
+
+for t in T
+    if plg1[t]-HVDC_reserve_row_1[t] <= 0
+            available_HVDC_reserve_1[t]=  plg1[t]
+        else    
+            
+            available_HVDC_reserve_1[t]= HVDC_reserve_row_1[t]
+    end
+
+    if plg2[t]-HVDC_reserve_row_2[t] <= 0
+            available_HVDC_reserve_2[t]=  plg2[t]
+        else    
+            
+            available_HVDC_reserve_2[t]= HVDC_reserve_row_2[t]
+    end
+end 
+
+
+
+
+function rank_by_hour(pg, gens)
+    ranking = Dict{String, Vector{Tuple{String, Float64}}}()
+    for t in axes(pg, 2)
+        vals = [(g, pg[g, t]) for g in gens]
+        sort!(vals, by = x -> x[2], rev = true)   # highest to lowest
+        ranking[t] = vals
+    end
+    return ranking
+end
+
+ranking_G1 = rank_by_hour(pg, G1)
+ranking_G2 = rank_by_hour(pg, G2)
+ranking_WWS1 = rank_by_hour(pg, WWS1)
+ranking_WWS2 = rank_by_hour(pg, WWS2)
+ranking_renewables_1 = rank_by_hour(pg, union(G_wind_1, G_solar_1))
+ranking_renewables_2 = rank_by_hour(pg, union(G_wind_2, G_solar_2))
+initial_plg_1 =plg1
+initial_plg_2 =plg2
+
+gens  = axes(pg, 1)   
+horas = axes(pg, 2)   
+
+orden_G1 = Dict(t => sort(G1, by = g -> pg[g, t], rev = true) for t in horas)
+orden_G2 = Dict(t => sort(G2, by = g -> pg[g, t], rev = true) for t in horas)
+orden_WWS1 = Dict(t => sort(WWS1, by = g -> pg[g, t], rev = true) for t in horas)
+orden_WWS2 = Dict(t => sort(WWS2, by = g -> pg[g, t], rev = true) for t in horas)
+orden_renewables_1=Dict(t => sort(union(G_wind_1, G_solar_1), by = g -> pg[g, t], rev = true) for t in horas)
+orden_renewables_2=Dict(t => sort(union(G_wind_2, G_solar_2), by = g -> pg[g, t], rev = true) for t in horas)
+
+
+
+total_per_hour = Dict{String, Float64}()
+
+
+
+
+j=24
+# re=5000*0.5->available_HVDC_reserve_1->available_HVDC_reserve_2
+ic_hvdc=2.5
+#Initial_inertia = copy(Inertia_nadir_energy)->Inertia_nadir_frequency_1->Inertia_nadir_frequency_2
+#rg_ini=copy(sum_reserve_g)->slow_reserve_procured_1_per_hour
+#rg_ini= Dict(i => v for (i, v) in enumerate(sum_reserve_g))
+#Delta_f_electrolyzer=Dict()
+Delta_f_HVDC_1=Dict()
+Delta_f_HVDC_2=Dict()
+# rocof_electrolyzer=Dict()
+rocof_HVDC_1=Dict()
+rocof_HVDC_2=Dict()
+
+# Initial_pl = copy(plvec)
+Initial_plg1=copy(plg1vec)
+Initial_plg2=copy(plg2vec)
+# power_balance_condition=Dict()
+power_balance_condition_HVDC_1=Dict()
+power_balance_condition_HVDC_2=Dict()
+#extra_pl=Dict()
+extra_plg1=Dict()
+extra_plg2=Dict()
+# cumulative_g = Dict()
+cumulative_g1=Dict()
+cumulative_g2=Dict()
+
+#running_sum_g = 0   # running total
+running_sum_g1 = 0   # running total
+running_sum_g2 = 0   # running total
+# reserve_loss=0 
+reserve_loss1=0
+reserve_loss2=0
+
+Inertia_vector_1=Dict(k => ic[k] * pmax[k]*baseMVA for k in G1)
+Inertia_vector_2=Dict(k => ic[k] * pmax[k]*baseMVA for k in G2)
+
+rg_ini_1= slow_reserve_procured_1_per_hour
+rg_ini_2= slow_reserve_procured_2_per_hour
+
+
+#N_1_loss_of_Inertia=Inertia_Vector["Nuclear_3"]*value.(zuc["Nuclear_3",j])*Pbase
+
+
+    N_1_loss_of_Inertia_1=sum((δgvec[g,string(j)])*ic[g]*pmax[g]*baseMVA for g in G1)
+    N_1_loss_of_Inertia_2=sum((δgvec[g,string(j)])*ic[g]*pmax[g]*baseMVA for g in G2)
+
+
+# Inertia_loss=N_1_loss_of_Inertia
+Inertia_loss1=N_1_loss_of_Inertia_1
+Inertia_loss2=N_1_loss_of_Inertia_2
+
+
+println("*************")
+println("Results providing  just FFR ")
+println("*************")
+
+# rocof_post_opt_resilience= Dict()
+rocof_post_opt_resilience_1= Dict()
+rocof_post_opt_resilience_2= Dict()
+
+
+
+println("Procured Inertia 1 ", Inertia_nadir_frequency_converter_1[string(j)]/1000, " Gws")
+println("Procured Inertia 2 ", Inertia_nadir_frequency_converter_2[string(j)]/1000, " Gws")
+println("Inertia 1 N-1 contingency: ", Inertia_nadir_frequency_1[string(j)]/1000, " Gws")
+println("Inertia 2 N-1 contingency: ", Inertia_nadir_frequency_2[string(j)]/1000, " Gws")
+
+println("RoCoF 1 N-1 contingency : ", plg1vec[j]*f1/(2*Inertia_nadir_frequency_1[string(j)]), " Hz/s")
+println("RoCoF 2 N-1 contingency : ", plg2vec[j]*f2/(2*Inertia_nadir_frequency_2[string(j)]), " Hz/s")
+
+
+
+
+if Initial_plg1[j]<=available_HVDC_reserve_1[string(j)]+fast_reserve_procured_1_per_hour[string(j)]+slow_reserve_procured_1_per_hour[string(j)]*Edeployment["1"]/G_dt["1"]
+    Deltaf_HVDC_1=f1*Initial_plg1[j]^2/(4*Inertia_nadir_frequency_1[string(j)]*(rg_ini_1[string(j)]/G_dt["1"]+available_HVDC_reserve_1[string(j)]/Edeployment["1"])+fast_reserve_procured_1_per_hour[string(j)]/Edeployment["1"]) 
+    println("Delta f N-1 contingency: ", Deltaf_HVDC_1, " Hz")
+    println("condition 1 holds")
+    else 
+    Delaf_HVDC_1=f1/(4*Inertia_nadir_frequency_1[string(j)])*(
+        (Initial_plg1[j]-available_HVDC_reserve_1[string(j)]-fast_reserve_procured_1_per_hour[string(j)]))^2*G_dt["1"]/(rg_ini_1[string(j)]+available_HVDC_reserve_1[string(j)]*Edeployment["1"]+fast_reserve_procured_1_per_hour[string(j)]*Edeployment["1"])
+        println("Delta f N-1 contingency: ", Deltaf_HVDC_1, " Hz")
+        println("condition 2 holds")
+end
+
+
+
+
+println("Delta f N-1 contingency without HVDC: ", f1/(4*Inertia_nadir_frequency_1[string(j)])*(plg1vec[j]-fast_reserve_procured_1_per_hour[string(j)])^2*G_dt["1"]/(rg_ini_1[string(j)]+fast_reserve_procured_1_per_hour[string(j)]*Edeployment["1"]), " Hz")
+println("Loss of power N-1: ", plg1vec[j], " MW")
+println("Loss of Inertia N-1: ", N_1_loss_of_Inertia_1, " Mws")
+println("---------------")
+
+
+
+for i in orden_G1[string(j)]
+    global running_sum_g
+    global Inertia_loss
+    global reserve_loss
+    
+
+
+        
+        Initial_inertia[j] = Initial_inertia[j] - value(Inertia_Expression)[i,j] * Pbase
+        Initial_pl[j]      = Initial_pl[j] + g[i,j]
+        rg_ini[j]          = rg_ini[j] - value(rg[i,j])
+        running_sum_g += g[i,j]
+        Inertia_loss += value(Inertia_Expression)[i,j] * Pbase
+        reserve_loss += value(rg[i,j])
+        cumulative_g[i,j] = running_sum_g  # store current total
+
+        #println("Intial Inertia: ",Initial_inertia[j])
+        #println("Initial PL: ",Initial_pl[j])
+        #println("rg ini: ", rg_ini[j])
+        #println("Extra loss of power: ", running_sum_g)   
+    
+ 
+
+
+        if Initial_pl[j]<= re + sum(rbvec[:,j]) + (sum(rg_ini[j]) + rgpvector[j])*0.2/15
+           Delta_f_electrolyzer[i,j] = FO_base*Initial_pl[j]^2 / (4 * Initial_inertia[j] *(((sum(rg_ini[j]) + rgpvector[j])/Dtg  +re / Dte +sum(rbvec[:,j]) / Dtb)) ) # Hz
+            println("condition 1 holds")
+        else
+            Delta_f_electrolyzer[i,j] = FO_base / (4 * Initial_inertia[j]) * (
+            (Initial_pl[j] - re - sum(rbvec[:,j]))^2 * Dtg / (sum(rg_ini[j]) + rgpvector[j]) +re * Dte +sum(rbvec[:,j]) * Dtb)  # Hz
+            println("condition 2 holds")
+           
+        end
+
+        
+
+        
+        
+        rocof_electrolyzer[i,j] = Initial_pl[j] * FO_base / (2 * Initial_inertia[j])  # Hz/s
+        
+        power_balance_condition[i,j] = -Initial_pl[j] +re + sum(rbvec[:,j]) + sum(rg_ini[j]) + rgpvector[j]  
+
+        println("Current i = ", i) 
+        println("Inertia ",Initial_inertia[j])
+        println("pl ",Initial_pl[j])
+        println("Delta f ",Delta_f_electrolyzer[i,j])
+        println("rocof ",rocof_electrolyzer[i,j]) 
+        println("Generator reserve provided ",rg_ini[j]) 
+        println("Power balance ",power_balance_condition[i,j])
+        println("Inertia loss ",Inertia_loss)
+        println("Reserve loss ",reserve_loss)
+        
+        
+        println("---------------")
+        
+    
+        # ---- STOP CONDITION ----
+        if Delta_f_electrolyzer[i,j] > 0.8 || rocof_electrolyzer[i,j] > 0.5 || power_balance_condition[i,j] < 0
+            println("Stopping loop: Δf = ", Delta_f_electrolyzer[i,j],
+                    ", ROCOF = ", rocof_electrolyzer[i,j],
+                    ", Power Balance = ", power_balance_condition[i,j],
+                    " → Threshold exceeded.")
+            break
+        end
+\
+end
+
+
+
+J=24
+re_2 = re
+ic_e_2=ic_e
+Initial_inertia_2 = Dict(k => v + ic_e_2*re_2 for (k, v) in Inertia_nadir_energy)
+Initial_pl_2 = copy(plvec)
+rg_ini_2 = copy(sum_reserve_g)
+rg_ini_2 = Dict(i => v for (i, v) in enumerate(sum_reserve_g))
+Delta_f_electrolyzer_2 = Dict()
+rocof_electrolyzer_2 = Dict()
+Initial_pl_2 = copy(plvec)
+Delta_f_electrolyzer_2 = Dict()
+rocof_electrolyzer_2 = Dict()
+power_balance_condition_2 = Dict()
+extra_pl_2 = Dict()
+cumulative_g_2 = Dict()
+running_sum_g_2 = 0   # running total
+reserve_loss_2 = 0
+Inertia_loss_2=Inertia_Vector["Nuclear_3"]*value.(zuc["Nuclear_3",j])*Pbase
+
+
+
+println("*************")
+println("Results providing FFR and virtual inertia")
+println("*************")
+println("Procured Inertia with virtual inertia: ", Sum_Inertia_Vector_energy[j]*1000 + ic_e_2*re_2 , " Mws")
+println("Inertia N-1 contingency with virtual inertia: ", Inertia_nadir_energy[j] + ic_e_2*re_2, " Mws")
+println("RoCoF N-1 contingency with virtual inertia: ", plvec[j]*FO_base/(2*(Inertia_nadir_energy[j] + ic_e_2*re_2)), " Hz/s")  
+if Initial_pl[j]<= re + sum(rbvec[:,j]) + (sum(rg_ini[j]) + rgpvector[j])*0.2/15
+           Delta_f_electrolyzer_N_1 = FO_base*Initial_pl[j]^2 / (4 * (Inertia_nadir_energy[j] + ic_e_2*re_2) *(((sum(rg_ini[j]) + rgpvector[j])/Dtg  +re / Dte +sum(rbvec[:,j]) / Dtb)) ) # Hz
+           println("Delta f N-1 contingency with virtual inertia: ", Delta_f_electrolyzer_N_1, " Hz")
+           println("condition 1 holds")
+        else
+            Delta_f_electrolyzer_N_1 = FO_base / (4 * (Inertia_nadir_energy[j] + ic_e_2*re_2)) * (
+            (Initial_pl[j] - re - sum(rbvec[:,j]))^2 * Dtg / (sum(rg_ini[j]) + rgpvector[j]) +re * Dte +sum(rbvec[:,j]) * Dtb)  # Hz
+            println("Delta f N-1 contingency with virtual inertia: ", Delta_f_electrolyzer_N_1, " Hz")
+            println("condition 2 holds")
+           
+end
+println("Loss of power N-1 with virtual inertia: ", plvec[j], " MW")
+println("Loss of Inertia N-1 with virtual inertia: ", N_1_loss_of_Inertia + ic_e_2*re_2, " Mws")        
+println("---------------")
+
+
+for i in ID
+    j = J
+    global running_sum_g_2
+    global Inertia_loss_2
+    global reserve_loss_2
+
+    if value(Inertia_Expression)[i,j] * Pbase > 0
+
+        Initial_inertia_2[j] = Initial_inertia_2[j] - value(Inertia_Expression)[i,j] * Pbase
+        Initial_pl_2[j]      = Initial_pl_2[j] + g[i,j]
+        rg_ini_2[j]          = rg_ini_2[j] - value(rg[i,j])
+        running_sum_g_2 += g[i,j]                # update sum
+        cumulative_g_2[i,j] = running_sum_g_2    # store current total
+        Inertia_loss_2 += value(Inertia_Expression)[i,j] * Pbase
+        reserve_loss_2 += value(rg[i,j])
+    
+
+        if Initial_pl_2[j] <= re_2 + sum(rbvec[:,j]) + (sum(rg_ini_2[j]) + rgpvector[j])*0.2/15
+            Delta_f_electrolyzer_2[i,j] = FO_base * Initial_pl_2[j]^2 / (
+                4 * Initial_inertia_2[j] * (
+                    ((sum(rg_ini_2[j]) + rgpvector[j]) / Dtg  + re_2 / Dte + sum(rbvec[:,j]) / Dtb)
+                )
+            ) # Hz
+            println("condition 1 holds")
+        else
+            Delta_f_electrolyzer_2[i,j] = FO_base / (4 * Initial_inertia_2[j]) * (
+                (Initial_pl_2[j] - re_2 - sum(rbvec[:,j]))^2 * Dtg / (sum(rg_ini_2[j]) + rgpvector[j]) +
+                re_2 * Dte +
+                sum(rbvec[:,j]) * Dtb
+            )  # Hz
+            println("condition 2 holds")
+        end
+
+        rocof_electrolyzer_2[i,j] = Initial_pl_2[j] * FO_base / (2 * Initial_inertia_2[j])  # Hz/s
+        
+        power_balance_condition_2[i,j] = -Initial_pl_2[j] + re_2 + sum(rbvec[:,j]) + sum(rg_ini_2[j]) + rgpvector[j]  
+
+        println("Current i = ", i) 
+        println("Inertia ", Initial_inertia_2[j])
+        println("pl ", Initial_pl_2[j])
+        println("Delta f ", Delta_f_electrolyzer_2[i,j])
+        println("rocof ", rocof_electrolyzer_2[i,j]) 
+        println("Generator reserve provided ", rg_ini_2[j]) 
+        println("Power balance ", power_balance_condition_2[i,j])
+        println("Inertia loss ", Inertia_loss_2)
+        println("Reserve loss ", reserve_loss_2)
+        
+        println("---------------")
+        
+        # ---- STOP CONDITION ----
+        if Delta_f_electrolyzer_2[i,j] > 0.8 || rocof_electrolyzer_2[i,j] > 0.5 || power_balance_condition_2[i,j] < 0
+            println("Stopping loop: Δf = ", Delta_f_electrolyzer_2[i,j],
+                    ", ROCOF = ", rocof_electrolyzer_2[i,j],
+                    ", Power Balance = ", power_balance_condition_2[i,j],
+                    " → Threshold exceeded.")
+            break
+        end
+
+    end
+end
+
+
+J=24
+re_3 = re
+ic_e_3=ic_e
+Initial_inertia_3 = Dict(k => v + ic_e_3*re_3 for (k, v) in Inertia_nadir_energy)
+Initial_pl_3 = copy(plvec)
+rg_ini_3 = Dict(i => v for (i, v) in enumerate(sum_reserve_g))
+Delta_f_electrolyzer_3 = Dict()
+rocof_electrolyzer_3 = Dict()
+power_balance_condition_3 = Dict()
+extra_pl_3 = Dict()
+cumulative_g_3 = Dict()
+running_sum_g_3 = 0   # running total
+reserve_loss_3 = Dict()
+Inertia_loss_3=Inertia_Vector["Nuclear_3"]*value.(zuc["Nuclear_3",j])*Pbase
+reserve_loss_3=0
+
+println("*************")
+println("Results providing only Virtual Inertia ")
+println("*************")
+println("Procured Inertia: ",Sum_Inertia_Vector_energy[j]*1000 , " Mws")
+println("Power loss: ", plvec[j], " MW")
+println("Inertia N-1 contingency: ", Inertia_nadir_energy[j], " Mws")
+println("Inertia N-1 contingency with virtual inertia: ", Inertia_nadir_energy[j] + ic_e_2*re_2, " Mws")
+println("RoCoF N-1 contingency: ", plvec[j]*FO_base/(2*Inertia_nadir_energy[j]), " Hz/s")
+println("RoCoF N-1 contingency with virtual inertia: ", plvec[j]*FO_base/(2*(Inertia_nadir_energy[j] + ic_e_2*re_2)), " Hz/s")  
+println("Delta f N-1 contingency without virtual inertia: ", FO_base/(4*Inertia_nadir_energy[j])*((plvec[j]-sum(rbvec[:,j]))^2*Dtg/(sum(rgvec[:,j])+sum(rgpvector[j]))+sum(rbvec[:,j])*Dtb), " Hz")
+
+if Initial_pl[j]<= sum(rbvec[:,j]) + (sum(rg_ini[j]) + rgpvector[j])*0.2/15
+           Delta_f_electrolyzer_N_1 = FO_base*Initial_pl_3[j]^2 / (4 * (
+            Inertia_nadir_energy[j] + ic_e_2*re_2) *(
+                ((sum(rg_ini[j]) + rgpvector[j])/Dtg +sum(rbvec[:,j]) / Dtb)) ) # Hz
+           println("Delta f N-1 contingency with virtual inertia: ", Delta_f_electrolyzer_N_1, " Hz")
+           println("condition 1 holds")
+        else
+            Delta_f_electrolyzer_N_1 = FO_base / (
+                4 * (Inertia_nadir_energy[j] + ic_e_2*re_2)) * (
+            (Initial_pl_3[j] - sum(rbvec[:,j]))^2 * Dtg / (sum(rg_ini[j]) + rgpvector[j])  +sum(rbvec[:,j]) * Dtb)  # Hz
+            println("Delta f N-1 contingency with virtual inertia: ", Delta_f_electrolyzer_N_1, " Hz")
+            println("condition 2 holds")
+           
+end
+
+println("Loss of power N-1: ", plvec[j], " MW")
+println("Loss of Inertia N-1: ", N_1_loss_of_Inertia, " Mws")
+println("---------------")
+for i in ID
+    j = J
+    global running_sum_g_3
+    global Inertia_loss_3
+    global reserve_loss_3
+
+    if value(Inertia_Expression)[i,j] * Pbase > 0
+
+        Initial_inertia_3[j] = Initial_inertia_3[j] - value(Inertia_Expression)[i,j] * Pbase
+        Initial_pl_3[j]      = Initial_pl_3[j] + g[i,j]
+        rg_ini_3[j]          = rg_ini_3[j] - value(rg[i,j])
+        running_sum_g_3 += g[i,j]                  # update sum
+        cumulative_g_3[i,j] = running_sum_g_3      # store current total
+        Inertia_loss_3 += value(Inertia_Expression)[i,j] * Pbase
+        reserve_loss_3 += value(rg[i,j])
+    
+
+        if Initial_pl_3[j] <= sum(rbvec[:,j]) + (sum(rg_ini_3[j]) + rgpvector[j])*0.2/15
+
+            Delta_f_electrolyzer_3[i,j] = FO_base * Initial_pl_3[j]^2 / (
+                4 * Initial_inertia_3[j] * (
+                    ((sum(rg_ini_3[j]) + rgpvector[j]) / Dtg + sum(rbvec[:,j]) / Dtb)
+                )
+            ) # Hz
+
+            println("condition 1 holds")
+
+        else
+
+            Delta_f_electrolyzer_3[i,j] = FO_base / (4 * Initial_inertia_3[j]) * (
+                (Initial_pl_3[j]  - sum(rbvec[:,j]))^2 * Dtg / (sum(rg_ini_3[j]) + rgpvector[j]) +
+                 sum(rbvec[:,j]) * Dtb
+            )  # Hz
+
+            println("condition 2 holds")
+
+        end
+
+
+        rocof_electrolyzer_3[i,j] = Initial_pl_3[j] * FO_base / (2 * Initial_inertia_3[j])  # Hz/s
+        
+        power_balance_condition_3[i,j] = -Initial_pl_3[j] + sum(rbvec[:,j]) + sum(rg_ini_3[j]) + rgpvector[j]  
+
+
+        println("Current i = ", i)
+        println("Inertia ", Initial_inertia_3[j])
+        println("pl ", Initial_pl_3[j])
+        println("Delta f ", Delta_f_electrolyzer_3[i,j])
+        println("rocof ", rocof_electrolyzer_3[i,j])
+        println("Generator reserve provided ", rg_ini_3[j])
+        println("Power balance ", power_balance_condition_3[i,j])
+        println("Inertia loss ", Inertia_loss_3)
+        println("Reserve loss ", reserve_loss_3)    
+
+        println("---------------")
+
+
+        # ---- STOP CONDITION ----
+        if Delta_f_electrolyzer_3[i,j] > 0.8 || 
+           rocof_electrolyzer_3[i,j] > 0.5 || 
+           power_balance_condition_3[i,j] < 0
+
+            println("Stopping loop: Δf = ", Delta_f_electrolyzer_3[i,j],
+                    ", ROCOF = ", rocof_electrolyzer_3[i,j],
+                    ", Power Balance = ", power_balance_condition_3[i,j],
+                    " → Threshold exceeded.")
+
+            break
+        end
+
+    end
+
+    
 end
