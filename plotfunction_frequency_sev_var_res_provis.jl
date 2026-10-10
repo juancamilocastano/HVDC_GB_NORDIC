@@ -3,7 +3,7 @@ function plotfunction_frequency_sev_var_res_provis!(m::Model)
 # ============================================================
 # CONJUNTOS
 # ============================================================
-
+j=24
 G   = m.ext[:sets][:G]
 G1  = m.ext[:sets][:G1]
 G2  = m.ext[:sets][:G2]
@@ -1652,14 +1652,18 @@ r_proc_e_2 = JuMP.value.(m.ext[:variables][:r_proc_e_2]) .* baseMVA
 
 fast_reserve_procured_1_per_hour = Dict()
 slow_reserve_procured_1_per_hour = Dict()
+slow_reserve_procured_1_nadir_per_hour=Dict()
 fast_reserve_procured_2_per_hour = Dict()
 slow_reserve_procured_2_per_hour = Dict()
+slow_reserve_procured_2_nadir_per_hour=Dict()
 
 for t in T
     fast_reserve_procured_1_per_hour[t] = sum(r_proc_s_1[s,t] for s in S1) + sum(r_proc_e_1[e,t] for e in E1)
     slow_reserve_procured_1_per_hour[t] = sum(r_proc_g_1[g,t] for g in G1)
+    slow_reserve_procured_1_nadir_per_hour[t]= sum(r_proc_g_1[g,t] for g in G1)-sum(r_proc_g_1[g,t]*δgvec[g,t] for g in G1) 
     fast_reserve_procured_2_per_hour[t] = sum(r_proc_s_2[s,t] for s in S2) + sum(r_proc_e_2[e,t] for e in E2)
     slow_reserve_procured_2_per_hour[t] = sum(r_proc_g_2[g,t] for g in G2)
+    slow_reserve_procured_2_nadir_per_hour[t]= sum(r_proc_g_2[g,t] for g in G2)-sum(r_proc_g_2[g,t]*δgvec[g,t] for g in G2)
 end
 
 available_HVDC_reserve_1=Dict()
@@ -1705,14 +1709,26 @@ initial_plg_1 =plg1
 initial_plg_2 =plg2
 
 gens  = axes(pg, 1)   
-horas = axes(pg, 2)   
+horas = axes(pg, 2) 
 
+#Sorts the set of generators by their generation in each hour, from highest to lowest excluding the generator that fails in each hour from the optimization process.
+gen_fail_1 = Dict(t => first(g for g in G1 if δgvec[g, t] > 0.5) for t in horas)
+gen_fail_2 = Dict(t => first(g for g in G2 if δgvec[g, t] > 0.5) for t in horas)
 orden_G1 = Dict(t => sort(G1, by = g -> pg[g, t], rev = true) for t in horas)
 orden_G2 = Dict(t => sort(G2, by = g -> pg[g, t], rev = true) for t in horas)
 orden_WWS1 = Dict(t => sort(WWS1, by = g -> pg[g, t], rev = true) for t in horas)
 orden_WWS2 = Dict(t => sort(WWS2, by = g -> pg[g, t], rev = true) for t in horas)
 orden_renewables_1=Dict(t => sort(union(G_wind_1, G_solar_1), by = g -> pg[g, t], rev = true) for t in horas)
 orden_renewables_2=Dict(t => sort(union(G_wind_2, G_solar_2), by = g -> pg[g, t], rev = true) for t in horas)
+
+set_gen_fail_G1=filter(!=(gen_fail_1[string(j)]), orden_G1[string(j)])
+set_gen_fail_G2=filter(!=(gen_fail_2[string(j)]), orden_G2[string(j)])
+set_gen_fail_WWS1=filter(!=(gen_fail_1[string(j)]), orden_WWS1[string(j)])
+set_gen_fail_WWS2=filter(!=(gen_fail_2[string(j)]), orden_WWS2[string(j)])
+set_gen_fail_renewables_1=filter(!=(gen_fail_1[string(j)]), orden_renewables_1[string(j)])
+set_gen_fail_renewables_2=filter(!=(gen_fail_2[string(j)]), orden_renewables_2[string(j)])
+
+
 
 
 
@@ -1721,13 +1737,15 @@ total_per_hour = Dict{String, Float64}()
 
 
 
-j=24
+
 # re=5000*0.5->available_HVDC_reserve_1->available_HVDC_reserve_2
 ic_hvdc=2.5
 #Initial_inertia = copy(Inertia_nadir_energy)->Inertia_nadir_frequency_1->Inertia_nadir_frequency_2
 #rg_ini=copy(sum_reserve_g)->slow_reserve_procured_1_per_hour
 #rg_ini= Dict(i => v for (i, v) in enumerate(sum_reserve_g))
 #Delta_f_electrolyzer=Dict()
+Initial_inertia_1=copy(Inertia_nadir_frequency_1)
+Initial_inertia_2=copy(Inertia_nadir_frequency_2)
 Delta_f_HVDC_1=Dict()
 Delta_f_HVDC_2=Dict()
 # rocof_electrolyzer=Dict()
@@ -1757,15 +1775,18 @@ reserve_loss2=0
 Inertia_vector_1=Dict(k => ic[k] * pmax[k]*baseMVA for k in G1)
 Inertia_vector_2=Dict(k => ic[k] * pmax[k]*baseMVA for k in G2)
 
-rg_ini_1= slow_reserve_procured_1_per_hour
-rg_ini_2= slow_reserve_procured_2_per_hour
+rg_ini_1= slow_reserve_procured_1_nadir_per_hour
+rg_ini_2= slow_reserve_procured_2_nadir_per_hour
 
 
 #N_1_loss_of_Inertia=Inertia_Vector["Nuclear_3"]*value.(zuc["Nuclear_3",j])*Pbase
 
 
     N_1_loss_of_Inertia_1=sum((δgvec[g,string(j)])*ic[g]*pmax[g]*baseMVA for g in G1)
+    N_1_loss_of_reserve_1=sum(r_proc_g_1[g,string(j)]*δgvec[g,string(j)] for g in G1) 
     N_1_loss_of_Inertia_2=sum((δgvec[g,string(j)])*ic[g]*pmax[g]*baseMVA for g in G2)
+    N_1_loss_of_reserve_2=sum(r_proc_g_2[g,string(j)]*δgvec[g,string(j)] for g in G2)
+    
 
 
 # Inertia_loss=N_1_loss_of_Inertia
@@ -1814,16 +1835,51 @@ println("Loss of Inertia N-1: ", N_1_loss_of_Inertia_1, " Mws")
 println("---------------")
 
 
+#Iterativly disconnect generators until the system exceeds the thresholds of Δf, ROCOF or power balance. The loop will stop when one of these thresholds is exceeded.
 
-for i in orden_G1[string(j)]
+extra_loss_of_power_1=0
+extra_loss_of_reserve_1=0
+extra_loss_of_inertia_1=0
+total_loss_of_reserve_1=0
+total_loss_of_inertia_1= N_1_loss_of_Inertia_1
+total_loss_of_reserve_1= N_1_loss_of_reserve_1
+for i in set_gen_fail_renewables_1[1:9]
+    global running_sum_g
+    global Inertia_loss
+    global reserve_loss
+    global extra_loss_of_power_1
+    global extra_loss_of_reserve_1
+    global extra_loss_of_inertia_1
+    global total_loss_of_reserve_1
+    global total_loss_of_inertia_1
+    
+
+        Initial_inertia_1[string(j)]= Initial_inertia_1[string(j)]-zgvec[string(i),string(j)]*ic[string(i)]*pmax[string(i)]*baseMVA
+        plg1[string(j)]      = plg1[string(j)] + pg[i,string(j)]
+        rg_ini_1[string(j)]          = rg_ini_1[string(j)] - r_proc_g_1[string(i),string(j)]*zgvec[string(i),string(j)]
+        extra_loss_of_power_1+= pg[i,string(j)]
+        extra_loss_of_reserve_1+= r_proc_g_1[string(i),string(j)]*zgvec[string(i),string(j)]
+        extra_loss_of_inertia_1+= zgvec[string(i),string(j)]*ic[string(i)]*pmax[string(i)]*baseMVA
+        total_loss_of_inertia_1+= zgvec[string(i),string(j)]*ic[string(i)]*pmax[string(i)]*baseMVA
+        total_loss_of_reserve_1+= r_proc_g_1[string(i),string(j)]*zgvec[string(i),string(j)]
+        
+        println("Initial PL: ",plg1[string(j)])
+        println("Initial Inertia: ",Initial_inertia_1[string(j)])
+        println("rg ini: ", rg_ini_1[string(j)])
+        println("inertia constant: ",ic[string(i)])
+        println("pmax: ",pmax[string(i)])
+
+
+end
+
+for i set_gen_fail_G1
     global running_sum_g
     global Inertia_loss
     global reserve_loss
     
 
-
+        Initial_inertia_1[string(j)]= Initial_inertia_1[string(j)]-δgvec[string(i),string(j)]*ic[string(i)]*pmax[string(i)]*baseMVA
         
-        Initial_inertia[j] = Initial_inertia[j] - value(Inertia_Expression)[i,j] * Pbase
         Initial_pl[j]      = Initial_pl[j] + g[i,j]
         rg_ini[j]          = rg_ini[j] - value(rg[i,j])
         running_sum_g += g[i,j]
