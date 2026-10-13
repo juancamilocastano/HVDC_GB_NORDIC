@@ -1819,7 +1819,7 @@ safe_Deltaf_2_per_hour = Dict()
 safe_rocof_2_per_hour = Dict()
 safe_power_balance_2_per_hour = Dict()
 
-for j in eachindex(T)
+for j in 15:15
 
     N_1_loss_of_Inertia_1=sum((δgvec[g,string(j)])*ic[g]*pmax[g]*baseMVA for g in G1)
     N_1_loss_of_reserve_1=sum(r_proc_g_1[g,string(j)]*δgvec[g,string(j)] for g in G1)
@@ -1838,35 +1838,35 @@ for j in eachindex(T)
     rocof_post_opt_resilience_1= Dict()
     rocof_post_opt_resilience_2= Dict()
 
-    # println("=============================================")
-    # println("AREA 1 (Nordic) - hour ", j)
-    # println("=============================================")
+    println("=============================================")
+    println("AREA 1 (Nordic) - hour ", j)
+    println("=============================================")
 
-    # println("Available HVDC reserve 1: ", available_HVDC_reserve_1[string(j)], " MW")
-    # println("Procured Inertia 1 ", Inertia_nadir_frequency_converter_1[string(j)]/1000, " Gws")
-    # println("Inertia 1 N-1 contingency: ", Inertia_nadir_frequency_1[string(j)]/1000, " Gws")
-    # println("RoCoF 1 N-1 contingency : ", plg1vec[j]*f1/(2*Inertia_nadir_frequency_1[string(j)]), " Hz/s")
+    println("Available HVDC reserve 1: ", available_HVDC_reserve_1[string(j)], " MW")
+    println("Procured Inertia 1 ", Inertia_nadir_frequency_converter_1[string(j)]/1000, " Gws")
+    println("Inertia 1 N-1 contingency: ", Inertia_nadir_frequency_1[string(j)]/1000, " Gws")
+    println("RoCoF 1 N-1 contingency : ", plg1vec[j]*f1/(2*Inertia_nadir_frequency_1[string(j)]), " Hz/s")
 
 
 
 
     if Initial_plg1[j]<=available_HVDC_reserve_1[string(j)]+fast_reserve_procured_1_per_hour[string(j)]+rg_ini_1[string(j)]*Edeployment["1"]/G_dt["1"]
         Deltaf_HVDC_1 = f1*Initial_plg1[j]^2 / (4*Inertia_nadir_frequency_1[string(j)]*(rg_ini_1[string(j)]/G_dt["1"] + available_HVDC_reserve_1[string(j)]/Edeployment["1"] + fast_reserve_procured_1_per_hour[string(j)]/Edeployment["1"]))
-        println("Delta f N-1 contingency: ", Deltaf_HVDC_1, " Hz")
-        println("condition 1 holds")
+        # println("Delta f N-1 contingency: ", Deltaf_HVDC_1, " Hz")
+        # println("condition 1 holds")
         else 
         Deltaf_HVDC_1 = f1/(4*Inertia_nadir_frequency_1[string(j)]) * (
         (Initial_plg1[j] - available_HVDC_reserve_1[string(j)] - fast_reserve_procured_1_per_hour[string(j)])^2 * G_dt["1"] / rg_ini_1[string(j)]+ available_HVDC_reserve_1[string(j)] * Edeployment["1"]+ fast_reserve_procured_1_per_hour[string(j)] * Edeployment["1"] )      
-        println("Delta f N-1 contingency: ", Deltaf_HVDC_1, " Hz")
-        println("condition 2 holds")
+        # println("Delta f N-1 contingency: ", Deltaf_HVDC_1, " Hz")
+        # println("condition 2 holds")
     end
 
     if plg1vec[j] <= fast_reserve_procured_1_per_hour[string(j)] + rg_ini_1[string(j)]*Edeployment["1"]/G_dt["1"]
         Deltaf_no_HVDC_1 = f1*plg1vec[j]^2 / (4*Inertia_nadir_frequency_1[string(j)]*(rg_ini_1[string(j)]/G_dt["1"] + fast_reserve_procured_1_per_hour[string(j)]/Edeployment["1"]))
-        println("Delta f N-1 contingency without HVDC: ", Deltaf_no_HVDC_1, " Hz (condition 1)")
+        # println("Delta f N-1 contingency without HVDC: ", Deltaf_no_HVDC_1, " Hz (condition 1)")
     else
         Deltaf_no_HVDC_1 = f1/(4*Inertia_nadir_frequency_1[string(j)]) * ((plg1vec[j] - fast_reserve_procured_1_per_hour[string(j)])^2 * G_dt["1"] / rg_ini_1[string(j)] + fast_reserve_procured_1_per_hour[string(j)]*Edeployment["1"])
-        println("Delta f N-1 contingency without HVDC: ", Deltaf_no_HVDC_1, " Hz (condition 2)")
+        # println("Delta f N-1 contingency without HVDC: ", Deltaf_no_HVDC_1, " Hz (condition 2)")
     end
     # println("Loss of power N-1: ", plg1vec[j], " MW")
     # println("Loss of Inertia N-1: ", N_1_loss_of_Inertia_1, " Mws")
@@ -1896,7 +1896,7 @@ for j in eachindex(T)
 
 
             contador_iter_1+=1
-            println("N-", contador_iter_1, " contingency")
+            # println("N-", contador_iter_1, " contingency")
 
             Initial_inertia_1[string(j)]= Initial_inertia_1[string(j)]-zgvec[string(i),string(j)]*ic[string(i)]*pmax[string(i)]*baseMVA
             plg1[string(j)]      = plg1[string(j)] + pg[i,string(j)]
@@ -1928,13 +1928,14 @@ for j in eachindex(T)
             end
 
             
-            if Deltaf_HVDC_1 > 1|| rocof_HVDC_1[string(j)] > 1 || power_balance_condition_1 < 0
-                println("Stopping loop: Δf = ", Deltaf_HVDC_1,
-                        ", ROCOF = ", rocof_HVDC_1[string(j)],
-                        ", Power Balance = ", power_balance_condition_1,
-                        " → Threshold exceeded.")
-                break
-            end
+    if Deltaf_HVDC_1 > 1|| rocof_HVDC_1[string(j)] > 1 || power_balance_condition_1 < 0
+        println("Area 1 - hour ", T[j], " - Stopping loop: Δf = ", Deltaf_HVDC_1,
+                ", ROCOF = ", rocof_HVDC_1[string(j)],
+                ", Power Balance = ", power_balance_condition_1,
+                " → Threshold exceeded.")
+        break
+    end
+
 
             safe_loss_of_power_1=extra_loss_of_power_1
             safe_loss_of_reserve_1=extra_loss_of_reserve_1
@@ -1946,17 +1947,17 @@ for j in eachindex(T)
             last_gen_1=i
     end
 
-    # println("Extra loss of power: ", extra_loss_of_power_1)
-    # println("Extra loss of reserve: ", extra_loss_of_reserve_1)
-    # println("Extra loss of inertia: ", extra_loss_of_inertia_1)
+    println("Extra loss of power: ", extra_loss_of_power_1)
+    println("Extra loss of reserve: ", extra_loss_of_reserve_1)
+    println("Extra loss of inertia: ", extra_loss_of_inertia_1)
 
-    # println("Max contingency tolerated: N-", safe_contingency_1, " (last generator disconnected: ", last_gen_1, ")")
-    # println("Extra loss of power tolerated: ", safe_loss_of_power_1)
-    # println("Extra loss of reserve tolerated: ", safe_loss_of_reserve_1)
-    # println("Extra loss of inertia tolerated: ", safe_loss_of_inertia_1)
-    # println("Delta f at last tolerated contingency: ", safe_Deltaf_1, " Hz")
-    # println("RoCoF at last tolerated contingency: ", safe_rocof_1, " Hz/s")
-    # println("Power balance at last tolerated contingency: ", safe_power_balance_1, " MW")
+    println("Max contingency tolerated: N-", safe_contingency_1, " (last generator disconnected: ", last_gen_1, ")")
+    println("Extra loss of power tolerated: ", safe_loss_of_power_1)
+    println("Extra loss of reserve tolerated: ", safe_loss_of_reserve_1)
+    println("Extra loss of inertia tolerated: ", safe_loss_of_inertia_1)
+    println("Delta f at last tolerated contingency: ", safe_Deltaf_1, " Hz")
+    println("RoCoF at last tolerated contingency: ", safe_rocof_1, " Hz/s")
+    println("Power balance at last tolerated contingency: ", safe_power_balance_1, " MW")
 
     extra_loss_of_power_1_per_hour[string(j)]    = extra_loss_of_power_1
     extra_loss_of_reserve_1_per_hour[string(j)]  = extra_loss_of_reserve_1
@@ -1975,14 +1976,14 @@ for j in eachindex(T)
     # AREA 2 (GB)
     # ============================================================
 
-    # println("=============================================")
-    # println("AREA 2 (GB) - hour ", j)
-    # println("=============================================")
+    println("=============================================")
+    println("AREA 2 (GB) - hour ", j)
+    println("=============================================")
 
-    # println("Available HVDC reserve 2: ", available_HVDC_reserve_2[string(j)], " MW")
-    # println("Inertia 2 N-1 contingency: ", Inertia_nadir_frequency_2[string(j)]/1000, " Gws")
-    # println("Procured Inertia 2 ", Inertia_nadir_frequency_converter_2[string(j)]/1000, " Gws")
-    # println("RoCoF 2 N-1 contingency : ", plg2vec[j]*f2/(2*Inertia_nadir_frequency_2[string(j)]), " Hz/s")
+    println("Available HVDC reserve 2: ", available_HVDC_reserve_2[string(j)], " MW")
+    println("Inertia 2 N-1 contingency: ", Inertia_nadir_frequency_2[string(j)]/1000, " Gws")
+    println("Procured Inertia 2 ", Inertia_nadir_frequency_converter_2[string(j)]/1000, " Gws")
+    println("RoCoF 2 N-1 contingency : ", plg2vec[j]*f2/(2*Inertia_nadir_frequency_2[string(j)]), " Hz/s")
 
 
 
@@ -2053,13 +2054,13 @@ for j in eachindex(T)
             # println("*************")
             end
 
-            if Deltaf_HVDC_2 > 1|| rocof_HVDC_2[string(j)] > 1 || power_balance_condition_2 < 0
-                println("Area 2 - Stopping loop: Δf = ", Deltaf_HVDC_2,
-                        ", ROCOF = ", rocof_HVDC_2[string(j)],
-                        ", Power Balance = ", power_balance_condition_2,
-                        " → Threshold exceeded.")
-                break
-            end
+        if Deltaf_HVDC_2 > 1|| rocof_HVDC_2[string(j)] > 1 || power_balance_condition_2 < 0
+            println("Area 2 - hour ", T[j], " - Stopping loop: Δf = ", Deltaf_HVDC_2,
+                    ", ROCOF = ", rocof_HVDC_2[string(j)],
+                    ", Power Balance = ", power_balance_condition_2,
+                    " → Threshold exceeded.")
+            break
+        end
 
             safe_loss_of_power_2=extra_loss_of_power_2
             safe_loss_of_reserve_2=extra_loss_of_reserve_2
@@ -2071,17 +2072,17 @@ for j in eachindex(T)
             last_gen_2=i
     end
 
-    # println("Area 2 - Extra loss of power: ", extra_loss_of_power_2)
-    # println("Area 2 - Extra loss of reserve: ", extra_loss_of_reserve_2)
-    # println("Area 2 - Extra loss of inertia: ", extra_loss_of_inertia_2)
+    println("Area 2 - Extra loss of power: ", extra_loss_of_power_2)
+    println("Area 2 - Extra loss of reserve: ", extra_loss_of_reserve_2)
+    println("Area 2 - Extra loss of inertia: ", extra_loss_of_inertia_2)
 
-    # println("Area 2 - Max contingency tolerated: N-", safe_contingency_2, " (last generator disconnected: ", last_gen_2, ")")
-    # println("Area 2 - Extra loss of power tolerated: ", safe_loss_of_power_2)
-    # println("Area 2 - Extra loss of reserve tolerated: ", safe_loss_of_reserve_2)
-    # println("Area 2 - Extra loss of inertia tolerated: ", safe_loss_of_inertia_2)
-    # println("Area 2 - Delta f at last tolerated contingency: ", safe_Deltaf_2, " Hz")
-    # println("Area 2 - RoCoF at last tolerated contingency: ", safe_rocof_2, " Hz/s")
-    # println("Area 2 - Power balance at last tolerated contingency: ", safe_power_balance_2, " MW")
+    println("Area 2 - Max contingency tolerated: N-", safe_contingency_2, " (last generator disconnected: ", last_gen_2, ")")
+    println("Area 2 - Extra loss of power tolerated: ", safe_loss_of_power_2)
+    println("Area 2 - Extra loss of reserve tolerated: ", safe_loss_of_reserve_2)
+    println("Area 2 - Extra loss of inertia tolerated: ", safe_loss_of_inertia_2)
+    println("Area 2 - Delta f at last tolerated contingency: ", safe_Deltaf_2, " Hz")
+    println("Area 2 - RoCoF at last tolerated contingency: ", safe_rocof_2, " Hz/s")
+    println("Area 2 - Power balance at last tolerated contingency: ", safe_power_balance_2, " MW")
 
     extra_loss_of_power_2_per_hour[string(j)]    = extra_loss_of_power_2
     extra_loss_of_reserve_2_per_hour[string(j)]  = extra_loss_of_reserve_2
@@ -2098,3 +2099,5 @@ for j in eachindex(T)
 
     end  
 end
+
+resilience_results.safe_loss_of_power_1_per_hour["18"]
