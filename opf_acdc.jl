@@ -79,6 +79,8 @@ optimize!(m)
 include(joinpath(path,"plotfunction_frequency_sev_var_res_provis.jl")) # Define build_ac_opf_acdc! function
 plotfunction_frequency_sev_var_res_provis!(m) # Plot the results
 
+include(joinpath(path,"res.jl"))
+res=res!(m) 
 
 printparameters_frequency_sev_var_res_provi!(m) # Plot the results
 

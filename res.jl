@@ -1,4 +1,4 @@
-function resilience_analysis!(m::Model)
+function res!(m::Model)
 
 # ============================================================
 # SETS
@@ -120,13 +120,22 @@ fast_reserve_procured_2_per_hour = Dict()
 slow_reserve_procured_2_per_hour = Dict()
 slow_reserve_procured_2_nadir_per_hour=Dict()
 
+storage_reserve_1_per_hour = Dict()
+electrolyzer_reserve_1_per_hour = Dict()
+storage_reserve_2_per_hour = Dict()
+electrolyzer_reserve_2_per_hour = Dict()
+
 for t in T
     fast_reserve_procured_1_per_hour[t] = sum(r_proc_s_1[s,t] for s in S1) + sum(r_proc_e_1[e,t] for e in E1)
     slow_reserve_procured_1_per_hour[t] = sum(r_proc_g_1[g,t] for g in G1)
-    slow_reserve_procured_1_nadir_per_hour[t]= sum(r_proc_g_1[g,t] for g in G1)-sum(r_proc_g_1[g,t]*δgvec[g,t] for g in G1) 
+    slow_reserve_procured_1_nadir_per_hour[t]= sum(r_proc_g_1[g,t] for g in G1)-sum(r_proc_g_1[g,t]*δgvec[g,t] for g in G1)
     fast_reserve_procured_2_per_hour[t] = sum(r_proc_s_2[s,t] for s in S2) + sum(r_proc_e_2[e,t] for e in E2)
     slow_reserve_procured_2_per_hour[t] = sum(r_proc_g_2[g,t] for g in G2)
     slow_reserve_procured_2_nadir_per_hour[t]= sum(r_proc_g_2[g,t] for g in G2)-sum(r_proc_g_2[g,t]*δgvec[g,t] for g in G2)
+    storage_reserve_1_per_hour[t] = sum(r_proc_s_1[s,t] for s in S1)
+    electrolyzer_reserve_1_per_hour[t] = sum(r_proc_e_1[e,t] for e in E1)
+    storage_reserve_2_per_hour[t] = sum(r_proc_s_2[s,t] for s in S2)
+    electrolyzer_reserve_2_per_hour[t] = sum(r_proc_e_2[e,t] for e in E2)
 end
 
 available_HVDC_reserve_1=Dict()
@@ -564,7 +573,170 @@ for j in eachindex(T)
 # RESULTS
 # ============================================================
 
+total_power_loss_withstandable_1 = Dict(t => Initial_plg1[parse(Int,t)] + v for (t, v) in safe_loss_of_power_1_per_hour)
+total_power_loss_withstandable_2 = Dict(t => Initial_plg2[parse(Int,t)] + v for (t, v) in safe_loss_of_power_2_per_hour)
+
+# ============================================================
+# ORDERED VECTORS (hour 1 -> last hour in T)
+# ============================================================
+
+total_power_loss_withstandable_1_vec = [get(total_power_loss_withstandable_1, string(t), 0.0) for t in T]
+total_power_loss_withstandable_2_vec = [get(total_power_loss_withstandable_2, string(t), 0.0) for t in T]
+safe_loss_of_inertia_1_vec = [get(safe_loss_of_inertia_1_per_hour, string(t), 0.0) for t in T]
+safe_loss_of_inertia_2_vec = [get(safe_loss_of_inertia_2_per_hour, string(t), 0.0) for t in T]
+
+# ============================================================
+# PLOTS (one figure per variable, saved next to this file)
+# ============================================================
+
+fig_total_power_1 = Figure()
+ax_total_power_1 = fig_total_power_1[1, 1] = Axis(fig_total_power_1,
+    title  = "Total withstandable power loss - Area 1 (Nordic)",
+    xlabel = "Time (hours)",
+    ylabel = "Power (MW)"
+)
+lines!(ax_total_power_1, total_power_loss_withstandable_1_vec, label = "Total withstandable power loss Area 1")
+fig_total_power_1[1, 2] = Legend(fig_total_power_1, ax_total_power_1, "Total withstandable power loss", framevisible = false)
+save(joinpath(@__DIR__, "total_power_loss_withstandable_1.png"), fig_total_power_1)
+
+fig_total_power_2 = Figure()
+ax_total_power_2 = fig_total_power_2[1, 1] = Axis(fig_total_power_2,
+    title  = "Total withstandable power loss - Area 2 (GB)",
+    xlabel = "Time (hours)",
+    ylabel = "Power (MW)"
+)
+lines!(ax_total_power_2, total_power_loss_withstandable_2_vec, label = "Total withstandable power loss Area 2")
+fig_total_power_2[1, 2] = Legend(fig_total_power_2, ax_total_power_2, "Total withstandable power loss", framevisible = false)
+save(joinpath(@__DIR__, "total_power_loss_withstandable_2.png"), fig_total_power_2)
+
+# ============================================================
+# RESERVE BY SOURCE: HVDC, generators, electrolyzers, storage
+# ============================================================
+
+reserve_hvdc_1_vec         = [get(available_HVDC_reserve_1, string(t), 0.0) for t in T]
+reserve_generators_1_vec   = [get(slow_reserve_procured_1_per_hour, string(t), 0.0) for t in T]
+reserve_electrolyzers_1_vec= [get(electrolyzer_reserve_1_per_hour, string(t), 0.0) for t in T]
+reserve_storage_1_vec      = [get(storage_reserve_1_per_hour, string(t), 0.0) for t in T]
+
+reserve_hvdc_2_vec         = [get(available_HVDC_reserve_2, string(t), 0.0) for t in T]
+reserve_generators_2_vec   = [get(slow_reserve_procured_2_per_hour, string(t), 0.0) for t in T]
+reserve_electrolyzers_2_vec= [get(electrolyzer_reserve_2_per_hour, string(t), 0.0) for t in T]
+reserve_storage_2_vec      = [get(storage_reserve_2_per_hour, string(t), 0.0) for t in T]
+
+fig_reserve_1 = Figure()
+ax_reserve_1 = fig_reserve_1[1, 1] = Axis(fig_reserve_1,
+    title  = "Available reserve by source - Area 1 (Nordic)",
+    xlabel = "Time (hours)",
+    ylabel = "Reserve (MW)"
+)
+lines!(ax_reserve_1, reserve_hvdc_1_vec, label = "HVDC")
+lines!(ax_reserve_1, reserve_generators_1_vec, label = "Generators")
+lines!(ax_reserve_1, reserve_electrolyzers_1_vec, label = "Electrolyzers")
+lines!(ax_reserve_1, reserve_storage_1_vec, label = "Storage")
+fig_reserve_1[1, 2] = Legend(fig_reserve_1, ax_reserve_1, "Reserve by source", framevisible = false)
+save(joinpath(@__DIR__, "reserve_by_source_area1.png"), fig_reserve_1)
+
+fig_reserve_2 = Figure()
+ax_reserve_2 = fig_reserve_2[1, 1] = Axis(fig_reserve_2,
+    title  = "Available reserve by source - Area 2 (GB)",
+    xlabel = "Time (hours)",
+    ylabel = "Reserve (MW)"
+)
+lines!(ax_reserve_2, reserve_hvdc_2_vec, label = "HVDC")
+lines!(ax_reserve_2, reserve_generators_2_vec, label = "Generators")
+lines!(ax_reserve_2, reserve_electrolyzers_2_vec, label = "Electrolyzers")
+lines!(ax_reserve_2, reserve_storage_2_vec, label = "Storage")
+fig_reserve_2[1, 2] = Legend(fig_reserve_2, ax_reserve_2, "Reserve by source", framevisible = false)
+save(joinpath(@__DIR__, "reserve_by_source_area2.png"), fig_reserve_2)
+
+fig_safe_inertia_1 = Figure()
+ax_safe_inertia_1 = fig_safe_inertia_1[1, 1] = Axis(fig_safe_inertia_1,
+    title  = "Safe tolerable extra loss of inertia - Area 1 (Nordic)",
+    xlabel = "Time (hours)",
+    ylabel = "Inertia (MW*s)"
+)
+lines!(ax_safe_inertia_1, safe_loss_of_inertia_1_vec, label = "Safe loss of inertia Area 1")
+fig_safe_inertia_1[1, 2] = Legend(fig_safe_inertia_1, ax_safe_inertia_1, "Safe loss of inertia", framevisible = false)
+save(joinpath(@__DIR__, "safe_loss_of_inertia_1.png"), fig_safe_inertia_1)
+
+fig_safe_inertia_2 = Figure()
+ax_safe_inertia_2 = fig_safe_inertia_2[1, 1] = Axis(fig_safe_inertia_2,
+    title  = "Safe tolerable extra loss of inertia - Area 2 (GB)",
+    xlabel = "Time (hours)",
+    ylabel = "Inertia (MW*s)"
+)
+lines!(ax_safe_inertia_2, safe_loss_of_inertia_2_vec, label = "Safe loss of inertia Area 2")
+fig_safe_inertia_2[1, 2] = Legend(fig_safe_inertia_2, ax_safe_inertia_2, "Safe loss of inertia", framevisible = false)
+save(joinpath(@__DIR__, "safe_loss_of_inertia_2.png"), fig_safe_inertia_2)
+
+# ============================================================
+# TXT FILE WITH THE DATA OF EACH PLOT (saved next to this file)
+# ============================================================
+
+open(joinpath(@__DIR__, "safe_loss_plots_data.txt"), "w") do io
+
+    println(io, "===== Total withstandable power loss - Area 1 (Nordic) =====")
+    println(io, rpad("hour", 8), "total_power_loss_withstandable_1 [MW]")
+    for (idx, t) in enumerate(T)
+        println(io, rpad(t, 8), total_power_loss_withstandable_1_vec[idx])
+    end
+    println(io)
+
+    println(io, "===== Total withstandable power loss - Area 2 (GB) =====")
+    println(io, rpad("hour", 8), "total_power_loss_withstandable_2 [MW]")
+    for (idx, t) in enumerate(T)
+        println(io, rpad(t, 8), total_power_loss_withstandable_2_vec[idx])
+    end
+    println(io)
+
+    println(io, "===== Available reserve by source - Area 1 (Nordic) =====")
+    println(io, rpad("hour", 8), rpad("HVDC [MW]", 16), rpad("Generators [MW]", 16), rpad("Electrolyzers [MW]", 18), "Storage [MW]")
+    for (idx, t) in enumerate(T)
+        println(io, rpad(t, 8), rpad(reserve_hvdc_1_vec[idx], 16), rpad(reserve_generators_1_vec[idx], 16), rpad(reserve_electrolyzers_1_vec[idx], 18), reserve_storage_1_vec[idx])
+    end
+    println(io)
+
+    println(io, "===== Available reserve by source - Area 2 (GB) =====")
+    println(io, rpad("hour", 8), rpad("HVDC [MW]", 16), rpad("Generators [MW]", 16), rpad("Electrolyzers [MW]", 18), "Storage [MW]")
+    for (idx, t) in enumerate(T)
+        println(io, rpad(t, 8), rpad(reserve_hvdc_2_vec[idx], 16), rpad(reserve_generators_2_vec[idx], 16), rpad(reserve_electrolyzers_2_vec[idx], 18), reserve_storage_2_vec[idx])
+    end
+    println(io)
+
+    println(io, "===== Safe tolerable extra loss of inertia - Area 1 (Nordic) =====")
+    println(io, rpad("hour", 8), "safe_loss_of_inertia_1 [MW*s]")
+    for (idx, t) in enumerate(T)
+        println(io, rpad(t, 8), safe_loss_of_inertia_1_vec[idx])
+    end
+    println(io)
+
+    println(io, "===== Safe tolerable extra loss of inertia - Area 2 (GB) =====")
+    println(io, rpad("hour", 8), "safe_loss_of_inertia_2 [MW*s]")
+    for (idx, t) in enumerate(T)
+        println(io, rpad(t, 8), safe_loss_of_inertia_2_vec[idx])
+    end
+
+end
+
+println("Safe loss plots and data saved next to res.jl")
+
 return (
+    total_power_loss_withstandable_1_vec = total_power_loss_withstandable_1_vec,
+    total_power_loss_withstandable_2_vec = total_power_loss_withstandable_2_vec,
+    safe_loss_of_inertia_1_vec = safe_loss_of_inertia_1_vec,
+    safe_loss_of_inertia_2_vec = safe_loss_of_inertia_2_vec,
+    reserve_hvdc_1_vec = reserve_hvdc_1_vec,
+    reserve_generators_1_vec = reserve_generators_1_vec,
+    reserve_electrolyzers_1_vec = reserve_electrolyzers_1_vec,
+    reserve_storage_1_vec = reserve_storage_1_vec,
+    reserve_hvdc_2_vec = reserve_hvdc_2_vec,
+    reserve_generators_2_vec = reserve_generators_2_vec,
+    reserve_electrolyzers_2_vec = reserve_electrolyzers_2_vec,
+    reserve_storage_2_vec = reserve_storage_2_vec,
+    Initial_plg1 = Initial_plg1,
+    Initial_plg2 = Initial_plg2,
+    total_power_loss_withstandable_1 = total_power_loss_withstandable_1,
+    total_power_loss_withstandable_2 = total_power_loss_withstandable_2,
     available_HVDC_reserve_1 = available_HVDC_reserve_1,
     available_HVDC_reserve_2 = available_HVDC_reserve_2,
     fast_reserve_procured_1_per_hour = fast_reserve_procured_1_per_hour,
@@ -598,3 +770,8 @@ return (
 )
 
 end
+
+
+resilience_results.extra_loss_of_power_1_per_hour["18"]
+
+resilience_results.safe_loss_of_power_1_per_hour["18"]
