@@ -18,6 +18,7 @@ gurobi = optimizer_with_attributes(Gurobi.Optimizer)
 path = pwd()
 case_file = joinpath(path,"test_system_NORDIC_GB_HVDC.m")
 
+
 # For convenience, use the parser of Powermodels to convert the MATPOWER format file to a Julia dictionary
 data = PowerModels.parse_file(case_file)
 
