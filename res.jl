@@ -143,15 +143,15 @@ available_HVDC_reserve_2=Dict()
 
 
 for t in T
-    if plg1[t]-HVDC_reserve_row_1[t] <= 0
-            available_HVDC_reserve_1[t]=  plg1[t]
+    if plg2[t]-HVDC_reserve_row_1[t] <= 0
+            available_HVDC_reserve_1[t]=  plg2[t]
         else    
             
             available_HVDC_reserve_1[t]= HVDC_reserve_row_1[t]
     end
 
-    if plg2[t]-HVDC_reserve_row_2[t] <= 0
-            available_HVDC_reserve_2[t]=  plg2[t]
+    if plg1[t]-HVDC_reserve_row_2[t] <= 0
+            available_HVDC_reserve_2[t]=  plg1[t]
         else    
             
             available_HVDC_reserve_2[t]= HVDC_reserve_row_2[t]
@@ -623,13 +623,16 @@ reserve_generators_2_vec   = [get(slow_reserve_procured_2_per_hour, string(t), 0
 reserve_electrolyzers_2_vec= [get(electrolyzer_reserve_2_per_hour, string(t), 0.0) for t in T]
 reserve_storage_2_vec      = [get(storage_reserve_2_per_hour, string(t), 0.0) for t in T]
 
+real_hvdc_reserve_1 = [reserve_hvdc_1_vec[idx] - get(safe_power_balance_1_per_hour, string(t), 0.0) for (idx, t) in enumerate(T)]
+real_hvdc_reserve_2 = [reserve_hvdc_2_vec[idx] - get(safe_power_balance_2_per_hour, string(t), 0.0) for (idx, t) in enumerate(T)]
+
 fig_reserve_1 = Figure()
 ax_reserve_1 = fig_reserve_1[1, 1] = Axis(fig_reserve_1,
     title  = "Available reserve by source - Area 1 (Nordic)",
     xlabel = "Time (hours)",
     ylabel = "Reserve (MW)"
 )
-lines!(ax_reserve_1, reserve_hvdc_1_vec, label = "HVDC")
+lines!(ax_reserve_1, real_hvdc_reserve_1, label = "HVDC")
 lines!(ax_reserve_1, reserve_generators_1_vec, label = "Generators")
 lines!(ax_reserve_1, reserve_electrolyzers_1_vec, label = "Electrolyzers")
 lines!(ax_reserve_1, reserve_storage_1_vec, label = "Storage")
@@ -642,7 +645,7 @@ ax_reserve_2 = fig_reserve_2[1, 1] = Axis(fig_reserve_2,
     xlabel = "Time (hours)",
     ylabel = "Reserve (MW)"
 )
-lines!(ax_reserve_2, reserve_hvdc_2_vec, label = "HVDC")
+lines!(ax_reserve_2, real_hvdc_reserve_2, label = "HVDC")
 lines!(ax_reserve_2, reserve_generators_2_vec, label = "Generators")
 lines!(ax_reserve_2, reserve_electrolyzers_2_vec, label = "Electrolyzers")
 lines!(ax_reserve_2, reserve_storage_2_vec, label = "Storage")
@@ -726,6 +729,8 @@ return (
     safe_loss_of_inertia_1_vec = safe_loss_of_inertia_1_vec,
     safe_loss_of_inertia_2_vec = safe_loss_of_inertia_2_vec,
     reserve_hvdc_1_vec = reserve_hvdc_1_vec,
+    real_hvdc_reserve_1 = real_hvdc_reserve_1,
+    real_hvdc_reserve_2 = real_hvdc_reserve_2,
     reserve_generators_1_vec = reserve_generators_1_vec,
     reserve_electrolyzers_1_vec = reserve_electrolyzers_1_vec,
     reserve_storage_1_vec = reserve_storage_1_vec,
@@ -772,6 +777,3 @@ return (
 end
 
 
-resilience_results.extra_loss_of_power_1_per_hour["18"]
-
-resilience_results.safe_loss_of_power_1_per_hour["18"]

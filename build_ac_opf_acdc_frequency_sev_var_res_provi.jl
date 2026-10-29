@@ -1141,24 +1141,24 @@ function build_ac_opf_acdc_frequency_sev_var_res_provi!(m::Model)
 
         #Reserve electrolyzer bound constraint per areas and type of contigency
         m.ext[:constraints][:reserve_electrolyzer_lg1]=@constraint(m, [e=E1, t=T],
-            re_lg1[e,t] <=  pe[e,t]-Epmin[e] * ze[e,t] 
+            re_lg1[e,t] <=  pe[e,t]-Epmin[e] * ze[e,t]-0.05*Epmax[e]*zestb[e,t] 
         )
         m.ext[:constraints][:reserve_electrolyzer_lc1]=@constraint(m, [e=E1, t=T],
-            re_lc1[e,t] <=  pe[e,t]-Epmin[e] * ze[e,t] 
+            re_lc1[e,t] <=  pe[e,t]-Epmin[e] * ze[e,t]-0.05*Epmax[e]*zestb[e,t]
         )
 
         m.ext[:constraints][:reserve_electrolyzer_l_reserve_1]=@constraint(m, [e=E1, t=T],
-        re_l_reserve_1[e,t] <=  pe[e,t]-Epmin[e] * ze[e,t] 
+        re_l_reserve_1[e,t] <=  pe[e,t]-Epmin[e] * ze[e,t]-0.05*Epmax[e]*zestb[e,t]
         )
 
         m.ext[:constraints][:reserve_electrolyzer_lg2]=@constraint(m, [e=E2, t=T],
-            re_lg2[e,t] <=  pe[e,t]-Epmin[e] * ze[e,t] 
+            re_lg2[e,t] <=  pe[e,t]-Epmin[e] * ze[e,t]-0.05*Epmax[e]*zestb[e,t]
         )
         m.ext[:constraints][:reserve_electrolyzer_lc2]=@constraint(m, [e=E2, t=T],
-            re_lc2[e,t] <=  pe[e,t]-Epmin[e] * ze[e,t] 
+            re_lc2[e,t] <=  pe[e,t]-Epmin[e] * ze[e,t]-0.05*Epmax[e]*zestb[e,t] 
         )
         m.ext[:constraints][:reserve_electrolyzer_l_reserve_2]=@constraint(m, [e=E2, t=T],
-        re_l_reserve_2[e,t] <=  pe[e,t]-Epmin[e] * ze[e,t] 
+        re_l_reserve_2[e,t] <=  pe[e,t]-Epmin[e] * ze[e,t] -0.05*Epmax[e]*zestb[e,t]
         )
 
         

@@ -10,7 +10,7 @@ using Pkg
 using PowerModels,  Gurobi, JuMP, CSV, DataFrames, CairoMakie
 # Pkg.add("Plots") # if Plots package not added yet, for plotting results
 
-
+t0 = time()
 gurobi = optimizer_with_attributes(Gurobi.Optimizer)
 
 ##### Step 1: Import the grid data and initialize the JuMP model
@@ -49,7 +49,7 @@ process_parameters!(m, data,ts,tsw,tss) # Pass the parameters to the JuMP model
 ##### Step 3: Build the model
 include(joinpath(path,"printparameters_frequency_sev_var_res_provi.jl")) # Define build_ac_opf_acdc! function
 include(joinpath(path,"build_ac_opf_acdc_frequency_sev_var_res_provi.jl")) # Define build_ac_opf_acdc! function
-include(joinpath(path,"build_ac_opf_acdc_frequency_sev_var_res_provi_optimized.jl")) # Define build_ac_opf_acdc! function
+
 
 #build_ac_opf_acdc_modify!(m) # Pass the model to the build_ac_opf_acdc! function
 #build_ac_opf_acdc_frequency!(m) # Pass the model to the build_ac_opf_acdc! function
@@ -63,8 +63,13 @@ build_ac_opf_acdc_frequency_sev_var_res_provi!(m)
 
 # set_optimizer_attribute(m, "DualReductions", 0)
 # set_optimizer_attribute(m, "InfUnbdInfo", 1)
-set_optimizer_attribute(m, "MIPGap", 0.0001) 
+set_optimizer_attribute(m, "MIPGap", 0.0001)
 optimize!(m)
+# ... bloque 1 ...
+t1 = time()
+
+println("Bloque 1: ", t1 - t0, " s")
+
 # @show termination_status(m)
 
 # compute_conflict!(m)
@@ -89,7 +94,7 @@ printparameters_frequency_sev_var_res_provi!(m) # Plot the results
 filename = "1_objective.txt"
 
 open(filename, "w") do file
-    
+
     println(file, "Objective: ", objective_value(m))
 end
 
